@@ -13,6 +13,14 @@
   }
 }
 
+.homepage {
+  background-image: url('./asset/images/background.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover; 
+  height: 100vh;         
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
