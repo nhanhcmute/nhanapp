@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import FacebookLogin from 'react-facebook-login';
 import GitHubLogin from 'react-github-login';
 import { Button, TextField, Container, Typography, Box, Paper } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
@@ -21,20 +20,6 @@ const SocialLoginPage = ({ setUser }) => {
       .catch((error) => console.log(error));
   };
 
-  const handleLoginSuccessFacebook = (response) => {
-    const token = response.accessToken;
-    fetch('/api/login/facebook', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
-      })
-      .catch((error) => console.log(error));
-  };
 
   const handleLoginSuccessGitHub = (response) => {
     const token = response.code;
@@ -69,25 +54,7 @@ const SocialLoginPage = ({ setUser }) => {
         }}
         text="signin_with"
       />
-      <FacebookLogin
-        appId="YOUR_FACEBOOK_APP_ID"
-        autoLoad={false}
-        fields="name,email,picture"
-        callback={handleLoginSuccessFacebook}
-        cssClass="social-button facebook-button"
-        style={{
-          width: '100%',
-          padding: '10px',
-          backgroundColor: '#3b5998',
-          color: 'white',
-          borderRadius: 2,
-          fontSize: '16px',
-          textAlign: 'center',
-          margin: '10px 0',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-      />
+
       <GitHubLogin
         clientId="YOUR_GITHUB_CLIENT_ID"
         onSuccess={handleLoginSuccessGitHub}
