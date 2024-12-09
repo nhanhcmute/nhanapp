@@ -16,7 +16,6 @@
     "react-chartjs-2": "^5.2.0",
     "react-csv": "^2.2.2",
     "react-dom": "^18.0.0",  
-    "react-facebook-login": "^4.1.1",
     "react-github-login": "^1.0.3",
     "react-hook-form": "^7.54.0",
     "react-router-dom": "^7.0.2",
