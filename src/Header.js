@@ -142,13 +142,15 @@ function Header() {
                             horizontal: 'right',
                         }}
                         sx={{
-                            zIndex: 1301, // Đảm bảo Menu sẽ hiển thị trên các phần tử khác
+                            zIndex: 1301, 
                             marginTop: '5px',
                         }}
                     >
                         <MenuItem onClick={() => handleNavigate('/profile')}>Tài khoản của tôi</MenuItem>
                         <MenuItem onClick={() => handleNavigate('/orders')}>Đơn Hàng</MenuItem>
                         <MenuItem onClick={() => handleNavigate('/logout')}>Đăng xuất</MenuItem>
+                        <MenuItem onClick={() => handleNavigate('/admin')}>Admin</MenuItem>
+
                     </Menu>
 
                     {/* Navigation Buttons */}

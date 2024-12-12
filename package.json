@@ -18,9 +18,10 @@
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.54.0",
     "react-router-dom": "^7.0.2",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-toastify": "^10.0.6",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "webpack": "^5.97.1"
   },
   "scripts": {
     "start": "react-scripts start",
