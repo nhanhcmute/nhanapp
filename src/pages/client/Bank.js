@@ -22,9 +22,9 @@ const Bank = () => {
     balance: 0,
     logo: ''
   });
-  const [showBalanceId, setShowBalanceId] = useState(null); // Biến để lưu trữ ID của ngân hàng có số dư đang được hiển thị
+  const [showBalanceId, setShowBalanceId] = useState(null);
+  const [error, setError] = useState('');
 
-  // Lưu dữ liệu ngân hàng vào localStorage khi có sự thay đổi
   useEffect(() => {
     localStorage.setItem('banks', JSON.stringify(banks));
   }, [banks]);
@@ -42,16 +42,22 @@ const Bank = () => {
       return;
     }
 
+    if (!/^\d+$/.test(newBank.accountNumber)) {
+      setError('Số tài khoản chỉ được chứa các chữ số.');
+      return;
+    }
+
     const bankData = { ...newBank, id: Date.now() };
     const updatedBanks = [...banks, bankData];
     setBanks(updatedBanks);
     setOpenDialog(false);
     setNewBank({ bankName: '', accountNumber: '', accountHolder: '', balance: 0, logo: '' });
+    setError('');
   };
 
   // Ẩn/hiện số dư
   const toggleBalanceVisibility = (id) => {
-    setShowBalanceId(showBalanceId === id ? null : id); // Chỉ hiển thị số dư của ngân hàng có ID được chọn
+    setShowBalanceId(showBalanceId === id ? null : id);
   };
 
   // Hàm ẩn số tài khoản
@@ -64,13 +70,14 @@ const Bank = () => {
 
   const handleDialogClose = () => {
     setOpenDialog(false);
+    setError('');
   };
 
   return (
     <Box display="flex">
-        <Sidebar />
-        <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+      <Sidebar />
+      <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>
             Quản Lý Ngân Hàng
           </Typography>
@@ -111,7 +118,7 @@ const Bank = () => {
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center' }}>
                       {/* Hiển thị logo cùng với tên ngân hàng */}
-                      <img src={bank.logo} style={{ width: 30, height: 30, marginRight: 10 }} />
+                      <img src={bank.logo} style={{ width: 30, height: 30, marginRight: 10 }} alt="Bank Logo" />
                       {bank.bankName} - {bank.accountHolder}
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#555' }}>
@@ -125,6 +132,7 @@ const Bank = () => {
                         {showBalanceId === bank.id ? <VisibilityOffIcon /> : <VisibilityIcon />}
                       </IconButton>
                     </Box>
+                    {error && <Typography variant="body2" sx={{ color: 'red', marginTop: 1 }}>{error}</Typography>}
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <IconButton color="primary" onClick={() => console.log(`Edit bank with ID: ${bank.id}`)}>
@@ -191,19 +199,12 @@ const Bank = () => {
               onChange={(e) => setNewBank({ ...newBank, balance: parseFloat(e.target.value) })}
               sx={{ marginBottom: 2 }}
             />
+            {error && <Typography variant="body2" sx={{ color: 'red', marginTop: 1 }}>{error}</Typography>}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogClose} color="secondary">
               Hủy
             </Button>
             <Button onClick={handleAddBank} color="primary">
-              Thêm
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-    </Box>
-  );
-};
-
-export default Bank;
+              Thêm </Button> </DialogActions> </Dialog> </Box> </Box>);
+}; export default Bank;

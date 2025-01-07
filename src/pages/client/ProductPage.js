@@ -27,7 +27,12 @@ const ProductPage = () => {
 
   const handleAddToCart = () => {
     addToCart(product);
-    setOpenSnackbar(true); // Thêm sản phẩm vào giỏ hàng
+    setOpenSnackbar(true);
+  };
+
+  const handleBuyNow = () => {
+    addToCart(product);
+    navigate('/cart');
   };
 
   const handleCloseSnackbar = () => {
@@ -41,6 +46,10 @@ const ProductPage = () => {
   if (!product) {
     return <Typography variant="h6" align="center">Sản phẩm không tồn tại.</Typography>;
   }
+
+  const statusColor =
+    product.status === "Hết hàng" ? "error" :
+      product.status === "Ngừng kinh doanh" ? "grey" : "success";
 
   return (
     <Container>
@@ -58,26 +67,59 @@ const ProductPage = () => {
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography variant="h4" gutterBottom>
-            {product.name}
-          </Typography>
-          <Typography variant="body1" paragraph>
-            {product.description}
-          </Typography>
-          <Typography variant="h5" color="primary" sx={{ mb: 2 }}>
-            {product.price} VND
-          </Typography>
-          <Button onClick={handleAddToCart} variant="contained" color="primary" sx={{ mt: 2 }}>
-            Thêm vào giỏ hàng
-          </Button>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+            {/* Tên sản phẩm */}
+            <Typography variant="h4" gutterBottom>
+              {product.name}
+            </Typography>
+
+            {/* Mô tả sản phẩm */}
+            <Typography
+              variant="body1"
+              paragraph
+              sx={{
+                flexGrow: 1, // Để mô tả chiếm không gian còn lại
+                display: 'flex',
+                justifyContent: 'justify', // Căn đều chữ
+                wordBreak: 'break-word',  // Đảm bảo từ dài không bị tràn
+                flexWrap: 'wrap',  // Giúp văn bản xuống dòng khi cần
+              }}
+            >
+              {product.description || 'Mô tả không có sẵn'}
+            </Typography>
+
+            {/* Trạng thái sản phẩm */}
+            <Typography
+              variant="body2"
+              color={statusColor} // Màu sắc trạng thái
+              paragraph
+            >
+              <strong>Trạng thái:</strong> {product.status || 'Chưa có trạng thái'}
+            </Typography>
+
+            {/* Giá sản phẩm */}
+            <Typography variant="h5" color="primary" sx={{ mb: 2 }}>
+              {product.price} VND
+            </Typography>
+
+            {/* Nút thêm vào giỏ hàng và mua ngay */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <Button onClick={handleAddToCart} variant="contained" color="primary" sx={{ mt: 2 }}>
+                Thêm vào giỏ hàng
+              </Button>
+              <Button onClick={handleBuyNow} variant="contained" color="error" sx={{ mt: 2 }}>
+                Mua ngay
+              </Button>
+            </div>
+          </div>
         </Grid>
       </Grid>
-      
+
       {/* Tích hợp RatingAndReviews */}
       <RatingAndReviews productId={id} />
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={3000} // Tự động đóng sau 3 giây
+        autoHideDuration={3000}
         onClose={handleCloseSnackbar}
       >
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
