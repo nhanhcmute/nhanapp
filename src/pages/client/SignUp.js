@@ -9,10 +9,10 @@ const SignupPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false); // Thêm trạng thái để hiển thị thông báo thành công
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     setError('');
     setSuccess(false);
 
@@ -27,29 +27,41 @@ const SignupPage = () => {
       return;
     }
 
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailRegex.test(email)) {
-      setError('Định dạng email không hợp lệ!');
-      return;
-    }
-
-    const strongPasswordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!strongPasswordRegex.test(password)) {
-      setError('Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, số và ký tự đặc biệt.');
-      return;
-    }
-
-    // Lưu thông tin người dùng (có thể thay bằng API)
     const userData = { name, email, username, password };
-    localStorage.setItem('user', JSON.stringify(userData));
 
-    // Hiển thị thông báo đăng ký thành công
-    setSuccess(true);
+    try {
+      // Kiểm tra tên đăng nhập đã tồn tại hay chưa
+      const checkUsernameResponse = await fetch('http://localhost:5000/signup');
+      const users = await checkUsernameResponse.json();
+      const existingUser = users.find((user) => user.username === username);
 
-    // Tự động chuyển hướng sau 2 giây
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
+      if (existingUser) {
+        setError('Tên đăng nhập đã tồn tại!');
+        return;
+      }
+
+      // Nếu tên đăng nhập chưa tồn tại, gửi yêu cầu POST để đăng ký người dùng mới
+      const response = await fetch('http://localhost:5000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSuccess(true); // Đăng ký thành công
+        setTimeout(() => {
+          navigate('/login'); // Chuyển hướng về trang đăng nhập
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Đăng ký thất bại!');
+      }
+    } catch (err) {
+      setError('Đã xảy ra lỗi khi kết nối đến máy chủ!');
+    }
   };
 
   return (

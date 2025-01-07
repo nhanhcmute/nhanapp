@@ -1,66 +1,114 @@
-import React, { useState } from 'react';
-import { TextField, InputAdornment, ListItemText, Menu, IconButton, Divider, MenuItem, Avatar, AppBar, Toolbar, Typography, Button, Box, Badge } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+    TextField, InputAdornment, Menu, IconButton, Divider, MenuItem, Avatar,
+    AppBar, Toolbar, Button, Box, Badge, ListItemText, Typography,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useCart } from './function/CartContext';
+import axios from 'axios';
 import logo from './asset/images/logo.png';
 
 function Header() {
-    const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+    const { cart, getTotalQuantity } = useCart();
+    const [searchQuery, setSearchQuery] = useState('');
     const [user, setUser] = useState(null);
+    const [alerts, setAlerts] = useState([]);
     const [anchorElNotification, setAnchorElNotification] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
-    const [openNotification, setOpenNotification] = useState(false);
-    const [openUser, setOpenUser] = useState(false);
-
-    const notifications = [
-        { id: 1, message: "Bạn có đơn hàng mới." },
-        { id: 2, message: "Cập nhật tài khoản thành công." },
-        { id: 3, message: "Khách hàng đã đánh giá sản phẩm." },
-    ];
 
     const openNotificationMenu = Boolean(anchorElNotification);
     const openUserMenu = Boolean(anchorElUser);
 
+    // Lấy thông tin user từ localStorage
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            setUser(storedUser);
+        }
+    }, []);
+
+    // Lấy dữ liệu thông báo từ API
+    useEffect(() => {
+        axios.get('http://localhost:5000/notifications')
+            .then((response) => {
+                const data = response.data.map((alert) => ({
+                    ...alert,
+                    isRead: alert.isRead || false,
+                }));
+
+                // Sắp xếp thông báo theo timestamp từ mới đến cũ
+                const sortedAlerts = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                setAlerts(sortedAlerts);
+            })
+            .catch((error) => console.error('Lỗi khi lấy thông báo:', error));
+    }, []);
+
+    // Tính số lượng thông báo chưa đọc
+    const unreadCount = alerts.filter((alert) => !alert.isRead).length;
+    // Tính tổng số lượng sản phẩm trong giỏ hàng
+    const totalQuantity = getTotalQuantity();
+    // Xử lý mở menu thông báo
     const handleClickNotification = (event) => {
         setAnchorElNotification(event.currentTarget);
-        setOpenNotification(true);
     };
 
     const handleCloseNotification = () => {
         setAnchorElNotification(null);
-        setOpenNotification(false);
     };
 
+    // Xử lý mở menu user
     const handleUserClick = (event) => {
         setAnchorElUser(event.currentTarget);
-        setOpenUser(true);
     };
 
     const handleUserClose = () => {
         setAnchorElUser(null);
-        setOpenUser(false);
     };
 
+    // Điều hướng khi tìm kiếm
     const handleSearch = () => {
-        if (searchQuery) {
+        if (searchQuery.trim()) {
             navigate(`/search?query=${searchQuery}`);
         }
     };
 
-    const handleNavigate = (path) => {
-        navigate(path);
-        setOpenUser(false); // Đóng menu khi chọn mục
+    // Đăng xuất người dùng
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        navigate('/login');
+    };
+
+    // Cập nhật thông báo là đã đọc
+    const handleMarkAsRead = (alertId) => {
+        // Cập nhật trong state trước
+        setAlerts((prevAlerts) =>
+            prevAlerts.map((alert) =>
+                alert.id === alertId ? { ...alert, isRead: true } : alert
+            )
+        );
+
+        // Gửi yêu cầu PUT để cập nhật trạng thái thông báo đã đọc trong API
+        axios.patch(`http://localhost:5000/notifications/${alertId}`, { isRead: true })
+            .catch((error) => console.error('Lỗi khi cập nhật thông báo:', error));
     };
 
     return (
         <AppBar position="sticky" sx={{ backgroundColor: '#001f3d', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)' }}>
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {/* Logo */}
-                <Avatar onClick={() => navigate('/homepage')} src={logo} alt="Nhân's Pet Haven logo" sx={{ width: '50px', height: '50px', cursor: 'pointer' }} />
+                <Avatar
+                    onClick={() => navigate('/homepage')}
+                    src={logo}
+                    alt="Nhân's Pet Haven logo"
+                    sx={{ width: 50, height: 50, cursor: 'pointer' }}
+                />
 
                 {/* Search Bar */}
                 <TextField
@@ -86,41 +134,98 @@ function Header() {
                     }}
                 />
 
-                {/* Right side buttons */}
+                {/* Right-side buttons */}
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {/* Cart */}
                     <IconButton color="inherit" sx={{ marginRight: '10px' }} onClick={() => navigate('/cart')}>
-                        <Badge badgeContent={4} color="error">
+                    <Badge badgeContent={totalQuantity} color="error">
                             <ShoppingCartIcon />
                         </Badge>
                     </IconButton>
 
                     {/* Notifications */}
-                    <IconButton aria-label="notifications" onClick={handleClickNotification} color="inherit" sx={{ marginRight: '10px' }}>
-                        <Badge badgeContent={notifications.length} color="error">
+                    <IconButton
+                        aria-label="notifications"
+                        onClick={handleClickNotification}
+                        color="inherit"
+                        sx={{ marginRight: '10px' }}
+                    >
+                        <Badge badgeContent={unreadCount} color="error">
                             <NotificationsIcon />
                         </Badge>
                     </IconButton>
+
                     <Menu
                         anchorEl={anchorElNotification}
                         open={openNotificationMenu}
                         onClose={handleCloseNotification}
                         anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "right",
+                            vertical: 'bottom',
+                            horizontal: 'right',
                         }}
                         transformOrigin={{
-                            vertical: "top",
-                            horizontal: "right",
+                            vertical: 'top',
+                            horizontal: 'right',
                         }}
                     >
-                        {notifications.map((notification) => (
-                            <MenuItem key={notification.id} onClick={handleCloseNotification}>
-                                <ListItemText primary={notification.message} />
+                        {alerts.length > 0 ? (
+                            alerts.slice(0, 5).map((alert) => (
+                                <MenuItem
+                                    key={alert.id}
+                                    onClick={() => {
+                                        handleMarkAsRead(alert.id);
+                                        handleCloseNotification();
+                                    }}
+                                    sx={{
+                                        display: 'flex',
+                                        padding: '10px',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <Box>
+                                            <Typography
+                                                variant="body1"
+                                                sx={{
+                                                    color: 'black',
+                                                    marginTop: '5px',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    maxWidth: '230px',
+                                                }}
+                                            >
+                                                {alert.message}
+                                            </Typography>
+                                            <Typography
+                                                variant="caption"
+                                                sx={{ color: '#888', marginTop: '5px', display: 'block' }}
+                                            >
+                                                {new Date(alert.timestamp).toLocaleString()}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                    {!alert.isRead && (
+                                        <Box
+                                            sx={{
+                                                width: '8px',
+                                                height: '8px',
+                                                borderRadius: '50%',
+                                                backgroundColor: '#FF6F61',
+                                                marginLeft: '10px',
+                                            }}
+                                        />
+                                    )}
+                                </MenuItem>
+                            ))
+                        ) : (
+                            <MenuItem onClick={handleCloseNotification}>
+                                <ListItemText primary="Không có thông báo" />
                             </MenuItem>
-                        ))}
+                        )}
                         <Divider />
-                        <MenuItem onClick={handleCloseNotification}>
+                        <MenuItem onClick={() => navigate('/alerts')}>
                             <ListItemText primary="Xem tất cả thông báo" />
                         </MenuItem>
                     </Menu>
@@ -141,16 +246,54 @@ function Header() {
                             vertical: 'top',
                             horizontal: 'right',
                         }}
-                        sx={{
-                            zIndex: 1301, 
-                            marginTop: '5px',
-                        }}
                     >
-                        <MenuItem onClick={() => handleNavigate('/profile')}>Tài khoản của tôi</MenuItem>
-                        <MenuItem onClick={() => handleNavigate('/orders')}>Đơn Hàng</MenuItem>
-                        <MenuItem onClick={() => handleNavigate('/logout')}>Đăng xuất</MenuItem>
-                        <MenuItem onClick={() => handleNavigate('/admin')}>Admin</MenuItem>
-
+                        {user ? (
+                            <>
+                                <MenuItem
+                                    onClick={() => {
+                                        navigate('/profile');
+                                        handleUserClose();
+                                    }}
+                                >
+                                    Tài khoản của tôi
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        navigate('/orders');
+                                        handleUserClose();
+                                    }}
+                                >
+                                    Đơn hàng
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        handleLogout();
+                                        handleUserClose();
+                                    }}
+                                >
+                                    Đăng xuất
+                                </MenuItem>
+                            </>
+                        ) : (
+                            <>
+                                <MenuItem
+                                    onClick={() => {
+                                        navigate('/login');
+                                        handleUserClose();
+                                    }}
+                                >
+                                    Đăng nhập
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        navigate('/signup');
+                                        handleUserClose();
+                                    }}
+                                >
+                                    Đăng ký
+                                </MenuItem>
+                            </>
+                        )}
                     </Menu>
 
                     {/* Navigation Buttons */}
@@ -159,13 +302,10 @@ function Header() {
                     <Button onClick={() => navigate('/aboutus')} color="inherit" sx={{ marginRight: '10px' }}>About Us</Button>
                     <Button onClick={() => navigate('/contact')} color="inherit" sx={{ marginRight: '10px' }}>Contact</Button>
 
-                    {/* Auth Buttons */}
-                    {user ? (
-                        <Button color="inherit" onClick={() => navigate('/profile')}>Profile</Button>
-                    ) : (
+                    {!user && (
                         <>
-                            <Button onClick={() => navigate('/login')} color="inherit" sx={{ marginRight: '10px' }}>Đăng nhập</Button>
-                            <Button onClick={() => navigate('/signup')} color="inherit">Đăng ký</Button>
+                            <Button onClick={() => navigate('/login')} color="inherit">Đăng Nhập</Button>
+                            <Button onClick={() => navigate('/signup')} color="inherit">Đăng Ký</Button>
                         </>
                     )}
                 </Box>
