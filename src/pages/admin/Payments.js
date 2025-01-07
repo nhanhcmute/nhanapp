@@ -35,7 +35,7 @@ const Payments = () => {
   };
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box sx={{ padding: 3 }}> 
       <Typography variant="h4" gutterBottom>
         Quản lý thanh toán
       </Typography>

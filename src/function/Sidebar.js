@@ -1,18 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Avatar, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import { AccountCircle, Home, CreditCard, Lock, Notifications, PrivacyTip, ShoppingCart, CardGiftcard } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useEffect } from 'react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
 
+  // Cấu hình các menu items
   const accountMenuItems = [
     { icon: <AccountCircle />, text: 'Hồ sơ', route: '/profile' },
     { icon: <Home />, text: 'Địa chỉ', route: '/address' },
     { icon: <CreditCard />, text: 'Ngân hàng', route: '/bank' },
-    { icon: <Lock />, text: 'Đổi mật khẩu', route: '/change-password' },
+    { icon: <Lock />, text: 'Đổi mật khẩu', route: '/changepassword' },
     { icon: <Notifications />, text: 'Cài đặt thông báo', route: '/notificationsetting' },
     { icon: <PrivacyTip />, text: 'Thiết lập riêng tư', route: '/privacy' },
   ];
@@ -23,8 +22,18 @@ const Sidebar = () => {
     { icon: <CardGiftcard />, text: 'Voucher', route: '/voucher' },
   ];
 
-  // State để lưu trữ ảnh
+  // Lấy avatar và username từ LocalStorage
   const [avatarImage, setAvatarImage] = useState(null);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user')); // Lấy đối tượng user từ localStorage
+
+    if (storedUser) {
+      setUsername(storedUser.username); // Lấy username từ đối tượng user
+      setAvatarImage(storedUser.avatar); // Lấy avatar từ đối tượng user (nếu có)
+    }
+  }, []);
 
   // Hàm để xử lý upload ảnh
   const handleAvatarChange = (event) => {
@@ -32,21 +41,17 @@ const Sidebar = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Lưu ảnh vào LocalStorage
-        localStorage.setItem("avatar", reader.result);
-        setAvatarImage(reader.result); // Cập nhật avatar ngay lập tức
+        // Lưu avatar vào LocalStorage
+        const newAvatar = reader.result;
+        const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+        storedUser.avatar = newAvatar; // Thêm avatar mới vào user
+        localStorage.setItem('user', JSON.stringify(storedUser)); // Lưu lại đối tượng user với avatar mới
+
+        setAvatarImage(newAvatar); // Cập nhật avatar ngay lập tức
       };
       reader.readAsDataURL(file);
     }
   };
-  
-  // Khi load trang, kiểm tra và cập nhật avatar từ LocalStorage
-  useEffect(() => {
-    const storedAvatar = localStorage.getItem("avatar");
-    if (storedAvatar) {
-      setAvatarImage(storedAvatar);
-    }
-  }, []);
 
   return (
     <Box
@@ -67,27 +72,27 @@ const Sidebar = () => {
         }}
       >
         <Avatar
-        onClick={() => document.getElementById("avatar-upload").click()} // Mở cửa sổ chọn file khi click vào avatar
-        style={{ cursor: "pointer" }}
-        sx={{
-          width: 40,
-          height: 40,
-          backgroundColor: "primary.main",
-          marginRight: 2,
-          backgroundImage: avatarImage ? `url(${avatarImage})` : "none", // Nếu có ảnh, set ảnh vào avatar
-          backgroundSize: "cover", // Đảm bảo ảnh bao phủ avatar
-        }}
-      />
-      <input
-        id="avatar-upload"
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleAvatarChange} // Khi chọn ảnh, sẽ cập nhật avatar
-      />
+          onClick={() => document.getElementById("avatar-upload").click()} 
+          style={{ cursor: "pointer" }}
+          sx={{
+            width: 40,
+            height: 40,
+            backgroundColor: "primary.main",
+            marginRight: 2,
+            backgroundImage: avatarImage ? `url(${avatarImage})` : "none", 
+            backgroundSize: "cover", 
+          }}
+        />
+        <input
+          id="avatar-upload"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleAvatarChange} 
+        />
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333' }}>
-            Tên User
+            {username || 'Tên User'} {/* Hiển thị username nếu có, hoặc 'Tên User' nếu chưa có */}
           </Typography>
           <Typography variant="body2" sx={{ color: '#555' }}>
             Tài khoản của tôi
@@ -108,9 +113,9 @@ const Sidebar = () => {
             button
             onClick={() => navigate(item.route)}
             sx={{
-              borderRadius: '8px',
+              cursor: "pointer",
               '&:hover': {
-                backgroundColor: 'primary.light',
+                backgroundColor: '#e2e6ea',
               },
             }}
           >
@@ -133,9 +138,9 @@ const Sidebar = () => {
             button
             onClick={() => navigate(item.route)}
             sx={{
-              borderRadius: '8px',
+              cursor: "pointer",
               '&:hover': {
-                backgroundColor: 'primary.light',
+                backgroundColor: '#e2e6ea',
               },
             }}
           >

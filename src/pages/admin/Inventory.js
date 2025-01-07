@@ -172,40 +172,56 @@ function Inventory() {
 
       {/* Danh sách sản phẩm */}
       <Grid container spacing={3}>
-        {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} key={product.id}>
-            <Paper elevation={3} sx={{ padding: 2 }}>
-              <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
-                <img
-                  src={product.image || 'https://via.placeholder.com/150'}
-                  alt={product.name}
-                  style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px' }}
-                />
-              </Box>
-              <Typography variant="h6">Tên sản phẩm: {product.name}</Typography>
-              <Typography variant="body1">Số lượng: {product.quantity}</Typography>
-              <Typography variant="body1">Giá: {product.price} VNĐ</Typography>
-              <Box sx={{ marginTop: 2 }}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => handleOpenDialog(product)}
-                  sx={{ marginRight: 1 }}
-                >
-                  Sửa
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleDeleteProduct(product.id)}
-                >
-                  Xóa
-                </Button>
-              </Box>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
+  {products.map((product) => (
+    <Grid item xs={12} sm={6} md={4} key={product.id}>
+      <Paper 
+        elevation={6} 
+        sx={{
+          padding: 2, 
+          height: '100%', 
+          transition: 'transform 0.3s', 
+          '&:hover': { transform: 'scale(1.05)' },
+          marginBottom: '20px' // Thêm khoảng cách dưới mỗi Paper
+        }}
+      >
+        <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
+          <img
+            src={product.image || 'https://via.placeholder.com/150'}
+            alt={product.name}
+            style={{
+              width: '150px',
+              height: '150px',
+              objectFit: 'cover',
+              borderRadius: '8px',
+              marginBottom: '10px',
+            }}
+          />
+        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{product.name}</Typography>
+        <Typography variant="body1" color="textSecondary">Số lượng: {product.quantity}</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 'bold', marginTop: '10px' }}>Giá: {product.price} VNĐ</Typography>
+        <Box sx={{ marginTop: 2 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => handleOpenDialog(product)}
+            sx={{ marginRight: 1, padding: '6px 16px', fontSize: '0.875rem' }}
+          >
+            Sửa
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => handleDeleteProduct(product.id)}
+            sx={{ padding: '6px 16px', fontSize: '0.875rem' }}
+          >
+            Xóa
+          </Button>
+        </Box>
+      </Paper>
+    </Grid>
+  ))}
+</Grid>
 
       {/* Dialog Thêm / Sửa sản phẩm */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -240,7 +256,12 @@ function Inventory() {
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px' }}
+                    style={{
+                      width: '150px',
+                      height: '150px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                    }}
                   />
                 </Box>
               )}

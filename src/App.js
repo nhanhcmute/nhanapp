@@ -13,7 +13,6 @@ import PersonalInfoPage from './pages/client/PersonalInfoPage';
 import ProductList from './pages/client/ProductList';
 import CartPage from './pages/client/CartPage';
 import CheckoutPage from './pages/client/CheckoutPage';
-import EditProfilePage from './pages/client/EditProfilePage';
 import OrderPage from './pages/client/OrderPage';
 import AddressPage from './pages/client/AddressPage';
 import ExpertAdvicePage from './pages/client/ExpertAdvicePage';
@@ -26,6 +25,8 @@ import AboutUs from './pages/client/AboutUs';
 import Contact from './pages/client/Contact';
 import Blog from './pages/client/Blog';
 import Pricacy from './pages/client/Privacy';
+import ChangePassword from './pages/client/ChangePassword';
+import Voucher from './pages/client/Voucher';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -49,6 +50,10 @@ import AdminLayout from './function/AdminLayout';
 
 // Context
 import { CartProvider } from './function/CartContext';
+
+// AdminRoute bảo vệ các route của admin
+import AdminRoute from './component/AdminRoute';
+
 function App() {
   const [user, setUser] = useState(null);
 
@@ -63,7 +68,7 @@ function App() {
             <Route element={<LayoutPage />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/homepage" element={<HomePage />} />
-              <Route path="/nhanpet" element={<HomePage/>} />
+              <Route path="/nhanpet" element={<HomePage />} />
               <Route path="/login" element={<LoginPage setUser={setUser} />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/product/:id" element={<ProductPage />} />
@@ -72,37 +77,136 @@ function App() {
               <Route path="/productlist" element={<ProductList />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/edit-profile" element={<EditProfilePage />} />
               <Route path="/orders" element={<OrderPage />} />
               <Route path="/address" element={<AddressPage />} />
-              <Route path="/bank" element={<Bank/>} />
-              <Route path="/notificationsetting" element={<NotificationSetting/>}/>
-              <Route path="/expertadvice" element={<ExpertAdvicePage/>} />
-              <Route path="/supplies" element={<PetSuppliesPage/>} />
-              <Route path="/exclusivedeals" element={<ExclusiveDealsPage/>} />
-              <Route path="/aboutus" element={<AboutUs/>} />
-              <Route path="/contact" element={<Contact/>} />
-              <Route path="/blog" element={<Blog/>} />
-              <Route path="/privacy" element={<Pricacy/>} />
-              <Route path="/alerts" element={<Alerts/>} />
+              <Route path="/bank" element={<Bank />} />
+              <Route path="/notificationsetting" element={<NotificationSetting />} />
+              <Route path="/expertadvice" element={<ExpertAdvicePage />} />
+              <Route path="/petsupplies" element={<PetSuppliesPage />} />
+              <Route path="/exclusivedeals" element={<ExclusiveDealsPage />} />
+              <Route path="/aboutus" element={<AboutUs />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/privacy" element={<Pricacy />} />
+              <Route path="/alerts" element={<Alerts />} />
+              <Route path="/changepassword" element={<ChangePassword/>}/>
+              <Route path="/voucher" element={<Voucher/>} />
             </Route>
 
             {/* Routes dành cho Admin */}
             <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/products" element={<Products />} />
-              <Route path="/admin/ordermanagement" element={<Orders />} />
-              <Route path="/admin/customers" element={<CustomerManagement />} />
-              <Route path="/admin/inventory" element={<Inventory />} />
-              <Route path="/admin/promotions" element={<Promotions />} />
-              <Route path="/admin/reports" element={<Reports />} />
-              <Route path="/admin/usermanagement" element={<UserManagementPage />} />
-              <Route path="/admin/notifications" element={<NotificationsPage />} />
-              <Route path="/admin/settings" element={<SettingsPage />} />
-              <Route path="/admin/reviews" element={<Reviews />} />
-              <Route path="/admin/payments" element={<Payments />} />
-              <Route path="/admin/shipping" element={<Shipping />} />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute
+                    element={<AdminPage />} 
+                  />
+                }
+              />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute
+                    element={<AdminDashboard />} 
+                  />
+                }
+              />
+              <Route
+                path="/admin/products"
+                element={
+                  <AdminRoute
+                    element={<Products />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/ordermanagement"
+                element={
+                  <AdminRoute
+                    element={<Orders />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/customers"
+                element={
+                  <AdminRoute
+                    element={<CustomerManagement />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/inventory"
+                element={
+                  <AdminRoute
+                    element={<Inventory />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/promotions"
+                element={
+                  <AdminRoute
+                    element={<Promotions />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/reports"
+                element={
+                  <AdminRoute
+                    element={<Reports />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/usermanagement"
+                element={
+                  <AdminRoute
+                    element={<UserManagementPage />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/notifications"
+                element={
+                  <AdminRoute
+                    element={<NotificationsPage />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <AdminRoute
+                    element={<SettingsPage />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/reviews"
+                element={
+                  <AdminRoute
+                    element={<Reviews />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/payments"
+                element={
+                  <AdminRoute
+                    element={<Payments />}
+                  />
+                }
+              />
+              <Route
+                path="/admin/shipping"
+                element={
+                  <AdminRoute
+                    element={<Shipping />}
+                  />
+                }
+              />
             </Route>
           </Routes>
         </CartProvider>

@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Rating, Divider } from '@mui/material';
+import { Box, Typography, TextField, Button, Rating, Divider, Stack } from '@mui/material';
 import axios from 'axios';
 
 const RatingAndReviews = ({ productId, productImage }) => {
-  const [rating, setRating] = useState(0); // Đánh giá của người dùng (sao)
-  const [comment, setComment] = useState(''); // Bình luận của người dùng
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
   const [reviews, setReviews] = useState([]);
+  const [userName, setUserName] = useState(''); // Lưu tên người dùng
+
+  // Các bình luận mẫu
+  const sampleComments = [
+    'Sản phẩm tuyệt vời!',
+    'Đúng theo mô tả!',
+    'Giao hàng nhanh chóng!',
+    'Chất lượng tuyệt vời!',
+    'Rất hài lòng với sản phẩm!',
+    'Sản phẩm rất đẹp và tiện lợi!',
+  ];
+
+  // Lấy thông tin người dùng từ localStorage sau khi đăng nhập
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user')); // Lấy thông tin người dùng từ localStorage
+    if (user) {
+      setUserName(user.name); // Cập nhật tên người dùng
+    }
+  }, []);
 
   // Lấy các đánh giá từ API khi component mount
   useEffect(() => {
@@ -30,12 +49,11 @@ const RatingAndReviews = ({ productId, productImage }) => {
       productId,
       rating,
       comment,
-      image: productImage, // Hình ảnh sản phẩm
+      username: userName, // Thêm tên người dùng vào đánh giá
     };
 
     axios.post('http://localhost:5000/reviews', newReview)
       .then(response => {
-        // Cập nhật danh sách đánh giá sau khi thêm
         setReviews([...reviews, response.data]);
         setRating(0);
         setComment('');
@@ -43,6 +61,11 @@ const RatingAndReviews = ({ productId, productImage }) => {
       .catch(error => {
         console.error('Có lỗi khi gửi đánh giá:', error);
       });
+  };
+
+  // Xử lý khi người dùng chọn bình luận mẫu
+  const handleSampleComment = (sample) => {
+    setComment(sample);
   };
 
   return (
@@ -54,17 +77,11 @@ const RatingAndReviews = ({ productId, productImage }) => {
       {/* Hiển thị các đánh giá hiện tại */}
       {reviews.map((review, index) => (
         <Box key={index} sx={{ marginBottom: 2 }}>
-          <Typography variant="subtitle1">Người dùng: Người dùng mới</Typography>
+          <Typography variant="subtitle1">{review.username || 'Người dùng ẩn danh'}</Typography>
           <Rating value={review.rating} readOnly />
           <Typography variant="body2" color="text.secondary">
             {review.comment}
           </Typography>
-          {/* Hiển thị hình ảnh sản phẩm từ API */}
-          <img 
-            src={`http://localhost:5000${review.image}`} 
-            alt="Product" 
-            width="100" 
-          />
           <Divider sx={{ marginTop: 1 }} />
         </Box>
       ))}
@@ -88,6 +105,22 @@ const RatingAndReviews = ({ productId, productImage }) => {
           fullWidth
           variant="outlined"
         />
+
+        {/* Các bình luận mẫu */}
+        <Typography variant="body1" sx={{ marginTop: 2, marginBottom: 1 }}>
+          Chọn bình luận mẫu:
+        </Typography>
+        <Stack direction="row" spacing={1} sx={{ marginBottom: 2 }}>
+          {sampleComments.map((sample, index) => (
+            <Button
+              key={index}
+              variant="outlined"
+              onClick={() => handleSampleComment(sample)}
+            >
+              {sample}
+            </Button>
+          ))}
+        </Stack>
 
         {/* Nút gửi bình luận */}
         <Button

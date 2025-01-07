@@ -1,12 +1,10 @@
-// src/pages/OrderPage.js
-
 import React, { useState } from 'react';
 import { Container, Typography, Box, Button, Grid, Paper, Pagination, PaginationItem, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import Sidebar from '../../function/Sidebar'; // Giữ nguyên Sidebar
+import Sidebar from '../../function/Sidebar'; 
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import useOrders from '../../hooks/useOrder'; // Import hook
+import useOrders from '../../hooks/useOrder'; 
 
 const OrderPage = () => {
   const orderStatuses = [
@@ -19,7 +17,7 @@ const OrderPage = () => {
     { id: 7, status: 'Trả hàng/Hoàn tiền' },
   ];
 
-  const { orders, loading } = useOrders(); // Sử dụng hook để lấy dữ liệu đơn hàng
+  const { orders, loading } = useOrders(); 
   const [selectedStatus, setSelectedStatus] = useState('Tất Cả');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,27 +25,27 @@ const OrderPage = () => {
 
   const handleStatusChange = (status) => {
     setSelectedStatus(status);
-    setCurrentPage(1); // Reset về trang đầu tiên
+    setCurrentPage(1); 
   };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1); // Reset về trang đầu tiên
+    setCurrentPage(1); 
   };
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
   };
-
   const filteredOrders = orders
-    ? orders
-        .filter((order) => selectedStatus === 'Tất Cả' || order.status === selectedStatus)
-        .filter((order) => {
-          const details = order.details ? order.details : ''; // Kiểm tra chi tiết đơn hàng có tồn tại
-          const term = searchTerm ? searchTerm : ''; // Kiểm tra từ khóa tìm kiếm có tồn tại
-          return details.toLowerCase().includes(term.toLowerCase());
-        })
-    : [];
+  ? orders
+      .filter((order) => selectedStatus === 'Tất Cả' || order.status === selectedStatus)
+      .filter((order) => {
+        const details = order.details ? order.details : ''; 
+        const term = searchTerm ? searchTerm : ''; 
+        return details.toLowerCase().includes(term.toLowerCase());
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
+  : [];
 
   const totalPages = filteredOrders.length > 0 ? Math.ceil(filteredOrders.length / itemsPerPage) : 1;
   const paginatedOrders = filteredOrders.slice(
@@ -134,7 +132,7 @@ const OrderPage = () => {
                           }}
                         >
                           <img
-                            src={product.image || '/default-image.png'} // Thêm ảnh mặc định nếu không có ảnh sản phẩm
+                            src={product.image || '/default-image.png'} 
                             alt={product.name}
                             width={60}
                             height={60}

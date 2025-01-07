@@ -25,12 +25,18 @@ const menuItems = [
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const [drawerOpen, setDrawerOpen] = useState(false); // Đảm bảo sử dụng useState đúng cách
+  const [user, setUser] = useState(null); 
+  const [drawerOpen, setDrawerOpen] = useState(false); 
 
   // Toggle drawer
   const toggleDrawer = (state) => () => {
     setDrawerOpen(state);
   };
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    navigate('/login');
+};
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -47,7 +53,7 @@ const AdminLayout = () => {
           <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
             Nhân's Pet Haven Admin
           </Typography>
-          <Button color="inherit">Logout</Button>
+          <Button onClick={handleLogout} color="inherit">Logout</Button>
         </Toolbar>
       </AppBar>
 

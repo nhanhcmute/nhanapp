@@ -4,12 +4,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useCart } from '../../function/CartContext';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
   const { cart, updateCartQuantity, removeFromCart } = useCart();
   const [selectAll, setSelectAll] = useState(false);
-  const [selectedItems, setSelectedItems] = useState({}); // Lưu trạng thái checkbox của từng sản phẩm
+  const [selectedItems, setSelectedItems] = useState({});
   const navigate = useNavigate();
 
   const calculateTotal = () => {
@@ -25,7 +25,9 @@ const CartPage = () => {
     if (quantity > 0) updateCartQuantity(product, quantity);
   };
 
-  const handleRemoveFromCart = (product) => removeFromCart(product);
+  const handleRemoveFromCart = (product) => {
+    removeFromCart(product.id); 
+  };
 
   const handleSelectAllChange = (event) => {
     const isChecked = event.target.checked;
@@ -34,7 +36,7 @@ const CartPage = () => {
     cart.forEach((product) => {
       newSelectedItems[product.id] = isChecked;
     });
-    setSelectedItems(newSelectedItems); // Chọn tất cả các sản phẩm
+    setSelectedItems(newSelectedItems);
   };
 
   const handleSelectItemChange = (product, event) => {
@@ -50,22 +52,18 @@ const CartPage = () => {
   };
 
   const handleCheckout = () => {
-    // Kiểm tra xem có sản phẩm nào được chọn hay không
     const isSelectedAnyProduct = Object.values(selectedItems).includes(true);
-  
-    // Kiểm tra giỏ hàng có sản phẩm không
+
     if (cart.length === 0) {
       alert('Giỏ hàng của bạn đang trống!');
       return;
     }
-  
-    // Kiểm tra xem có sản phẩm nào được chọn cho thanh toán
+
     if (!isSelectedAnyProduct) {
       alert('Bạn chưa chọn sản phẩm thanh toán!');
       return;
     }
-  
-    // Điều hướng đến trang thanh toán (Checkout) và truyền giỏ hàng + sản phẩm đã chọn
+
     navigate('/checkout', {
       state: {
         cart: cart,
@@ -75,21 +73,37 @@ const CartPage = () => {
   };
 
   const handleIncrease = (product) => {
-    updateCartQuantity(product, product.quantity + 1); // Tăng số lượng sản phẩm
+    updateCartQuantity(product, product.quantity + 1);
   };
 
   const handleDecrease = (product) => {
     if (product.quantity > 1) {
-      updateCartQuantity(product, product.quantity - 1); // Giảm số lượng sản phẩm, tránh giảm xuống 0
+      updateCartQuantity(product, product.quantity - 1);
     }
   };
 
+  // Nếu giỏ hàng trống, hiển thị thông báo và nút "Mua ngay"
   if (cart.length === 0) {
     return (
       <Container>
-        <Typography variant="h6" align="center" sx={{ marginTop: '20px' }}>
+        <Typography variant="h6" align="center" sx={{ marginTop: '20px', marginBottom: '20px' }}>
           Giỏ hàng của bạn đang trống.
         </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              backgroundColor: "#EE4D2D",
+              color: '#fff',
+              borderRadius: 0,
+              padding: '10px 20px',
+            }}
+            onClick={() => navigate('/productlist')} // Điều hướng đến trang ProductList
+          >
+            Mua ngay
+          </Button>
+        </Box>
       </Container>
     );
   }
@@ -104,7 +118,7 @@ const CartPage = () => {
         <Checkbox
           color="primary"
           checked={selectAll}
-          onChange={handleSelectAllChange} // Chọn tất cả
+          onChange={handleSelectAllChange}
         />
         <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#000000DE' }}>
           Chọn Tất Cả ({cart.length})
@@ -126,8 +140,8 @@ const CartPage = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Checkbox
                     color="primary"
-                    checked={selectedItems[product.id] || false} // Kiểm tra checkbox cho sản phẩm này
-                    onChange={(event) => handleSelectItemChange(product, event)} // Xử lý thay đổi checkbox của từng sản phẩm
+                    checked={selectedItems[product.id] || false}
+                    onChange={(event) => handleSelectItemChange(product, event)}
                   />
                   <Box
                     component="img"
@@ -144,9 +158,22 @@ const CartPage = () => {
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000000DE', marginBottom: '5px' }}>
                       {product.name}
                     </Typography>
-                    <Typography variant="body2" color="#000000DE" sx={{ marginBottom: '10px' }}>
+
+                    <Typography
+                      variant="body2"
+                      color="#000000DE"
+                      sx={{
+                        marginBottom: '10px',
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 2,
+                        overflow: 'hidden',
+                        marginRight: '20px',
+                      }}
+                    >
                       {product.description}
                     </Typography>
+
                     <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
                       Flash Sale 🔥
                     </Typography>

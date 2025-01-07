@@ -4,8 +4,10 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import PetsIcon from '@mui/icons-material/Pets';
+import { useNavigate } from 'react-router-dom';
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <Box
       component="footer"
@@ -31,12 +33,27 @@ function Footer() {
       </Typography>
 
       {/* Liên kết */}
-      <Typography variant="body2" sx={{ mb: 2 }}>
+      <Typography variant="body2" sx={{ mb: 1 }}>
         Built with ❤️ by{' '}
         <Link href="https://www.facebook.com/thanhtroll4" color="inherit" underline="hover">
           Thiện Nhân
         </Link>
         .
+      </Typography>
+      <Typography
+        onClick={() => navigate('/blog')}
+        variant="body2"
+        sx={{
+          mb: 2,
+          color: "inherit",
+          cursor: "pointer",
+          textDecoration: "none", 
+          "&:hover": {
+            textDecoration: "underline" 
+          }
+        }}
+      >
+        Blog Nhân's Pet Haven
       </Typography>
 
       {/* Biểu tượng mạng xã hội */}
