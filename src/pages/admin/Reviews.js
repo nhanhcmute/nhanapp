@@ -2,48 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Grid, Card, CardContent, Typography, Divider, Paper, Avatar } from '@mui/material';
 import { Star } from '@mui/icons-material';
 import { Rating } from '@mui/material';
-import axios from 'axios';
+import { ref, get, remove, set } from 'firebase/database';
+import { database } from '../../firebaseConfig';  // Import cấu hình Firebase
 
 const Reviews = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
   const [product, setProduct] = useState(null);
 
-  // Fetch reviews and product info from API
+  // Fetch reviews and product info from Firebase
   useEffect(() => {
     const fetchReviewsAndProduct = async () => {
       try {
-        // Lấy thông tin sản phẩm từ API
-        const productResponse = await axios.get(`http://localhost:5000/products/${productId}`);
-        setProduct(productResponse.data);
+        // Lấy thông tin sản phẩm từ Firebase (Giả sử sản phẩm có key là productId)
+        const productRef = ref(database, `products/${productId}`);
+        const productSnapshot = await get(productRef);
+        if (productSnapshot.exists()) {
+          setProduct(productSnapshot.val());
+        }
 
-        // Lấy đánh giá từ API
-        const reviewsResponse = await axios.get(`http://localhost:5000/reviews?productId=${productId}`);
-        const apiReviews = reviewsResponse.data;
-
-        // Lấy đánh giá từ localStorage
-        const storedReviews = localStorage.getItem(`reviews_${productId}`);
-        const localReviews = storedReviews ? JSON.parse(storedReviews) : [];
-
-        // Kết hợp đánh giá từ API và localStorage (ưu tiên API)
-        setReviews([...apiReviews, ...localReviews]);
+        // Lấy đánh giá từ Firebase
+        const reviewsRef = ref(database, `reviews/${productId}`);
+        const reviewsSnapshot = await get(reviewsRef);
+        if (reviewsSnapshot.exists()) {
+          setReviews(reviewsSnapshot.val());
+        } else {
+          setReviews([]);  // Không có đánh giá, trả về mảng rỗng
+        }
       } catch (err) {
-        console.error('Error fetching reviews or product data:', err);
+        console.error('Error fetching reviews or product data from Firebase:', err);
       }
     };
 
     fetchReviewsAndProduct();
-
-    const handleStorageChange = () => {
-      const storedReviews = localStorage.getItem(`reviews_${productId}`);
-      const localReviews = storedReviews ? JSON.parse(storedReviews) : [];
-      setReviews((prevReviews) => [...prevReviews, ...localReviews]);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, [productId]);
 
   const calculateAverageRating = () => {
@@ -64,10 +54,26 @@ const Reviews = ({ productId }) => {
 
   const handleDelete = async (reviewId) => {
     try {
-      await axios.delete(`http://localhost:5000/reviews/${reviewId}`);
+      // Xóa đánh giá từ Firebase
+      const reviewRef = ref(database, `reviews/${productId}/${reviewId}`);
+      await remove(reviewRef);
       setReviews(reviews.filter((review) => review.id !== reviewId));
     } catch (err) {
       console.error('Error deleting review:', err);
+    }
+  };
+
+  const handleAddReview = async (newReview) => {
+    try {
+      // Thêm đánh giá vào Firebase
+      const newReviewId = new Date().toISOString();  // Tạo ID ngẫu nhiên dựa trên thời gian
+      const newReviewRef = ref(database, `reviews/${productId}/${newReviewId}`);
+      await set(newReviewRef, newReview);
+
+      // Cập nhật lại danh sách đánh giá
+      setReviews([...reviews, { id: newReviewId, ...newReview }]);
+    } catch (err) {
+      console.error('Error adding review:', err);
     }
   };
 

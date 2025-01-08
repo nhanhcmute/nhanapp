@@ -16,6 +16,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { database, ref, set, push, update, remove, get } from "../../firebaseConfig";
 
 function Inventory() {
   const [products, setProducts] = useState([]);
@@ -29,9 +30,18 @@ function Inventory() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('http://localhost:5000/products');
-        const data = await response.json();
-        setProducts(data);
+        const productsRef = ref(database, 'products');
+        const snapshot = await get(productsRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productList = Object.entries(data).map(([id, product]) => ({
+            id,
+            ...product,
+          }));
+          setProducts(productList);
+        } else {
+          setProducts([]);
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -43,25 +53,16 @@ function Inventory() {
   // Thêm mới sản phẩm
   const onAddProduct = async (data) => {
     try {
-      const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('quantity', data.quantity);
-      formData.append('price', data.price);
-      if (uploadedImage) {
-        formData.append('image', uploadedImage);
-      }
+      const productRef = push(ref(database, 'products')); // Tạo sản phẩm mới
+      const productData = {
+        name: data.name,
+        quantity: data.quantity,
+        price: data.price,
+        image: uploadedImage ? URL.createObjectURL(uploadedImage) : '',
+      };
 
-      const response = await fetch('http://localhost:5000/products', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Thêm sản phẩm thất bại');
-      }
-
-      const newProduct = await response.json();
-      setProducts([...products, newProduct]);
+      await set(productRef, productData); // Lưu sản phẩm vào Firebase
+      setProducts([...products, { id: productRef.key, ...productData }]);
       toast.success('Sản phẩm đã được thêm thành công');
       reset();
       setImagePreview('');
@@ -76,32 +77,18 @@ function Inventory() {
   // Sửa thông tin sản phẩm
   const onEditProduct = async (data) => {
     try {
-      const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('quantity', data.quantity);
-      formData.append('price', data.price);
-      if (uploadedImage) {
-        formData.append('image', uploadedImage); // Gửi file ảnh
-      }
+      const productRef = ref(database, `products/${selectedProduct.id}`);
+      const updatedProduct = {
+        name: data.name,
+        quantity: data.quantity,
+        price: data.price,
+        image: uploadedImage ? URL.createObjectURL(uploadedImage) : selectedProduct.image,
+      };
 
-      // Gửi yêu cầu PUT đến API
-      const response = await fetch(`http://localhost:5000/products/${selectedProduct.id}`, {
-        method: 'PUT',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Cập nhật sản phẩm thất bại');
-      }
-
-      const updatedProduct = await response.json();
-
-      // Cập nhật danh sách sản phẩm trong state
-      const updatedProducts = products.map((product) =>
-        product.id === selectedProduct.id ? updatedProduct : product
-      );
-      setProducts(updatedProducts);
-
+      await update(productRef, updatedProduct); // Cập nhật sản phẩm
+      setProducts(products.map((product) =>
+        product.id === selectedProduct.id ? { id: selectedProduct.id, ...updatedProduct } : product
+      ));
       toast.success('Cập nhật sản phẩm thành công');
       setOpenDialog(false);
       reset();
@@ -132,16 +119,9 @@ function Inventory() {
   // Xóa sản phẩm
   const handleDeleteProduct = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:5000/products/${productId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Xóa sản phẩm thất bại');
-      }
-
-      const updatedProducts = products.filter((product) => product.id !== productId);
-      setProducts(updatedProducts);
+      const productRef = ref(database, `products/${productId}`);
+      await remove(productRef); // Xóa sản phẩm từ Firebase
+      setProducts(products.filter((product) => product.id !== productId));
       toast.success('Sản phẩm đã được xóa');
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -172,56 +152,56 @@ function Inventory() {
 
       {/* Danh sách sản phẩm */}
       <Grid container spacing={3}>
-  {products.map((product) => (
-    <Grid item xs={12} sm={6} md={4} key={product.id}>
-      <Paper 
-        elevation={6} 
-        sx={{
-          padding: 2, 
-          height: '100%', 
-          transition: 'transform 0.3s', 
-          '&:hover': { transform: 'scale(1.05)' },
-          marginBottom: '20px' // Thêm khoảng cách dưới mỗi Paper
-        }}
-      >
-        <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
-          <img
-            src={product.image || 'https://via.placeholder.com/150'}
-            alt={product.name}
-            style={{
-              width: '150px',
-              height: '150px',
-              objectFit: 'cover',
-              borderRadius: '8px',
-              marginBottom: '10px',
-            }}
-          />
-        </Box>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{product.name}</Typography>
-        <Typography variant="body1" color="textSecondary">Số lượng: {product.quantity}</Typography>
-        <Typography variant="body1" sx={{ fontWeight: 'bold', marginTop: '10px' }}>Giá: {product.price} VNĐ</Typography>
-        <Box sx={{ marginTop: 2 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => handleOpenDialog(product)}
-            sx={{ marginRight: 1, padding: '6px 16px', fontSize: '0.875rem' }}
-          >
-            Sửa
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => handleDeleteProduct(product.id)}
-            sx={{ padding: '6px 16px', fontSize: '0.875rem' }}
-          >
-            Xóa
-          </Button>
-        </Box>
-      </Paper>
-    </Grid>
-  ))}
-</Grid>
+        {products.map((product) => (
+          <Grid item xs={12} sm={6} md={4} key={product.id}>
+            <Paper 
+              elevation={6} 
+              sx={{
+                padding: 2, 
+                height: '100%', 
+                transition: 'transform 0.3s', 
+                '&:hover': { transform: 'scale(1.05)' },
+                marginBottom: '20px' // Thêm khoảng cách dưới mỗi Paper
+              }}
+            >
+              <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
+                <img
+                  src={product.image || 'https://via.placeholder.com/150'}
+                  alt={product.name}
+                  style={{
+                    width: '150px',
+                    height: '150px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    marginBottom: '10px',
+                  }}
+                />
+              </Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{product.name}</Typography>
+              <Typography variant="body1" color="textSecondary">Số lượng: {product.quantity}</Typography>
+              <Typography variant="body1" sx={{ fontWeight: 'bold', marginTop: '10px' }}>Giá: {product.price} VNĐ</Typography>
+              <Box sx={{ marginTop: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => handleOpenDialog(product)}
+                  sx={{ marginRight: 1, padding: '6px 16px', fontSize: '0.875rem' }}
+                >
+                  Sửa
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleDeleteProduct(product.id)}
+                  sx={{ padding: '6px 16px', fontSize: '0.875rem' }}
+                >
+                  Xóa
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
 
       {/* Dialog Thêm / Sửa sản phẩm */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>

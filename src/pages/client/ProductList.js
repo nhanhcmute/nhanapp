@@ -1,38 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { ref, onValue } from 'firebase/database'; 
 import { CircularProgress, Box, Grid, Card, CardContent, Typography, Button, CardMedia, Pagination } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { database } from '../../firebaseConfig'; 
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);  // Trang hiện tại
-  const [productsPerPage, setProductsPerPage] = useState(6);
+  const [page, setPage] = useState(1); // Trang hiện tại
+  const [productsPerPage] = useState(6);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Lấy dữ liệu sản phẩm từ API
-        const response = await axios.get('http://localhost:5000/products');
-        const fetchedProducts = response.data;
-
-        setProducts(fetchedProducts);
-        setTotalPages(Math.ceil(fetchedProducts.length / productsPerPage));
-        setLoading(false);
+        // Tham chiếu đến nút `products` trong Realtime Database
+        const productsRef = ref(database, 'products');
+        onValue(productsRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const productList = Object.keys(data).map((key) => ({
+              id: key,
+              ...data[key],
+            }));
+            setProducts(productList);
+            setTotalPages(Math.ceil(productList.length / productsPerPage));
+          }
+          setLoading(false);
+        });
       } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
+        console.error('Lỗi khi lấy sản phẩm:', error);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [productsPerPage]);
 
-  // Lấy các sản phẩm cho trang hiện tại
   const currentProducts = products.slice((page - 1) * productsPerPage, page * productsPerPage);
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  const handleClick = (productId) => {
+    window.location.href = `/product/${productId}`;
   };
 
   if (loading) {
@@ -74,11 +85,13 @@ const ProductList = () => {
                 height="350"
                 image={product.image || '/default-product.jpg'}
                 alt={product.name}
+                onClick={() => handleClick(product.id)}
                 sx={{
                   borderRadius: 0,
+                  cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8,
-                  }
+                  },
                 }}
               />
               <CardContent sx={{ borderRadius: 0 }}>
@@ -105,7 +118,6 @@ const ProductList = () => {
           </Grid>
         ))}
       </Grid>
-
 
       {/* Pagination */}
       <Box display="flex" justifyContent="center" sx={{ marginTop: 3 }}>

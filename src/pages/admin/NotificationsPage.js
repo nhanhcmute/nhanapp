@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { database } from "../../firebaseConfig";
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";  
 import {
   Box,
   Button,
@@ -32,33 +33,27 @@ const NotificationsPage = () => {
   const [notificationRole, setNotificationRole] = useState("admin");
   const [editingNotificationId, setEditingNotificationId] = useState(null);
   const [roles] = useState(["admin", "staff"]);
-  const baseUrl = "http://localhost:5000";
 
-  // Fetch notifications from API
+  // Fetch notifications from Firestore
   useEffect(() => {
-    axios
-      .get(`${baseUrl}/notifications`)
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          // Debug: Kiểm tra dữ liệu nhận được từ API
-          console.log("Received notifications:", response.data);
-          
-          // Kiểm tra giá trị timestamp
-          const sortedNotifications = response.data.sort((a, b) => {
-            const timestampA = new Date(a.timestamp).getTime();
-            const timestampB = new Date(b.timestamp).getTime();
-            console.log(`Timestamp A: ${timestampA}, Timestamp B: ${timestampB}`);
-            return timestampB - timestampA; // Sort descending (newest first)
-          });
-          setNotifications(sortedNotifications);
-        } else {
-          toast.error("Invalid data structure from API.");
-        }
-      })
-      .catch((error) => {
+    const fetchNotifications = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(database, "notifications"));
+        const notificationsList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        // Sort notifications by timestamp
+        notificationsList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setNotifications(notificationsList);
+      } catch (error) {
         toast.error("Failed to load notifications!");
         console.error("Error fetching notifications:", error);
-      });
+      }
+    };
+    
+    fetchNotifications();
   }, []);
 
   // Open/Close Modal
@@ -89,8 +84,8 @@ const NotificationsPage = () => {
     setNotificationRole("admin");
   };
 
-  // Add or Update notification
-  const handleSendNotification = () => {
+  // Add or Update notification in Firestore
+  const handleSendNotification = async () => {
     if (!notificationTitle.trim() || !notificationMessage.trim()) {
       toast.error("Please enter a title and message!");
       return;
@@ -104,55 +99,44 @@ const NotificationsPage = () => {
       timestamp: new Date().toISOString(),
     };
 
-    if (editingNotificationId) {
-      // Update notification
-      axios
-        .put(`${baseUrl}/notifications/${editingNotificationId}`, newNotification)
-        .then((response) => {
-          setNotifications(
-            notifications.map((notif) =>
-              notif.id === editingNotificationId ? response.data : notif
-            )
-          );
-          toast.success("Notification updated successfully!");
-          handleCloseModal();
-        })
-        .catch((error) => {
-          toast.error("Failed to update notification!");
-          console.error("Error updating notification:", error);
-        });
-    } else {
-      // Add new notification
-      axios
-        .post(`${baseUrl}/notifications`, newNotification)
-        .then((response) => {
-          const updatedNotifications = [...notifications, response.data];
-          updatedNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Re-sort notifications after adding
-          setNotifications(updatedNotifications);
-          toast.success("Notification sent successfully!");
-          handleCloseModal();
-        })
-        .catch((error) => {
-          toast.error("Failed to send notification!");
-          console.error("Error sending notification:", error);
-        });
+    try {
+      if (editingNotificationId) {
+        // Update notification
+        const notificationRef = doc(database, "notifications", editingNotificationId);
+        await updateDoc(notificationRef, newNotification);
+        setNotifications(
+          notifications.map((notif) =>
+            notif.id === editingNotificationId ? { ...notif, ...newNotification } : notif
+          )
+        );
+        toast.success("Notification updated successfully!");
+        handleCloseModal();
+      } else {
+        // Add new notification
+        const docRef = await addDoc(collection(database, "notifications"), newNotification);
+        setNotifications([
+          { id: docRef.id, ...newNotification },
+          ...notifications,
+        ]);
+        toast.success("Notification sent successfully!");
+        handleCloseModal();
+      }
+    } catch (error) {
+      toast.error("Failed to send notification!");
+      console.error("Error sending notification:", error);
     }
   };
 
-  // Delete notification
-  const handleDeleteNotification = (id) => {
-    axios
-      .delete(`${baseUrl}/notifications/${id}`)
-      .then(() => {
-        const updatedNotifications = notifications.filter((notif) => notif.id !== id);
-        updatedNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Re-sort after deleting
-        setNotifications(updatedNotifications);
-        toast.success("Notification deleted successfully!");
-      })
-      .catch((error) => {
-        toast.error("Failed to delete notification!");
-        console.error("Error deleting notification:", error);
-      });
+  // Delete notification from Firestore
+  const handleDeleteNotification = async (id) => {
+    try {
+      await deleteDoc(doc(database, "notifications", id));
+      setNotifications(notifications.filter((notif) => notif.id !== id));
+      toast.success("Notification deleted successfully!");
+    } catch (error) {
+      toast.error("Failed to delete notification!");
+      console.error("Error deleting notification:", error);
+    }
   };
 
   return (
