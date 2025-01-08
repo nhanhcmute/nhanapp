@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Grid, Paper, Typography, CircularProgress, Card, CardContent, Divider, Box, IconButton } from '@mui/material';
 import { purple, blue, green, orange } from '@mui/material/colors';
-
+import { ref, get } from 'firebase/database';
+import { database } from '../../firebaseConfig';
 function Reports() {
   const [salesData, setSalesData] = useState(null);
   const [otherData, setOtherData] = useState(null);
@@ -11,18 +12,20 @@ function Reports() {
     async function loadData() {
       setLoading(true);
       try {
-        // Lấy dữ liệu bán hàng
-        const responseSales = await fetch('http://localhost:5000/salesData');
-        const dataSales = await responseSales.json();
+        // Lấy dữ liệu bán hàng từ Firebase
+        const salesRef = ref(database, 'salesData');
+        const salesSnapshot = await get(salesRef);
+        const salesData = salesSnapshot.exists() ? salesSnapshot.val() : null;
 
-        // Lấy dữ liệu khác
-        const responseOther = await fetch('http://localhost:5000/otherData');
-        const dataOther = await responseOther.json();
+        // Lấy dữ liệu khác từ Firebase
+        const otherRef = ref(database, 'otherData');
+        const otherSnapshot = await get(otherRef);
+        const otherData = otherSnapshot.exists() ? otherSnapshot.val() : null;
 
-        setSalesData(dataSales);
-        setOtherData(dataOther);
+        setSalesData(salesData);
+        setOtherData(otherData);
       } catch (error) {
-        console.error('Error fetching sales data:', error);
+        console.error('Error fetching data from Firebase:', error);
       }
       setLoading(false);
     }
@@ -30,12 +33,23 @@ function Reports() {
     loadData();
   }, []);
 
-  // Kiểm tra nếu salesData không có hoặc không hợp lệ, trả về một thông báo lỗi hoặc không hiển thị
-  if (!salesData || !salesData[0]) {
+  // Kiểm tra nếu salesData hoặc otherData không có hoặc không hợp lệ, trả về một thông báo lỗi hoặc không hiển thị
+  if (loading) {
     return (
       <Container>
-        <Typography variant="h4" gutterBottom>Báo cáo bán hàng, thống kê</Typography>
-        <Typography variant="body1">Không có dữ liệu để hiển thị</Typography>
+        <Typography variant="h4" gutterBottom align="center">Báo cáo bán hàng, thống kê</Typography>
+        <Box display="flex" justifyContent="center" marginTop={5}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (!salesData || !otherData) {
+    return (
+      <Container>
+        <Typography variant="h4" gutterBottom align="center">Báo cáo bán hàng, thống kê</Typography>
+        <Typography variant="body1" align="center">Không có dữ liệu để hiển thị</Typography>
       </Container>
     );
   }

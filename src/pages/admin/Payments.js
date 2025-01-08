@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Box, Button, Typography, Grid, Card, CardContent, Divider } from '@mui/material';
+import { getDatabase, ref, get, update } from 'firebase/database';
+import { database } from '../../firebaseConfig';  
 
 const Payments = () => {
   const [orders, setOrders] = useState([]);
 
-  // Lấy danh sách đơn hàng khi component mount
+  // Lấy danh sách đơn hàng từ Firebase
   useEffect(() => {
     const fetchOrders = async () => {
+      const ordersRef = ref(database, 'orders'); 
       try {
-        const response = await axios.get('http://localhost:5000/orders');
-        setOrders(response.data);
+        const snapshot = await get(ordersRef);
+        if (snapshot.exists()) {
+          const ordersData = snapshot.val();
+          const ordersList = Object.keys(ordersData).map((key) => ({
+            id: key,
+            ...ordersData[key],
+          }));
+          setOrders(ordersList);
+        }
       } catch (error) {
         console.error('Error fetching orders:', error);
       }
@@ -21,21 +30,19 @@ const Payments = () => {
 
   // Cập nhật trạng thái thanh toán của đơn hàng
   const handlePaymentStatusChange = async (orderId, status) => {
+    const orderRef = ref(database, `orders/${orderId}`);
     try {
-      const response = await axios.put(`http://localhost:5000/orders/${orderId}`, {
-        paymentStatus: status,
-      });
-      const updatedOrder = response.data;
-
-      // Cập nhật danh sách đơn hàng sau khi thay đổi
-      setOrders(orders.map(order => order.id === updatedOrder.id ? updatedOrder : order));
+      await update(orderRef, { paymentStatus: status });
+      
+      // Cập nhật danh sách đơn hàng sau khi thay đổi trạng thái thanh toán
+      setOrders(orders.map(order => order.id === orderId ? { ...order, paymentStatus: status } : order));
     } catch (error) {
       console.error('Error updating payment status:', error);
     }
   };
 
   return (
-    <Box sx={{ padding: 3 }}> 
+    <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
         Quản lý thanh toán
       </Typography>

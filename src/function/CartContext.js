@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import { ref, get, set, update, remove } from 'firebase/database';
+import { database } from '../firebaseConfig'; 
 
 // Tạo context cho giỏ hàng
 const CartContext = createContext();
@@ -9,48 +10,59 @@ export const useCart = () => {
   return useContext(CartContext);
 };
 
-// URL của API JSON Server
-const API_URL = 'http://localhost:5000/cart';
-
 // CartProvider là component bọc ứng dụng để cung cấp trạng thái giỏ hàng
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  // Lấy giỏ hàng từ API
+  // Lấy giỏ hàng từ Firebase
   const fetchCart = async () => {
     try {
-      const response = await axios.get(API_URL);
-      setCart(response.data);
+      const cartRef = ref(database, 'cart');
+      const snapshot = await get(cartRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        // Chuyển data từ object thành array và cập nhật giỏ hàng
+        const cartArray = Object.entries(data).map(([id, product]) => ({
+          id, // Lấy id từ key của Firebase
+          ...product,
+        }));
+        setCart(cartArray);
+      } else {
+        setCart([]);
+      }
     } catch (error) {
-      console.error('Lỗi khi lấy giỏ hàng:', error);
+      console.error('Lỗi khi lấy giỏ hàng từ Firebase:', error);
     }
   };
 
   // Thêm sản phẩm vào giỏ hàng
   const addToCart = async (product) => {
     try {
-      const existingProduct = cart.find((item) => item.id === product.id);
+      const cartRef = ref(database, 'cart');
+      const newProductRef = ref(database, `cart/${product.id}`); // Sử dụng product.id làm key
+      const snapshot = await get(newProductRef);
 
-      if (existingProduct) {
-        // Nếu sản phẩm đã có, cập nhật số lượng
+      if (snapshot.exists()) {
+        // Nếu sản phẩm đã có trong giỏ, cập nhật số lượng
+        const existingProduct = snapshot.val();
         const updatedProduct = {
           ...existingProduct,
           quantity: existingProduct.quantity + 1,
         };
-        await axios.put(`${API_URL}/${existingProduct.id}`, updatedProduct);
+        await set(newProductRef, updatedProduct); // Cập nhật sản phẩm trong Firebase
         setCart((prevCart) =>
           prevCart.map((item) =>
             item.id === product.id ? updatedProduct : item
           )
         );
       } else {
-        // Nếu sản phẩm chưa có, thêm vào giỏ hàng
+        // Nếu sản phẩm chưa có, thêm mới vào giỏ hàng
         const newProduct = { ...product, quantity: 1 };
-        const response = await axios.post(API_URL, newProduct);
-        setCart((prevCart) => [...prevCart, response.data]);
+        await set(newProductRef, newProduct); // Thêm sản phẩm vào Firebase
+        setCart((prevCart) => [...prevCart, newProduct]);
       }
     } catch (error) {
-      console.error('Lỗi khi thêm sản phẩm:', error);
+      console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
     }
   };
 
@@ -64,37 +76,37 @@ export const CartProvider = ({ children }) => {
       }
 
       const updatedProduct = { ...product, quantity };
-      await axios.put(`${API_URL}/${product.id}`, updatedProduct);
+      const productRef = ref(database, `cart/${product.id}`);
+      await set(productRef, updatedProduct); // Cập nhật lại sản phẩm
       setCart((prevCart) =>
         prevCart.map((item) =>
           item.id === product.id ? updatedProduct : item
         )
       );
     } catch (error) {
-      console.error('Lỗi khi cập nhật số lượng:', error);
+      console.error('Lỗi khi cập nhật số lượng sản phẩm:', error);
     }
   };
 
   // Xóa sản phẩm khỏi giỏ hàng
   const removeFromCart = async (productId) => {
     try {
-      await axios.delete(`${API_URL}/${productId}`);
+      const productRef = ref(database, `cart/${productId}`);
+      await remove(productRef); // Xóa sản phẩm khỏi Firebase
       setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
     } catch (error) {
-      console.error('Lỗi khi xóa sản phẩm:', error);
+      console.error('Lỗi khi xóa sản phẩm khỏi giỏ hàng:', error);
     }
   };
 
   // Xóa tất cả sản phẩm khỏi giỏ hàng
   const clearCart = async () => {
     try {
-      const deleteRequests = cart.map((item) =>
-        axios.delete(`${API_URL}/${item.id}`)
-      );
-      await Promise.all(deleteRequests);
+      const cartRef = ref(database, 'cart');
+      await remove(cartRef); // Xóa toàn bộ giỏ hàng
       setCart([]);
     } catch (error) {
-      console.error('Lỗi khi xóa tất cả sản phẩm:', error);
+      console.error('Lỗi khi xóa tất cả sản phẩm khỏi giỏ hàng:', error);
     }
   };
 
@@ -108,7 +120,7 @@ export const CartProvider = ({ children }) => {
     return cart.reduce((total, product) => total + product.quantity * product.price, 0);
   };
 
-  // Lấy giỏ hàng từ API khi component được load
+  // Lấy giỏ hàng từ Firebase khi component được load
   useEffect(() => {
     fetchCart();
   }, []);
@@ -120,9 +132,9 @@ export const CartProvider = ({ children }) => {
         addToCart,
         updateCartQuantity,
         removeFromCart,
-        clearCart, // Thêm hàm xóa tất cả sản phẩm
+        clearCart,
         getTotalQuantity,
-        getTotalPrice, // Thêm hàm tính tổng tiền
+        getTotalPrice,
       }}
     >
       {children}

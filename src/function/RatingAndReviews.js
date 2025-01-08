@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Rating, Divider, Stack } from '@mui/material';
-import axios from 'axios';
+import { ref, get, set, push } from 'firebase/database';
+import { database } from '../firebaseConfig'; 
 
-const RatingAndReviews = ({ productId, productImage }) => {
+const RatingAndReviews = ({ productId }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [reviews, setReviews] = useState([]);
-  const [userName, setUserName] = useState(''); // Lưu tên người dùng
+  const [userName, setUserName] = useState(''); 
 
   // Các bình luận mẫu
   const sampleComments = [
@@ -26,25 +27,33 @@ const RatingAndReviews = ({ productId, productImage }) => {
     }
   }, []);
 
-  // Lấy các đánh giá từ API khi component mount
+  // Lấy các đánh giá từ Firebase khi component mount
   useEffect(() => {
-    axios.get(`http://localhost:5000/reviews?productId=${productId}`)
-      .then(response => {
-        setReviews(response.data);
+    const reviewsRef = ref(database, 'reviews/' + productId);
+    get(reviewsRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const reviewsArray = Object.entries(data).map(([id, review]) => ({
+            id,
+            ...review,
+          }));
+          setReviews(reviewsArray);
+        }
       })
-      .catch(error => {
-        console.error('Có lỗi khi lấy đánh giá:', error);
+      .catch((error) => {
+        console.error('Có lỗi khi lấy đánh giá từ Firebase:', error);
       });
   }, [productId]);
 
-  // Cập nhật đánh giá vào API khi có thay đổi
+  // Cập nhật đánh giá vào Firebase
   const handleCommentSubmit = () => {
     if (rating === 0 || comment === '') {
       alert('Vui lòng chọn đánh giá và viết bình luận.');
       return;
     }
 
-    // Thêm đánh giá và bình luận mới vào API
+    // Tạo đánh giá mới
     const newReview = {
       productId,
       rating,
@@ -52,13 +61,14 @@ const RatingAndReviews = ({ productId, productImage }) => {
       username: userName, // Thêm tên người dùng vào đánh giá
     };
 
-    axios.post('http://localhost:5000/reviews', newReview)
-      .then(response => {
-        setReviews([...reviews, response.data]);
+    const reviewsRef = ref(database, 'reviews/' + productId); // Lưu đánh giá theo productId
+    push(reviewsRef, newReview) // Thêm đánh giá mới vào Firebase
+      .then((response) => {
+        setReviews([...reviews, newReview]);
         setRating(0);
         setComment('');
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Có lỗi khi gửi đánh giá:', error);
       });
   };
