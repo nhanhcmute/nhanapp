@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Paper, Typography, CircularProgress, TextField, Button, Box, Card, CardContent, CardActions, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Container,Typography  ,Paper , CardActions, Grid, CircularProgress, TextField, Button, Box, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { ref, onValue, update } from 'firebase/database';
+import { database } from '../../firebaseConfig';
 import { CSVLink } from 'react-csv';
 
 function Orders() {
@@ -23,23 +25,24 @@ function Orders() {
   ];
 
   useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const response = await fetch('http://localhost:5000/checkout');
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setOrders(data);
-          setFilteredOrders(data);
-        } else {
-          console.error('Invalid data format:', data);
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error);
+    const ordersRef = ref(database, 'checkout');
+    const unsubscribe = onValue(ordersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const ordersList = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setOrders(ordersList);
+        setFilteredOrders(ordersList);
+      } else {
+        setOrders([]);
+        setFilteredOrders([]);
       }
       setLoading(false);
-    }
+    });
 
-    fetchOrders();
+    return () => unsubscribe(); // Hủy đăng ký khi component bị unmount
   }, []);
 
   const handleSearch = () => {
@@ -77,39 +80,27 @@ function Orders() {
         'Chờ giao hàng': ['Hoàn thành'],
         'Hoàn thành': [],
         'Đã hủy': ['Trả hàng/Hoàn tiền'],
-        'Trả hàng/Hoàn tiền': []
+        'Trả hàng/Hoàn tiền': [],
       };
-  
-      // Kiểm tra trạng thái hiện tại và trạng thái mới có hợp lệ hay không
+
       if (!validTransitions[selectedOrder.status] || !validTransitions[selectedOrder.status].includes(newStatus)) {
         alert('Không thể thay đổi trạng thái theo cách này. Vui lòng kiểm tra thứ tự chuyển trạng thái.');
         return;
       }
-  
-      // Cập nhật trạng thái đơn hàng trong state của frontend
-      const updatedOrders = orders.map(order =>
-        order.id === selectedOrder.id ? { ...order, status: newStatus } : order
-      );
-  
-      setOrders(updatedOrders);
-      setFilteredOrders(updatedOrders);
-  
-      // Gửi yêu cầu PATCH để thay đổi trạng thái đơn hàng trên server
+
+      const updatedOrder = { ...selectedOrder, status: newStatus };
+
       try {
-        const response = await fetch(`http://localhost:5000/checkout/${String(selectedOrder.id)}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
-        console.log(selectedOrder);
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Lỗi khi cập nhật trạng thái:', errorText);
-          throw new Error('Cập nhật trạng thái đơn hàng thất bại');
-        }
-        console.log(response);
+        // Update trạng thái trên Firebase Realtime Database
+        await update(ref(database, `checkout/${selectedOrder.id}`), { status: newStatus });
+
+        // Cập nhật trạng thái trong frontend
+        const updatedOrders = orders.map(order =>
+          order.id === selectedOrder.id ? updatedOrder : order
+        );
+        setOrders(updatedOrders);
+        setFilteredOrders(updatedOrders);
+
         alert('Cập nhật trạng thái đơn hàng thành công');
         handleCloseDialog();
       } catch (error) {
@@ -118,9 +109,20 @@ function Orders() {
       }
     }
   };
-  
 
+  const csvHeaders = [
+    { label: 'Mã Đơn Hàng', key: 'id' },
+    { label: 'Tên Khách Hàng', key: 'customer.name' },
+    { label: 'Tổng Số Tiền', key: 'total' },
+    { label: 'Trạng Thái', key: 'status' },
+  ];
 
+  const csvData = filteredOrders.map((order) => ({
+    id: order.id,
+    'customer.name': order.customer?.name || 'N/A',
+    total: order.total || 0,
+    status: order.status || 'N/A',
+  }));
   const getStatusColor = (status) => {
     switch (status) {
       case 'Chờ xác nhận': return 'orange';
@@ -132,7 +134,6 @@ function Orders() {
       default: return 'black';
     }
   };
-
   if (loading) {
     return (
       <Container>

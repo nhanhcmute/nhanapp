@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Box, Button, Typography, Grid, Card, CardContent, Divider } from '@mui/material';
+import { ref, get, update } from 'firebase/database';
+import { database } from '../../firebaseConfig';  // Import cấu hình Firebase
 
 const Shipping = () => {
   const [orders, setOrders] = useState([]);
 
-  // Lấy danh sách đơn hàng khi component mount
+  // Lấy danh sách đơn hàng từ Firebase khi component mount
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/orders');
-        setOrders(response.data);
+        const ordersRef = ref(database, 'orders');
+        const snapshot = await get(ordersRef);
+        if (snapshot.exists()) {
+          setOrders(Object.values(snapshot.val()));
+        } else {
+          setOrders([]);
+        }
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error('Error fetching orders from Firebase:', error);
       }
     };
 
@@ -22,15 +28,15 @@ const Shipping = () => {
   // Cập nhật trạng thái vận chuyển của đơn hàng
   const handleShippingStatusChange = async (orderId, status) => {
     try {
-      const response = await axios.put(`http://localhost:5000/orders/${orderId}/shipping`, {
+      const orderRef = ref(database, `orders/${orderId}`);
+      await update(orderRef, {
         shippingStatus: status,
       });
-      const updatedOrder = response.data;
 
-      // Cập nhật danh sách đơn hàng sau khi thay đổi
-      setOrders(orders.map(order => order.id === updatedOrder.id ? updatedOrder : order));
+      // Cập nhật lại danh sách đơn hàng sau khi thay đổi
+      setOrders(orders.map(order => order.id === orderId ? { ...order, shippingStatus: status } : order));
     } catch (error) {
-      console.error('Error updating shipping status:', error);
+      console.error('Error updating shipping status in Firebase:', error);
     }
   };
 
