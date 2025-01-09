@@ -27,6 +27,7 @@ import Blog from './pages/client/Blog';
 import Pricacy from './pages/client/Privacy';
 import ChangePassword from './pages/client/ChangePassword';
 import Voucher from './pages/client/Voucher';
+import GetVoucher from './pages/client/GetVoucher';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -47,6 +48,8 @@ import Shipping from './pages/admin/Shipping';
 // Layouts
 import LayoutPage from './function/LayoutPage';
 import AdminLayout from './function/AdminLayout';
+// Components
+import AutoLogout from './function/AutoLogout';
 
 // Context
 import { CartProvider } from './function/CartContext';
@@ -62,6 +65,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <Router>
+        <AutoLogout/>
         <CartProvider>
           <Routes>
             {/* Routes dành cho khách hàng */}
@@ -91,6 +95,7 @@ function App() {
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/changepassword" element={<ChangePassword/>}/>
               <Route path="/voucher" element={<Voucher/>} />
+              <Route path="/getvoucher" element={<GetVoucher/>} />
             </Route>
 
             {/* Routes dành cho Admin */}
