@@ -1,7 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Card, CardContent, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Divider, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Divider,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl
+} from '@mui/material';
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon
+} from '@mui/icons-material';
 import Sidebar from '../../function/Sidebar';
+
 // Danh sách các ngân hàng có logo
 const availableBanks = [
   { name: 'Vietcombank', logo: '/logovietcombank.jpg' },
@@ -13,7 +36,7 @@ const availableBanks = [
 
 const Bank = () => {
   const savedBanks = JSON.parse(localStorage.getItem('banks')) || [];
-  const [banks, setBanks] = useState(savedBanks);
+  const [banks, setBanks] = useState(Array.isArray(savedBanks) ? savedBanks : []);
   const [openDialog, setOpenDialog] = useState(false);
   const [newBank, setNewBank] = useState({
     bankName: '',
@@ -31,14 +54,14 @@ const Bank = () => {
 
   // Xóa ngân hàng
   const handleDeleteBank = (id) => {
-    const updatedBanks = banks.filter(bank => bank.id !== id);
+    const updatedBanks = banks.filter((bank) => bank.id !== id);
     setBanks(updatedBanks);
   };
 
-  // Cập nhật hoặc thêm ngân hàng
+  // Thêm ngân hàng mới
   const handleAddBank = () => {
     if (!newBank.bankName || !newBank.accountNumber || !newBank.accountHolder || newBank.balance <= 0) {
-      alert('Vui lòng điền đầy đủ thông tin ngân hàng');
+      setError('Vui lòng điền đầy đủ thông tin ngân hàng và số dư phải lớn hơn 0.');
       return;
     }
 
@@ -62,6 +85,9 @@ const Bank = () => {
 
   // Hàm ẩn số tài khoản
   const maskAccountNumber = (accountNumber) => {
+    if (accountNumber.length <= 6) {
+      return accountNumber; // Trả về nguyên số tài khoản nếu quá ngắn
+    }
     const start = accountNumber.slice(0, 3);
     const end = accountNumber.slice(-3);
     const masked = '*'.repeat(accountNumber.length - 6);
@@ -116,9 +142,16 @@ const Bank = () => {
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center' }}>
-                      {/* Hiển thị logo cùng với tên ngân hàng */}
-                      <img src={bank.logo} style={{ width: 30, height: 30, marginRight: 10 }} alt="Bank Logo" />
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center' }}
+                    >
+                      <img
+                        src={bank.logo}
+                        style={{ width: 30, height: 30, marginRight: 10 }}
+                        alt="Bank Logo"
+                        onError={(e) => (e.target.src = '/default-logo.png')}
+                      />
                       {bank.bankName} - {bank.accountHolder}
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#555' }}>
@@ -132,7 +165,6 @@ const Bank = () => {
                         {showBalanceId === bank.id ? <VisibilityOffIcon /> : <VisibilityIcon />}
                       </IconButton>
                     </Box>
-                    {error && <Typography variant="body2" sx={{ color: 'red', marginTop: 1 }}>{error}</Typography>}
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <IconButton color="primary" onClick={() => console.log(`Edit bank with ID: ${bank.id}`)}>
@@ -152,13 +184,12 @@ const Bank = () => {
         <Dialog open={openDialog} onClose={handleDialogClose}>
           <DialogTitle>Thêm Ngân Hàng</DialogTitle>
           <DialogContent>
-            {/* Chọn ngân hàng từ danh sách có sẵn */}
             <FormControl fullWidth sx={{ marginBottom: 2 }}>
               <InputLabel>Tên Ngân Hàng</InputLabel>
               <Select
                 value={newBank.bankName}
                 onChange={(e) => {
-                  const selectedBank = availableBanks.find(bank => bank.name === e.target.value);
+                  const selectedBank = availableBanks.find((bank) => bank.name === e.target.value);
                   setNewBank({ ...newBank, bankName: e.target.value, logo: selectedBank.logo });
                 }}
                 label="Tên Ngân Hàng"
@@ -166,7 +197,11 @@ const Bank = () => {
                 {availableBanks.map((bank, index) => (
                   <MenuItem key={index} value={bank.name}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <img src={bank.logo} alt={bank.name} style={{ width: 30, height: 30, marginRight: 10 }} />
+                      <img
+                        src={bank.logo}
+                        alt={bank.name}
+                        style={{ width: 30, height: 30, marginRight: 10 }}
+                      />
                       <Typography>{bank.name}</Typography>
                     </Box>
                   </MenuItem>
@@ -205,6 +240,18 @@ const Bank = () => {
             <Button onClick={handleDialogClose} color="secondary">
               Hủy
             </Button>
-            <Button onClick={handleAddBank} color="primary">
-              Thêm </Button> </DialogActions> </Dialog> </Box> </Box>);
-}; export default Bank;
+            <Button
+              onClick={handleAddBank}
+              color="primary"
+              disabled={!newBank.bankName || !newBank.accountNumber || !newBank.accountHolder || newBank.balance <= 0}
+            >
+              Thêm
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </Box>
+  );
+};
+
+export default Bank;
