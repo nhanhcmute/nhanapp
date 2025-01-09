@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container, Grid, Paper, Typography, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Select, MenuItem, CircularProgress } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
+import { database } from '../../firebaseConfig';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -9,7 +11,6 @@ const UserManagement = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -18,9 +19,15 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/users');
-      const data = await response.json();
-      setUsers(data);
+      const usersRef = ref(database, 'users'); // Truy cập vào node 'users' trong Realtime Database
+      const snapshot = await get(usersRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const usersList = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
+        setUsers(usersList);
+      } else {
+        setUsers([]);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -49,16 +56,11 @@ const UserManagement = () => {
   };
 
   const handleSaveUser = async () => {
-    const url = selectedUser ? `http://localhost:5000/users/${selectedUser.id}` : 'http://localhost:5000/users';
-    const method = selectedUser ? 'PUT' : 'POST';
+    const userRef = ref(database, 'users');
+    const newUserId = selectedUser ? selectedUser.id : Date.now().toString(); // Tạo id nếu là user mới
 
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser),
-      });
-      if (!response.ok) throw new Error('Error saving user');
+      await set(child(userRef, newUserId), newUser); // Thêm hoặc cập nhật user trong database
       toast.success(selectedUser ? 'User updated successfully' : 'User added successfully');
       fetchUsers();
       handleCloseDialog();
@@ -68,9 +70,9 @@ const UserManagement = () => {
   };
 
   const handleDeleteUser = async (userId) => {
+    const userRef = ref(database, `users/${userId}`);
     try {
-      const response = await fetch(`http://localhost:5000/users/${userId}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Error deleting user');
+      await remove(userRef); // Xóa user khỏi database
       toast.success('User deleted successfully');
       fetchUsers();
     } catch (error) {

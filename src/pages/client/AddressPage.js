@@ -22,6 +22,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../function/Sidebar';
 import axios from 'axios';
+import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
+import { database } from '../../firebaseConfig'; 
+import { toast } from 'react-toastify'; // Nếu bạn sử dụng toast để thông báo
+
 import MapComponent from '../../component/MapComponent';
 
 const AddressPage = () => {
@@ -161,16 +165,19 @@ const AddressPage = () => {
       addressType: '',
     });
   };
-  // Lấy danh sách địa chỉ từ API
+  // Lấy danh sách địa chỉ từ Firebase
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/addresses');
-        if (response.status === 200 && Array.isArray(response.data)) {
-          setAddresses(response.data);
+        const addressesRef = ref(database, 'addresses');
+        const snapshot = await get(addressesRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const addressList = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
+          setAddresses(addressList);
         } else {
-          setError('Không có dữ liệu địa chỉ');
+          setAddresses([]);
         }
       } catch (error) {
         console.error('Lỗi khi lấy danh sách địa chỉ:', error);
@@ -182,42 +189,29 @@ const AddressPage = () => {
 
     fetchAddresses();
   }, []);
-  // Thêm địa chỉ mới
+  // Thêm địa chỉ mới vào Firebase
   const handleAddAddress = async () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.province || !newAddress.district || !newAddress.ward || !newAddress.addressType) {
       alert('Vui lòng điền đầy đủ thông tin địa chỉ');
       return;
     }
 
-    // Tạo dữ liệu địa chỉ mới cần thêm
-    const addressData = {
-      ...newAddress,
-      id: Date.now().toString(), // Chuyển id thành chuỗi
-      isDefault: addresses.length === 0, // Đặt mặc định cho địa chỉ đầu tiên
-    };
+    const addressData = { ...newAddress, id: Date.now().toString() };
 
     try {
-      const response = await axios.post('http://localhost:5000/addresses', addressData);
+      const addressRef = ref(database, 'addresses/' + addressData.id);
+      await set(addressRef, addressData); // Thêm địa chỉ vào Firebase
 
-      // Kiểm tra mã trạng thái và dữ liệu trả về từ API
-      if (response.status === 201 && response.data) {
-        // Đóng dialog ngay lập tức khi thêm thành công
-        setOpenDialog(false);
-
-        // Cập nhật địa chỉ mới vào danh sách
-        setAddresses([...addresses, response.data]); // response.data chứa dữ liệu địa chỉ với id từ API
-      } else {
-        alert('Có lỗi xảy ra khi lưu địa chỉ');
-      }
+      toast.success('Địa chỉ đã được thêm thành công!');
+      setAddresses([...addresses, addressData]);
+      setOpenDialog(false); // Đóng dialog sau khi thêm địa chỉ
     } catch (error) {
       console.error('Lỗi khi thêm địa chỉ:', error);
       alert('Có lỗi xảy ra khi lưu địa chỉ');
     }
   };
 
-
-
-  // Cập nhật địa chỉ
+  // Cập nhật địa chỉ trong Firebase
   const handleEditAddress = async () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.province || !newAddress.district || !newAddress.ward || !newAddress.addressType || !newAddress.street) {
       alert('Vui lòng điền đầy đủ thông tin địa chỉ');
@@ -227,25 +221,21 @@ const AddressPage = () => {
     const updatedAddress = { ...newAddress };
 
     try {
-      const response = await axios.put(`http://localhost:5000/addresses/${newAddress.id}`, updatedAddress);
+      const addressRef = ref(database, `addresses/${newAddress.id}`);
+      await set(addressRef, updatedAddress); // Cập nhật địa chỉ trong Firebase
 
-      if (response.status === 200) {
-        // Cập nhật địa chỉ trong state
-        const updatedAddresses = addresses.map((address) =>
-          address.id === newAddress.id ? updatedAddress : address
-        );
-        setAddresses(updatedAddresses);
-
-        // Đóng dialog
-        setOpenDialog(false);
-      } else {
-        alert('Không thể cập nhật địa chỉ. Vui lòng thử lại.');
-      }
+      toast.success('Địa chỉ đã được cập nhật thành công!');
+      setAddresses((prevAddresses) =>
+        prevAddresses.map((address) => (address.id === newAddress.id ? updatedAddress : address))
+      );
+      setOpenDialog(false); // Đóng dialog
     } catch (error) {
       console.error('Lỗi khi cập nhật địa chỉ:', error);
       alert('Có lỗi xảy ra khi cập nhật địa chỉ');
     }
   };
+
+  // Xóa địa chỉ khỏi Firebase
   const handleDeleteAddress = async (addressId) => {
     if (!addressId) {
       console.log("ID địa chỉ không hợp lệ");
@@ -253,22 +243,16 @@ const AddressPage = () => {
     }
 
     try {
-      // Gửi yêu cầu xóa địa chỉ
-      const response = await axios.delete(`http://localhost:5000/addresses/${addressId}`);
+      const addressRef = ref(database, `addresses/${addressId}`);
+      await remove(addressRef); // Xóa địa chỉ khỏi Firebase
 
-      // Kiểm tra nếu xóa thành công (tùy thuộc vào API có trả về mã trạng thái hay không)
-      if (response.status === 200) {
-        // Cập nhật danh sách địa chỉ sau khi xóa thành công
-        setAddresses(prevAddresses => prevAddresses.filter(address => address.id !== addressId));
-      } else {
-        alert('Có lỗi xảy ra khi xóa địa chỉ');
-      }
+      toast.success('Địa chỉ đã được xóa thành công!');
+      setAddresses((prevAddresses) => prevAddresses.filter((address) => address.id !== addressId));
     } catch (error) {
       console.error("Lỗi khi xóa địa chỉ:", error);
       alert('Có lỗi xảy ra khi xóa địa chỉ');
     }
   };
-
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#fafafa', marginBottom: "20px" }}>

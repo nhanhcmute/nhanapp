@@ -24,6 +24,8 @@ import {
   DialogActions,
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
+import { getDatabase, ref, set, get, child, remove, onValue } from "firebase/database";
+import { database } from '../../firebaseConfig'; 
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -42,22 +44,63 @@ const Products = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [sortByPrice, setSortByPrice] = useState(false);
-  const [sortBy, setSortBy] = useState('');
+  const [sortBy, setSortBy] = useState("");
 
-  // Lấy danh sách sản phẩm từ API
+  // Lấy danh sách sản phẩm từ Firebase
   const fetchProducts = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/products");
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    }
+    const productsRef = ref(database, 'products');
+    onValue(productsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const productsList = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setProducts(productsList);
+      } else {
+        setProducts([]);
+      }
+    });
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Thêm sản phẩm mới vào Firebase
+  const handleAddProduct = async () => {
+    if (newProduct.name && newProduct.price && newProduct.quantity && newProduct.description) {
+      let base64Image = newProduct.image;
+
+      if (selectedImage) {
+        base64Image = await convertFileToBase64(selectedImage);
+      }
+
+      const productData = { ...newProduct, image: base64Image };
+
+      const newProductRef = ref(database, 'products/' + new Date().getTime());
+      try {
+        await set(newProductRef, productData);
+        setProducts((prevProducts) => [{ id: newProductRef.key, ...productData }, ...prevProducts]);
+        handleCancel();
+      } catch (error) {
+        console.error("Failed to add product:", error);
+      }
+    } else {
+      alert("Vui lòng điền đầy đủ thông tin sản phẩm.");
+    }
+  };
+
+  // Xóa sản phẩm từ Firebase
+  const handleDeleteProduct = async (productId) => {
+    const productRef = ref(database, 'products/' + productId);
+    try {
+      await remove(productRef);
+      setProducts(products.filter((product) => product.id !== productId));
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+    }
+  };
 
   // Cập nhật status khi thay đổi số lượng
   const handleQuantityChange = (e) => {
@@ -90,45 +133,6 @@ const Products = () => {
     }));
   };
 
-  // Thêm sản phẩm mới
-  const handleAddProduct = async () => {
-    if (newProduct.name && newProduct.price && newProduct.quantity && newProduct.description) {
-      let base64Image = newProduct.image;
-
-      if (selectedImage) {
-        base64Image = await convertFileToBase64(selectedImage);
-      }
-
-      const productData = { ...newProduct, image: base64Image };
-
-      try {
-        const response = await fetch("http://localhost:5000/products", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        });
-
-        const addedProduct = await response.json();
-        setProducts((prevProducts) => [addedProduct, ...prevProducts]);
-        handleCancel();
-      } catch (error) {
-        console.error("Failed to add product:", error);
-      }
-    } else {
-      alert("Vui lòng điền đầy đủ thông tin sản phẩm.");
-    }
-  };
-
-  // Xóa sản phẩm
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await fetch(`http://localhost:5000/products/${productId}`, { method: "DELETE" });
-      setProducts(products.filter((product) => product.id !== productId));
-    } catch (error) {
-      console.error("Failed to delete product:", error);
-    }
-  };
-
   // Mở Dialog chỉnh sửa sản phẩm
   const handleEditProduct = (productId) => {
     const productToEdit = products.find((product) => product.id === productId);
@@ -141,23 +145,15 @@ const Products = () => {
     if (editingProduct) {
       let base64Image = editingProduct.image;
 
-      // Nếu có ảnh mới, chuyển ảnh thành base64
       if (selectedImage) {
         base64Image = await convertFileToBase64(selectedImage);
       }
 
-      // Cập nhật lại đối tượng sản phẩm với ảnh mới
       const updatedProduct = { ...editingProduct, image: base64Image };
 
+      const productRef = ref(database, 'products/' + editingProduct.id);
       try {
-        // Gửi yêu cầu PUT với thông tin sản phẩm đã chỉnh sửa (bao gồm ảnh mới)
-        await fetch(`http://localhost:5000/products/${editingProduct.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedProduct),
-        });
-
-        // Cập nhật lại danh sách sản phẩm trong state
+        await set(productRef, updatedProduct);
         setProducts((prevProducts) =>
           prevProducts.map((product) =>
             product.id === editingProduct.id ? updatedProduct : product
@@ -204,17 +200,19 @@ const Products = () => {
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   // Sắp xếp sản phẩm theo tên, số lượng hoặc giá
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'name') {
-      return a.name.localeCompare(b.name); // Sắp xếp theo tên
+      return a.name.localeCompare(b.name);
     } else if (sortBy === 'quantity') {
-      return a.quantity - b.quantity; // Sắp xếp theo số lượng
+      return a.quantity - b.quantity;
     } else if (sortBy === 'price') {
-      return a.price - b.price; // Sắp xếp theo giá
+      return a.price - b.price;
     }
-    return 0; // Nếu không có yêu cầu sắp xếp, giữ nguyên thứ tự
+    return 0;
   });
+
   const paginatedProducts = sortedProducts.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { auth, createUserWithEmailAndPassword, ref, set, database } from '../../firebaseConfig';
 
 const SignupPage = () => {
   const [name, setName] = useState('');
@@ -27,40 +28,31 @@ const SignupPage = () => {
       return;
     }
 
-    const userData = { name, email, username, password };
-
     try {
-      // Kiểm tra tên đăng nhập đã tồn tại hay chưa
-      const checkUsernameResponse = await fetch('http://localhost:5000/signup');
-      const users = await checkUsernameResponse.json();
-      const existingUser = users.find((user) => user.username === username);
+      // Đăng ký người dùng mới với Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-      if (existingUser) {
-        setError('Tên đăng nhập đã tồn tại!');
-        return;
-      }
-
-      // Nếu tên đăng nhập chưa tồn tại, gửi yêu cầu POST để đăng ký người dùng mới
-      const response = await fetch('http://localhost:5000/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
+      // Lưu thông tin người dùng vào Firebase Database
+      const userRef = ref(database, 'users/' + user.uid);
+      await set(userRef, {
+        name: name,
+        email: email,
+        username: username,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSuccess(true); // Đăng ký thành công
-        setTimeout(() => {
-          navigate('/login'); // Chuyển hướng về trang đăng nhập
-        }, 2000);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Đăng ký thất bại!');
-      }
+      setSuccess(true); // Đăng ký thành công
+      setTimeout(() => {
+        navigate('/login'); // Chuyển hướng về trang đăng nhập
+      }, 2000);
     } catch (err) {
-      setError('Đã xảy ra lỗi khi kết nối đến máy chủ!');
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Email này đã được đăng ký!');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Mật khẩu phải có ít nhất 6 ký tự!');
+      } else {
+        setError('Đã xảy ra lỗi khi đăng ký!');
+      }
     }
   };
 

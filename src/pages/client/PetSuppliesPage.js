@@ -1,15 +1,42 @@
-// QualityPetSuppliesPage.js
+// src/pages/client/PetSuppliesPage.js
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Typography, Card, CardContent, CardMedia, Button } from '@mui/material';
+import { Container, Grid, Typography, Card, CardContent, CardMedia, Button, CircularProgress, Alert } from '@mui/material';
+import { ref, get } from 'firebase/database'; // Import các hàm của Realtime Database
+import { database } from '../../firebaseConfig'; // Import database từ firebaseConfig
 
 const PetSuppliesPage = () => {
   const [petSupplies, setPetSupplies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Lấy dữ liệu từ API (JSON Server)
-    fetch('http://localhost:5000/petSupplies')
-      .then((response) => response.json())
-      .then((data) => setPetSupplies(data));
+    const fetchPetSupplies = async () => {
+      try {
+        // Lấy dữ liệu từ Realtime Database
+        const petSuppliesRef = ref(database, 'petSupplies'); // Truy cập đến node 'petSupplies'
+        const snapshot = await get(petSuppliesRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.val(); // Lấy giá trị của node 'petSupplies'
+          // Chuyển dữ liệu thành mảng
+          const suppliesData = Object.keys(data).map(key => ({
+            id: key,
+            ...data[key],
+          }));
+          
+          setPetSupplies(suppliesData);
+        } else {
+          setError('Không có dữ liệu');
+        }
+
+        setLoading(false);
+      } catch (err) {
+        setError('Lỗi khi tải dữ liệu!');
+        setLoading(false);
+      }
+    };
+
+    fetchPetSupplies();
   }, []);
 
   return (
@@ -22,32 +49,40 @@ const PetSuppliesPage = () => {
         Explore our premium selection of pet supplies. Our products are designed to keep your pets happy, healthy, and comfortable.
       </Typography>
 
-      <Grid container spacing={4}>
-        {petSupplies.map((supply) => (
-          <Grid item xs={12} sm={6} md={4} key={supply.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="200"
-                image={supply.image}
-                alt={supply.name}
-              />
-              <CardContent>
-                <Typography variant="h6">{supply.name}</Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {supply.description}
-                </Typography>
-                <Typography variant="h6" color="primary">
-                  ${supply.price.toFixed(2)}
-                </Typography>
-                <Button variant="contained" color="primary" fullWidth sx={{ marginTop: '10px' }}>
-                  Add to Cart
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Grid container justifyContent="center" spacing={2}>
+          <CircularProgress />
+        </Grid>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        <Grid container spacing={4}>
+          {petSupplies.map((supply) => (
+            <Grid item xs={12} sm={6} md={4} key={supply.id}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={supply.image}
+                  alt={supply.name}
+                />
+                <CardContent>
+                  <Typography variant="h6">{supply.name}</Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {supply.description}
+                  </Typography>
+                  <Typography variant="h6" color="primary">
+                    ${supply.price.toFixed(2)}
+                  </Typography>
+                  <Button variant="contained" color="primary" fullWidth sx={{ marginTop: '10px' }}>
+                    Add to Cart
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 };
