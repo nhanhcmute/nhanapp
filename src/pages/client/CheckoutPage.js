@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, RadioGroup, Radio, FormControlLabel, Grid, Typography, Button, FormControl, InputLabel, Select, MenuItem, TextField, Paper, Card, CardContent, Alert, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getDatabase, ref, set, get, update, remove } from 'firebase/database';
+import { database } from '../../firebaseConfig';
 import axios from 'axios';
 
 const CheckoutPage = () => {
@@ -213,7 +215,7 @@ const CheckoutPage = () => {
         const discountValue = Number(discount) || 0;
     
         const newOrder = {
-            id: String(Date.now()),
+            id: String(Date.now()), // Lấy ID đơn hàng từ timestamp
             customer: {
                 name: defaultAddress.fullName,
                 phone: defaultAddress.phone,
@@ -237,18 +239,20 @@ const CheckoutPage = () => {
         };
     
         try {
-            // Gửi yêu cầu POST để tạo đơn hàng
-            await axios.post('http://localhost:5000/checkout', newOrder);
+            // Gửi đơn hàng vào Firebase (thêm đơn hàng vào node orders/{orderId})
+            const orderRef = ref(database, 'orders/' + newOrder.id);
+            await set(orderRef, newOrder);
+    
             alert('Mua hàng thành công!');
     
-            // Cập nhật giỏ hàng bằng POST
+            // Cập nhật giỏ hàng sau khi thanh toán
             const updatedCart = cart.filter((product) => !selectedItems[product.id]);
-            const response = await axios.post('http://localhost:5000/cart/update', { cart: updatedCart });
-            
-            // Kiểm tra phản hồi từ server
-            console.log('Phản hồi từ API:', response.data);
     
-            // Cập nhật lại trạng thái giỏ hàng cục bộ
+            // Cập nhật giỏ hàng trong Firebase sử dụng product.id làm ID
+            const cartRef = ref(database, 'cart/' + selectedProducts[0].id); // Sử dụng id sản phẩm đầu tiên trong giỏ hàng
+            await update(cartRef, { items: updatedCart });
+    
+            // Cập nhật lại giỏ hàng cục bộ
             setCart(updatedCart);
     
             // Chuyển hướng đến trang danh sách đơn hàng
@@ -258,8 +262,6 @@ const CheckoutPage = () => {
             alert('Có lỗi xảy ra, vui lòng thử lại.');
         }
     };
-    
-    
 
     // Mở và đóng dialog chỉnh sửa địa chỉ
     const handleOpenDialog = () => {

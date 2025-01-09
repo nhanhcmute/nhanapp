@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert, Modal, Fade, Backdrop } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { auth, signInWithEmailAndPassword, sendPasswordResetEmail } from '../../firebaseConfig'; // Sửa lại import
+import { database, ref, get, update } from '../../firebaseConfig'; // Import lại database, ref, get, update
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -17,44 +19,37 @@ const LoginPage = () => {
   const handleLogin = async () => {
     setError('');
     setSuccess(false);
-
+  
     // Kiểm tra trường dữ liệu
     if (!username || !password) {
       setError('Vui lòng nhập tên đăng nhập và mật khẩu!');
       return;
     }
-
-    const loginData = { username, password };
-
+  
     try {
-      // Gửi yêu cầu GET đến API /signup để lấy dữ liệu người dùng
-      const response = await fetch('http://localhost:5000/signup');
-      const users = await response.json();
-
-      // Tìm người dùng trong dữ liệu
-      const user = users.find((user) => user.username === username);
-
-      if (!user) {
+      // Đăng nhập với Firebase Authentication
+      await signInWithEmailAndPassword(auth, username, password);
+  
+      // Lấy thông tin người dùng từ Firebase Realtime Database (nếu cần)
+      const userRef = ref(database, 'users/' + username);
+      const snapshot = await get(userRef);
+  
+      if (!snapshot.exists()) {
         setError('Tên đăng nhập không tồn tại!');
         return;
       }
-
-      // Kiểm tra mật khẩu
-      const isPasswordValid = user.password === password;
-      if (!isPasswordValid) {
-        setError('Sai mật khẩu!');
-        return;
-      }
-
+  
+      const user = snapshot.val();
+  
       // Đăng nhập thành công, kiểm tra quyền truy cập
       setSuccess(true);
       localStorage.setItem('user', JSON.stringify(user));
-
-      // Kiểm tra quyền admin (username = 'admin' và mật khẩu tương ứng)
+  
+      // Kiểm tra quyền admin
       if (username === 'admin' && password === 'Xenlulozo1@') {
         console.log('Admin credentials are correct, navigating to admin...');
         setTimeout(() => {
-          navigate('/admin'); 
+          navigate('/admin');
         }, 2000);
       } else {
         setTimeout(() => {
@@ -62,34 +57,38 @@ const LoginPage = () => {
         }, 2000);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi kết nối đến máy chủ!');
+      setError('Sai tên đăng nhập hoặc mật khẩu!');
     }
   };
 
   const handleForgotPassword = async () => {
     setError('');
     setSuccess(false);
-
+  
     if (!resetUsername || !resetEmail) {
       setError('Vui lòng nhập tên đăng nhập và email!');
       return;
     }
-
+  
     try {
-      // Gửi yêu cầu đến API để kiểm tra người dùng có tồn tại
-      const response = await fetch('http://localhost:5000/signup');
-      const users = await response.json();
-      const user = users.find((user) => user.username === resetUsername && user.email === resetEmail);
-
-      if (!user) {
+      // Kiểm tra xem người dùng có tồn tại trong Firebase Authentication
+      const userRef = ref(database, 'users/' + resetUsername);
+      const snapshot = await get(userRef);
+  
+      if (!snapshot.exists() || snapshot.val().email !== resetEmail) {
         setError('Thông tin tài khoản hoặc email không đúng!');
         return;
       }
-
-      // Nếu thông tin đúng, chuyển sang bước thay đổi mật khẩu
-      setStep(2);
+  
+      // Gửi yêu cầu đặt lại mật khẩu
+      await sendPasswordResetEmail(auth, resetEmail);
+      setSuccess(true);
+      setTimeout(() => {
+        alert('Email yêu cầu đặt lại mật khẩu đã được gửi!');
+        setStep(2);
+      }, 2000);
     } catch (err) {
-      setError('Đã xảy ra lỗi khi kết nối đến máy chủ!');
+      setError('Đã xảy ra lỗi khi gửi yêu cầu đặt lại mật khẩu!');
     }
   };
 
@@ -98,30 +97,24 @@ const LoginPage = () => {
       setError('Vui lòng nhập mật khẩu mới!');
       return;
     }
-
+  
     try {
-      // Cập nhật mật khẩu người dùng trong cơ sở dữ liệu
-      const response = await fetch('http://localhost:5000/signup');
-      const users = await response.json();
-      const userIndex = users.findIndex((user) => user.username === resetUsername);
-
-      if (userIndex === -1) {
+      // Kiểm tra thông tin người dùng trong Firebase Authentication
+      const userRef = ref(database, 'users/' + resetUsername);
+      const snapshot = await get(userRef);
+  
+      if (!snapshot.exists()) {
         setError('Người dùng không tồn tại!');
         return;
       }
-
-      // Cập nhật mật khẩu của người dùng
-      users[userIndex].password = newPassword;
-
-      // Gửi yêu cầu PUT để cập nhật mật khẩu
-      await fetch('http://localhost:5000/signup', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(users),
-      });
-
+  
+      // Cập nhật mật khẩu của người dùng trong Firebase Authentication
+      const user = snapshot.val();
+      user.password = newPassword;
+  
+      // Cập nhật mật khẩu trong Firebase Realtime Database
+      await update(userRef, { password: newPassword });
+  
       setSuccess(true);
       setTimeout(() => {
         alert('Mật khẩu của bạn đã được thay đổi thành công!');
@@ -131,7 +124,7 @@ const LoginPage = () => {
       setError('Đã xảy ra lỗi khi cập nhật mật khẩu!');
     }
   };
-
+  
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Box

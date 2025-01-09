@@ -1,16 +1,42 @@
 // ExclusiveDealsPage.js
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Card, CardContent, CardMedia, Button } from '@mui/material';
+import { database, ref, get } from '../../firebaseConfig';
 
 const ExclusiveDealsPage = () => {
   const [exclusiveDeals, setExclusiveDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Lấy dữ liệu từ API (JSON Server)
-    fetch('http://localhost:5000/exclusiveDeals')
-      .then((response) => response.json())
-      .then((data) => setExclusiveDeals(data));
+    // Lấy dữ liệu từ Firebase Realtime Database
+    const fetchExclusiveDeals = async () => {
+      try {
+        const dealsRef = ref(database, 'exclusiveDeals');
+        const snapshot = await get(dealsRef);
+        if (snapshot.exists()) {
+          setExclusiveDeals(Object.values(snapshot.val())); // Chuyển đổi object thành array
+        } else {
+          console.log("No data available");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu từ Firebase:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExclusiveDeals();
   }, []);
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ paddingTop: '20px' }}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Đang tải dữ liệu...
+        </Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px' }}>

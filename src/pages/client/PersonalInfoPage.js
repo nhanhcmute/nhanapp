@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, TextField, Button, Typography, Box, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { ref, set } from 'firebase/database'; 
+import { database } from '../../firebaseConfig';
 import axios from 'axios';
 import MapComponent from '../../component/MapComponent';
 
@@ -95,7 +97,6 @@ const PersonalInfoPage = () => {
     }
   }, [district]);
 
-  // Xử lý khi nhấn submit
   const handleSubmit = (event) => {
     event.preventDefault();
   
@@ -119,10 +120,10 @@ const PersonalInfoPage = () => {
     // Lưu thông tin vào localStorage
     localStorage.setItem('personalInfo', JSON.stringify(personalInfo));
   
-    // Gửi dữ liệu lên server
-    axios
-      .post('http://localhost:5000/personalInfo', personalInfo)
-      .then((response) => {
+    // Lưu dữ liệu vào Firebase Realtime Database
+    const userRef = ref(database, 'personalInfo/' + phone); // Lưu theo số điện thoại (hoặc một ID duy nhất khác)
+    set(userRef, personalInfo)
+      .then(() => {
         alert('Thông tin đã được lưu thành công!');
         navigate('/profile'); // Điều hướng sang trang Profile
       })

@@ -9,6 +9,10 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useCart } from './function/CartContext';
+import { database, ref, get, query, orderByChild } from './firebaseConfig';
+import { update } from "firebase/database";
+
+
 import axios from 'axios';
 import logo from './asset/images/logo.png';
 
@@ -34,19 +38,38 @@ function Header() {
 
     // Lấy dữ liệu thông báo từ API
     useEffect(() => {
-        axios.get('http://localhost:5000/notifications')
-            .then((response) => {
-                const data = response.data.map((alert) => ({
-                    ...alert,
-                    isRead: alert.isRead || false,
-                }));
+        const fetchNotifications = async () => {
+            try {
+                // Tham chiếu đến đường dẫn 'notifications' trong Realtime Database
+                const notificationsRef = ref(database, 'notifications');
+                const q = query(notificationsRef, orderByChild('timestamp')); // Sắp xếp theo timestamp
 
-                // Sắp xếp thông báo theo timestamp từ mới đến cũ
-                const sortedAlerts = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                // Lấy dữ liệu từ Realtime Database
+                const snapshot = await get(q);
 
-                setAlerts(sortedAlerts);
-            })
-            .catch((error) => console.error('Lỗi khi lấy thông báo:', error));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const notificationsData = Object.keys(data).map((key) => ({
+                        id: key, // Lấy ID của mỗi thông báo
+                        ...data[key],
+                        isRead: data[key].isRead || false, // Đảm bảo có trường isRead
+                    }));
+
+                    // Sắp xếp dữ liệu theo timestamp giảm dần (mới đến cũ)
+                    const sortedNotifications = notificationsData.sort(
+                        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+                    );
+
+                    setAlerts(sortedNotifications);
+                } else {
+                    console.log('Không có thông báo nào.');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông báo từ Realtime Database:', error);
+            }
+        };
+
+        fetchNotifications();
     }, []);
 
     // Tính số lượng thông báo chưa đọc
@@ -85,7 +108,7 @@ function Header() {
         navigate('/login');
     };
 
-    // Cập nhật thông báo là đã đọc
+    // Hàm cập nhật trạng thái thông báo là đã đọc
     const handleMarkAsRead = (alertId) => {
         // Cập nhật trong state trước
         setAlerts((prevAlerts) =>
@@ -94,9 +117,17 @@ function Header() {
             )
         );
 
-        // Gửi yêu cầu PUT để cập nhật trạng thái thông báo đã đọc trong API
-        axios.patch(`http://localhost:5000/notifications/${alertId}`, { isRead: true })
-            .catch((error) => console.error('Lỗi khi cập nhật thông báo:', error));
+        // Tạo tham chiếu đến thông báo trong Realtime Database
+        const alertRef = ref(database, `notifications/${alertId}`);
+
+        // Cập nhật trạng thái `isRead` thành `true`
+        update(alertRef, { isRead: true })
+            .then(() => {
+                console.log(`Thông báo ${alertId} đã được đánh dấu là đã đọc.`);
+            })
+            .catch((error) => {
+                console.error("Lỗi khi cập nhật thông báo:", error);
+            });
     };
 
     return (
@@ -138,7 +169,7 @@ function Header() {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {/* Cart */}
                     <IconButton color="inherit" sx={{ marginRight: '10px' }} onClick={() => navigate('/cart')}>
-                    <Badge badgeContent={totalQuantity} color="error">
+                        <Badge badgeContent={totalQuantity} color="error">
                             <ShoppingCartIcon />
                         </Badge>
                     </IconButton>

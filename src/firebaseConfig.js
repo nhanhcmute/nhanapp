@@ -1,10 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, getDocs, doc, updateDoc } from "firebase/firestore"; // Thêm Firestore imports
-import { getDatabase, ref, set, get, push, update, remove } from "firebase/database"; // Realtime Database imports
+import { getFirestore, collection, getDocs, doc, updateDoc } from "firebase/firestore"; // Firestore imports
+import { getDatabase, ref, set, get, push, update, remove, query, orderByChild } from "firebase/database"; // Realtime Database imports
 import { getStorage } from "firebase/storage"; // Storage imports
-import { getAuth } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"; // Auth imports
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -28,7 +28,6 @@ const analytics = getAnalytics(app); // Only if you need it
 const storage = getStorage(app);
 const auth = getAuth(app);
 
-
 // Export Firebase services
 export { 
   app, 
@@ -42,9 +41,14 @@ export {
   get, 
   push, 
   update, 
-  remove, 
+  remove,
+  query,
+  orderByChild, 
   collection, 
   getDocs, 
   doc, 
-  updateDoc 
+  updateDoc,
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  sendPasswordResetEmail
 };

@@ -1,30 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Container, Grid, Typography, CardMedia, Button, Snackbar, Alert } from '@mui/material';
+import { ref, get } from 'firebase/database'; 
+import { database } from '../../firebaseConfig'; 
 import { useCart } from '../../function/CartContext';
-import RatingAndReviews from '../../function/RatingAndReviews'; // Import RatingAndReviews
+import RatingAndReviews from '../../function/RatingAndReviews'; 
 
 const ProductPage = () => {
-  const { id } = useParams(); // Lấy ID sản phẩm từ URL
-  const navigate = useNavigate(); // Dùng để quay lại danh sách sản phẩm
+  const { id } = useParams(); // ID sản phẩm từ URL
+  const navigate = useNavigate(); // Điều hướng trang
   const [product, setProduct] = useState(null); // Lưu thông tin sản phẩm
   const [loading, setLoading] = useState(true);
   const { cart, addToCart } = useCart();
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/products/${id}`)
-      .then(response => {
-        setProduct(response.data);
+    const fetchProduct = async () => {
+      try {
+        const productRef = ref(database, 'products'); // Truy vấn tất cả sản phẩm
+        const snapshot = await get(productRef);
+  
+        if (snapshot.exists()) {
+          const products = snapshot.val();
+  
+          // Chuyển đổi các object thành mảng và sắp xếp theo thứ tự của id
+          const sortedProducts = Object.keys(products)
+            .map(key => ({ id: key, ...products[key] }))
+            .sort((a, b) => parseInt(a.id) - parseInt(b.id)); // Sắp xếp theo id
+  
+          const currentProduct = sortedProducts.find(product => product.id === id); // Lấy sản phẩm theo id
+  
+          if (currentProduct) {
+            setProduct(currentProduct);
+          } else {
+            console.error('Sản phẩm không tồn tại!');
+          }
+        } else {
+          console.error('Không có sản phẩm nào trong cơ sở dữ liệu!');
+        }
+  
         setLoading(false);
-      })
-      .catch(error => {
-        console.error('Không tìm được sản phẩm!', error);
+      } catch (error) {
+        console.error('Lỗi khi lấy sản phẩm:', error);
         setLoading(false);
-      });
+      }
+    };
+  
+    fetchProduct();
   }, [id]);
-
+  
   const handleAddToCart = () => {
     addToCart(product);
     setOpenSnackbar(true);
@@ -78,11 +102,11 @@ const ProductPage = () => {
               variant="body1"
               paragraph
               sx={{
-                flexGrow: 1, // Để mô tả chiếm không gian còn lại
+                flexGrow: 1,
                 display: 'flex',
-                justifyContent: 'justify', // Căn đều chữ
-                wordBreak: 'break-word',  // Đảm bảo từ dài không bị tràn
-                flexWrap: 'wrap',  // Giúp văn bản xuống dòng khi cần
+                justifyContent: 'justify',
+                wordBreak: 'break-word',
+                flexWrap: 'wrap',
               }}
             >
               {product.description || 'Mô tả không có sẵn'}
@@ -91,7 +115,7 @@ const ProductPage = () => {
             {/* Trạng thái sản phẩm */}
             <Typography
               variant="body2"
-              color={statusColor} // Màu sắc trạng thái
+              color={statusColor}
               paragraph
             >
               <strong>Trạng thái:</strong> {product.status || 'Chưa có trạng thái'}
