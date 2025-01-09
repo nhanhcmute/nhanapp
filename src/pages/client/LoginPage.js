@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert, Modal, Fade, Backdrop } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { auth, signInWithEmailAndPassword, sendPasswordResetEmail } from '../../firebaseConfig'; // Sửa lại import
-import { database, ref, get, update } from '../../firebaseConfig'; // Import lại database, ref, get, update
+import { auth, signInWithEmailAndPassword, sendPasswordResetEmail } from '../../firebaseConfig'; 
+import { database, ref, get, update } from '../../firebaseConfig'; 
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -20,44 +20,51 @@ const LoginPage = () => {
     setError('');
     setSuccess(false);
   
-    // Kiểm tra trường dữ liệu
     if (!username || !password) {
       setError('Vui lòng nhập tên đăng nhập và mật khẩu!');
       return;
     }
   
     try {
-      // Đăng nhập với Firebase Authentication
-      await signInWithEmailAndPassword(auth, username, password);
-  
-      // Lấy thông tin người dùng từ Firebase Realtime Database (nếu cần)
-      const userRef = ref(database, 'users/' + username);
-      const snapshot = await get(userRef);
-  
+      // Fetch all user data from Firebase
+      const signupRef = ref(database, 'signup');
+      const snapshot = await get(signupRef);
+
       if (!snapshot.exists()) {
-        setError('Tên đăng nhập không tồn tại!');
+        setError('Dữ liệu không tồn tại!');
         return;
       }
-  
-      const user = snapshot.val();
-  
-      // Đăng nhập thành công, kiểm tra quyền truy cập
+
+      const users = snapshot.val();
+      let userFound = null;
+
+      // Search for user in the database
+      Object.values(users).forEach((user) => {
+        if (user.username === username && user.password === password) {
+          userFound = user;
+        }
+      });
+
+      if (!userFound) {
+        setError('Sai tên đăng nhập hoặc mật khẩu!');
+        return;
+      }
+
+      // Login success
       setSuccess(true);
-      localStorage.setItem('user', JSON.stringify(user));
-  
-      // Kiểm tra quyền admin
+      localStorage.setItem('user', JSON.stringify(userFound));
+
       if (username === 'admin' && password === 'Xenlulozo1@') {
-        console.log('Admin credentials are correct, navigating to admin...');
         setTimeout(() => {
           navigate('/admin');
         }, 2000);
       } else {
         setTimeout(() => {
-          navigate('/'); // Điều hướng về trang chính sau 2 giây
+          navigate('/');
         }, 2000);
       }
     } catch (err) {
-      setError('Sai tên đăng nhập hoặc mật khẩu!');
+      setError('Đã xảy ra lỗi khi đăng nhập!');
     }
   };
 
@@ -71,16 +78,30 @@ const LoginPage = () => {
     }
   
     try {
-      // Kiểm tra xem người dùng có tồn tại trong Firebase Authentication
-      const userRef = ref(database, 'users/' + resetUsername);
-      const snapshot = await get(userRef);
-  
-      if (!snapshot.exists() || snapshot.val().email !== resetEmail) {
+      const signupRef = ref(database, 'signup');
+      const snapshot = await get(signupRef);
+
+      if (!snapshot.exists()) {
+        setError('Dữ liệu không tồn tại!');
+        return;
+      }
+
+      const users = snapshot.val();
+      let userFound = null;
+
+      // Search for user
+      Object.values(users).forEach((user) => {
+        if (user.username === resetUsername && user.email === resetEmail) {
+          userFound = user;
+        }
+      });
+
+      if (!userFound) {
         setError('Thông tin tài khoản hoặc email không đúng!');
         return;
       }
-  
-      // Gửi yêu cầu đặt lại mật khẩu
+
+      // Send password reset email
       await sendPasswordResetEmail(auth, resetEmail);
       setSuccess(true);
       setTimeout(() => {
@@ -99,22 +120,33 @@ const LoginPage = () => {
     }
   
     try {
-      // Kiểm tra thông tin người dùng trong Firebase Authentication
-      const userRef = ref(database, 'users/' + resetUsername);
-      const snapshot = await get(userRef);
-  
+      const signupRef = ref(database, 'signup');
+      const snapshot = await get(signupRef);
+
       if (!snapshot.exists()) {
+        setError('Dữ liệu không tồn tại!');
+        return;
+      }
+
+      const users = snapshot.val();
+      let userKey = null;
+
+      // Find user key
+      Object.entries(users).forEach(([key, user]) => {
+        if (user.username === resetUsername) {
+          userKey = key;
+        }
+      });
+
+      if (!userKey) {
         setError('Người dùng không tồn tại!');
         return;
       }
-  
-      // Cập nhật mật khẩu của người dùng trong Firebase Authentication
-      const user = snapshot.val();
-      user.password = newPassword;
-  
-      // Cập nhật mật khẩu trong Firebase Realtime Database
+
+      // Update password in Firebase
+      const userRef = ref(database, `signup/${userKey}`);
       await update(userRef, { password: newPassword });
-  
+
       setSuccess(true);
       setTimeout(() => {
         alert('Mật khẩu của bạn đã được thay đổi thành công!');
@@ -124,7 +156,13 @@ const LoginPage = () => {
       setError('Đã xảy ra lỗi khi cập nhật mật khẩu!');
     }
   };
-  
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Box
@@ -137,19 +175,19 @@ const LoginPage = () => {
           borderRadius: 2,
           backgroundColor: 'white',
         }}
+        onKeyDown={handleKeyDown} 
+        tabIndex={0}
       >
         <Typography variant="h5" mb={2}>
           Đăng nhập
         </Typography>
 
-        {/* Thông báo lỗi */}
         {error && (
           <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
             {error}
           </Alert>
         )}
 
-        {/* Thông báo thành công */}
         {success && (
           <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
             Đăng nhập thành công! Bạn sẽ được chuyển hướng.
@@ -187,23 +225,21 @@ const LoginPage = () => {
           variant="text"
           color="primary"
           sx={{ mt: 2 }}
-          onClick={() => setForgotPassword(true)} // Mở modal quên mật khẩu
+          onClick={() => setForgotPassword(true)}
         >
           Quên mật khẩu?
         </Button>
 
-        {/* Nút Đăng Ký */}
         <Button
           variant="text"
           color="primary"
           sx={{ mt: 2 }}
-          onClick={() => navigate('/signup')} // Điều hướng đến trang đăng ký
+          onClick={() => navigate('/signup')}
         >
           Chưa có tài khoản? Đăng ký
         </Button>
       </Box>
 
-      {/* Modal Quên mật khẩu */}
       <Modal
         open={forgotPassword}
         onClose={() => setForgotPassword(false)}

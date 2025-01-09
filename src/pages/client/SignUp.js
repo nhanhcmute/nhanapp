@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { auth, createUserWithEmailAndPassword, ref, set, database } from '../../firebaseConfig';
+import { ref, set, database, get } from '../../firebaseConfig';
 
 const SignupPage = () => {
   const [name, setName] = useState('');
@@ -17,7 +17,6 @@ const SignupPage = () => {
     setError('');
     setSuccess(false);
 
-    // Kiểm tra trường dữ liệu
     if (!name || !email || !username || !password || !confirmPassword) {
       setError('Vui lòng điền đầy đủ thông tin!');
       return;
@@ -29,30 +28,47 @@ const SignupPage = () => {
     }
 
     try {
-      // Đăng ký người dùng mới với Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const signupRef = ref(database, 'signup');
+      const snapshot = await get(signupRef);
 
-      // Lưu thông tin người dùng vào Firebase Database
-      const userRef = ref(database, 'users/' + user.uid);
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        const isUsernameTaken = Object.values(users).some((user) => user.username === username);
+        const isEmailTaken = Object.values(users).some((user) => user.email === email);
+
+        if (isUsernameTaken) {
+          setError('Tên đăng nhập đã tồn tại!');
+          return;
+        }
+
+        if (isEmailTaken) {
+          setError('Email này đã được sử dụng!');
+          return;
+        }
+      }
+
+      const newUserId = Date.now();
+      const userRef = ref(database, `signup/${newUserId}`);
       await set(userRef, {
-        name: name,
-        email: email,
-        username: username,
+        id: newUserId,
+        name,
+        email,
+        username,
+        password,
       });
 
-      setSuccess(true); // Đăng ký thành công
+      setSuccess(true);
       setTimeout(() => {
-        navigate('/login'); // Chuyển hướng về trang đăng nhập
+        navigate('/login');
       }, 2000);
     } catch (err) {
-      if (err.code === 'auth/email-already-in-use') {
-        setError('Email này đã được đăng ký!');
-      } else if (err.code === 'auth/weak-password') {
-        setError('Mật khẩu phải có ít nhất 6 ký tự!');
-      } else {
-        setError('Đã xảy ra lỗi khi đăng ký!');
-      }
+      setError('Đã xảy ra lỗi khi đăng ký!');
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSignup();
     }
   };
 
@@ -68,19 +84,19 @@ const SignupPage = () => {
           borderRadius: 2,
           backgroundColor: 'white',
         }}
+        onKeyDown={handleKeyDown} 
+        tabIndex={0} 
       >
         <Typography variant="h5" mb={2}>
           Đăng ký tài khoản
         </Typography>
 
-        {/* Thông báo lỗi */}
         {error && (
           <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
             {error}
           </Alert>
         )}
 
-        {/* Thông báo thành công */}
         {success && (
           <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
             Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.
