@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../function/Sidebar';
+import { getAuth, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth'; // Import các hàm cần thiết từ Firebase Authentication
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState('');
@@ -26,6 +27,14 @@ const ChangePassword = () => {
       return;
     }
 
+    const auth = getAuth(); // Lấy instance của Firebase Authentication
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      setError('Bạn chưa đăng nhập!');
+      return;
+    }
+
     if (oldPassword !== user.password) {
       setError('Mật khẩu cũ không đúng!');
       return;
@@ -42,23 +51,12 @@ const ChangePassword = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/update-password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: user.username,
-          oldPassword: oldPassword,
-          newPassword: newPassword,
-        }),
-      });
+      // Đăng nhập lại người dùng để xác thực mật khẩu cũ
+      const credential = EmailAuthProvider.credential(currentUser.email, oldPassword);
+      await reauthenticateWithCredential(currentUser, credential);
 
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        setError(`Lỗi: ${errorMessage.message || 'Không thể kết nối đến máy chủ!'}`);
-        return;
-      }
+      // Cập nhật mật khẩu
+      await updatePassword(currentUser, newPassword);
 
       setSuccess(true);
       localStorage.setItem('user', JSON.stringify({ ...user, password: newPassword }));
