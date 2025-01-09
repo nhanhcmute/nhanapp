@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
@@ -22,57 +22,76 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { Add, Delete, Edit } from '@mui/icons-material';
+import { database, ref, set, get, child, update, remove } from '../../firebaseConfig'; 
 
 const Promotions = () => {
-  const loadPromotionsFromLocalStorage = () => {
-    const storedPromotions = localStorage.getItem('promotions');
-    return storedPromotions ? JSON.parse(storedPromotions) : [];
-  };
-
-  const savePromotionsToLocalStorage = (promotions) => {
-    localStorage.setItem('promotions', JSON.stringify(promotions));
-  };
-
-  const [promotions, setPromotions] = useState(loadPromotionsFromLocalStorage());
+  const [promotions, setPromotions] = useState([]);
   const [newPromotion, setNewPromotion] = useState({
     id: null,
     code: '',
-    discountType: 'percentage', 
+    discountType: 'percentage',
     discountValue: '',
     minOrderAmount: '',
     productCondition: '',
     expirationDate: '',
     usedCount: 0,
+    quantity: '' // Thêm số lượng
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleSearch = (event) => setSearchTerm(event.target.value);
+  useEffect(() => {
+    // Fetch promotions from Firebase when the component mounts
+    fetchPromotionsFromDatabase();
+  }, []);
 
-  const handleAddOrEditPromotion = () => {
+  const fetchPromotionsFromDatabase = async () => {
+    try {
+      const promotionsRef = ref(database, 'promotions');
+      const snapshot = await get(promotionsRef);
+      if (snapshot.exists()) {
+        setPromotions(Object.values(snapshot.val())); // Get promotions data from Firebase
+      }
+    } catch (error) {
+      console.error('Error fetching promotions: ', error);
+    }
+  };
+
+  const savePromotionToDatabase = async (promotion) => {
+    const promotionsRef = ref(database, 'promotions/' + promotion.id);
+    try {
+      await set(promotionsRef, promotion); // Save the promotion to Firebase
+      fetchPromotionsFromDatabase(); // Fetch updated promotions from Firebase
+    } catch (error) {
+      console.error('Error saving promotion: ', error);
+    }
+  };
+
+  const handleAddOrEditPromotion = async () => {
     if (
       newPromotion.code &&
       newPromotion.discountValue &&
       newPromotion.minOrderAmount &&
-      newPromotion.expirationDate
+      newPromotion.expirationDate &&
+      newPromotion.quantity // Kiểm tra số lượng
     ) {
       const updatedPromotion = { ...newPromotion };
 
-      let updatedPromotions;
       if (newPromotion.id) {
-        updatedPromotions = promotions.map((promo) =>
+        // Edit promotion
+        const updatedPromotions = promotions.map((promo) =>
           promo.id === newPromotion.id ? updatedPromotion : promo
         );
+        setPromotions(updatedPromotions);
+        await savePromotionToDatabase(updatedPromotion); // Update in Firebase
       } else {
-        updatedPromotions = [
-          ...promotions,
-          { ...updatedPromotion, id: Date.now(), usedCount: 0 },
-        ];
+        // Add new promotion
+        const newPromotionWithId = { ...updatedPromotion, id: Date.now().toString() };
+        setPromotions([...promotions, newPromotionWithId]);
+        await savePromotionToDatabase(newPromotionWithId); // Save new promotion to Firebase
       }
 
-      setPromotions(updatedPromotions);
-      savePromotionsToLocalStorage(updatedPromotions);
       resetForm();
     }
   };
@@ -87,15 +106,21 @@ const Promotions = () => {
       productCondition: '',
       expirationDate: '',
       usedCount: 0,
+      quantity: '' // Đặt lại số lượng
     });
   };
 
-  const handleDeletePromotion = (promotionId) => {
-    const updatedPromotions = promotions.filter(
-      (promotion) => promotion.id !== promotionId
-    );
+  const handleDeletePromotion = async (promotionId) => {
+    const updatedPromotions = promotions.filter((promotion) => promotion.id !== promotionId);
     setPromotions(updatedPromotions);
-    savePromotionsToLocalStorage(updatedPromotions);
+
+    const promotionRef = ref(database, 'promotions/' + promotionId);
+    try {
+      await remove(promotionRef); // Remove promotion from Firebase
+      fetchPromotionsFromDatabase(); // Fetch updated promotions from Firebase
+    } catch (error) {
+      console.error('Error deleting promotion: ', error);
+    }
   };
 
   const handleEditPromotion = (promotionId) => {
@@ -127,11 +152,13 @@ const Promotions = () => {
   , { usedCount: 0 });
 
   return (
-    <Container maxWidth="md">
+    <Container style={{width:'100%'}}>
       <Typography variant="h4" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
         Sales and Promotions Management
       </Typography>
-      <Grid container spacing={3} sx={{ mb: 4 , justifyContent : "center"}}>
+
+      {/* Promo creation form */}
+      <Grid container spacing={3} sx={{ mb: 4, justifyContent: 'center' }}>
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 3, boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 500, color: '#1976d2' }}>
@@ -156,13 +183,13 @@ const Promotions = () => {
                 label="Discount Type"
               >
                 <MenuItem value="percentage">Percentage (%)</MenuItem>
-                <MenuItem value="amount">Amount ($)</MenuItem>
+                <MenuItem value="amount">Amount (VND)</MenuItem>
               </Select>
               <FormHelperText>Choose the type of discount.</FormHelperText>
             </FormControl>
 
             <TextField
-              label={newPromotion.discountType === 'percentage' ? 'Discount (%)' : 'Discount Amount ($)'}
+              label={newPromotion.discountType === 'percentage' ? 'Discount (%)' : 'Discount Amount (VND)'}
               type="number"
               fullWidth
               value={newPromotion.discountValue}
@@ -173,7 +200,7 @@ const Promotions = () => {
             />
 
             <TextField
-              label="Min Order Amount ($)"
+              label="Min Order Amount (VND)"
               type="number"
               fullWidth
               value={newPromotion.minOrderAmount}
@@ -207,6 +234,18 @@ const Promotions = () => {
               color="primary"
             />
 
+            {/* Mục nhập số lượng */}
+            <TextField
+              label="Quantity"
+              type="number"
+              fullWidth
+              value={newPromotion.quantity}
+              onChange={(e) => setNewPromotion({ ...newPromotion, quantity: e.target.value })}
+              sx={{ mb: 2 }}
+              variant="outlined"
+              color="primary"
+            />
+
             <Button
               variant="contained"
               onClick={handleAddOrEditPromotion}
@@ -222,19 +261,21 @@ const Promotions = () => {
         </Grid>
       </Grid>
 
+      {/* Table for displaying promotions */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12}>
           <TextField
             label="Tìm mã khuyến mãi"
             fullWidth
             value={searchTerm}
-            onChange={handleSearch}
+            onChange={(e) => setSearchTerm(e.target.value)}
             sx={{ mb: 2 }}
             variant="outlined"
             color="primary"
           />
         </Grid>
       </Grid>
+
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Paper elevation={3} sx={{ padding: 3, boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
@@ -247,6 +288,7 @@ const Promotions = () => {
                     <TableCell>Min Order Amount</TableCell>
                     <TableCell>Product Condition</TableCell>
                     <TableCell>Expiration Date</TableCell>
+                    <TableCell>Quantity</TableCell> 
                     <TableCell>Used</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
@@ -255,10 +297,11 @@ const Promotions = () => {
                   {paginatedPromotions.map((promotion) => (
                     <TableRow key={promotion.id}>
                       <TableCell>{promotion.code}</TableCell>
-                      <TableCell>{promotion.discountType === 'percentage' ? `${promotion.discountValue}%` : `$${promotion.discountValue}`}</TableCell>
-                      <TableCell>{promotion.minOrderAmount}</TableCell>
+                      <TableCell>{promotion.discountType === 'percentage' ? `${promotion.discountValue}%` : `${promotion.discountValue} VND`}</TableCell>
+                      <TableCell>{promotion.minOrderAmount} VND</TableCell>
                       <TableCell>{promotion.productCondition}</TableCell>
                       <TableCell>{promotion.expirationDate}</TableCell>
+                      <TableCell>{promotion.quantity}</TableCell> {/* Số Lượng */}
                       <TableCell>{promotion.usedCount}</TableCell>
                       <TableCell>
                         <IconButton onClick={() => handleEditPromotion(promotion.id)}>
@@ -288,7 +331,7 @@ const Promotions = () => {
         </Grid>
       </Grid>
 
-      {/* Thống kê mã khuyến mãi */}
+      {/* Most used promotion */}
       <Box sx={{ mt: 4, textAlign: 'center' }}>
         <Typography variant="h6" sx={{ fontWeight: 500, color: '#1976d2' }}>
           Mã khuyến mãi được sử dụng nhiều nhất: {mostUsedPromotion.code || 'N/A'}

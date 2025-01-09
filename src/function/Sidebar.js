@@ -63,6 +63,7 @@ const Sidebar = () => {
         padding: 2,
       }}
     >
+      
       {/* Thông tin người dùng */}
       <Box
         sx={{
@@ -93,9 +94,6 @@ const Sidebar = () => {
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333' }}>
             {username || 'Tên User'} {/* Hiển thị username nếu có, hoặc 'Tên User' nếu chưa có */}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#555' }}>
-            Tài khoản của tôi
           </Typography>
         </Box>
       </Box>

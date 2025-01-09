@@ -1,4 +1,3 @@
-// ExclusiveDealsPage.js
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Card, CardContent, CardMedia, Button } from '@mui/material';
 import { database, ref, get } from '../../firebaseConfig';
@@ -48,22 +47,24 @@ const ExclusiveDealsPage = () => {
         Explore discounts and offers available only at Nhân's Pet Haven. Don't miss out!
       </Typography>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={4} justifyContent="center">
         {exclusiveDeals.map((deal) => (
           <Grid item xs={12} sm={6} md={4} key={deal.id}>
-            <Card>
+            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <CardMedia
                 component="img"
                 height="200"
                 image={deal.image}
                 alt={deal.name}
               />
-              <CardContent>
-                <Typography variant="h6">{deal.name}</Typography>
-                <Typography variant="body2" color="textSecondary">
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {deal.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
                   {deal.description}
                 </Typography>
-                <Typography variant="h6" color="primary">
+                <Typography variant="h6" color="primary" sx={{ marginTop: 1 }}>
                   {deal.discount}% Off
                 </Typography>
                 <Button variant="contained" color="primary" fullWidth sx={{ marginTop: '10px' }}>

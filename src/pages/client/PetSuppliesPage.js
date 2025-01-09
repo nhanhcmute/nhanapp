@@ -1,4 +1,3 @@
-// src/pages/client/PetSuppliesPage.js
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Card, CardContent, CardMedia, Button, CircularProgress, Alert } from '@mui/material';
 import { ref, get } from 'firebase/database'; // Import các hàm của Realtime Database
@@ -56,22 +55,24 @@ const PetSuppliesPage = () => {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <Grid container spacing={4}>
+        <Grid container spacing={4} sx={{ marginTop: 4 }}>
           {petSupplies.map((supply) => (
             <Grid item xs={12} sm={6} md={4} key={supply.id}>
-              <Card>
+              <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <CardMedia
                   component="img"
                   height="200"
                   image={supply.image}
                   alt={supply.name}
                 />
-                <CardContent>
-                  <Typography variant="h6">{supply.name}</Typography>
-                  <Typography variant="body2" color="textSecondary">
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {supply.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
                     {supply.description}
                   </Typography>
-                  <Typography variant="h6" color="primary">
+                  <Typography variant="h6" color="primary" sx={{ marginTop: 1 }}>
                     ${supply.price.toFixed(2)}
                   </Typography>
                   <Button variant="contained" color="primary" fullWidth sx={{ marginTop: '10px' }}>

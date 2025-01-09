@@ -1,24 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Box, RadioGroup, Radio, FormControlLabel, Grid, Typography, Button, FormControl, InputLabel, Select, MenuItem, TextField, Paper, Card, CardContent, Alert, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {
+    Box,
+    RadioGroup,
+    Radio,
+    FormControlLabel,
+    Grid,
+    Typography,
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    TextField,
+    Paper,
+    Card,
+    CardContent,
+    Alert,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getDatabase, ref, set, get, update, remove } from 'firebase/database';
-import { database } from '../../firebaseConfig';
+import { database, ref, get, set, update } from '../../firebaseConfig';
+import SelectVoucher from '../../component/SelectVoucher';
 import axios from 'axios';
+
 
 const CheckoutPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
+
     const [cart, setCart] = useState([]);
     const [selectedItems, setSelectedItems] = useState({});
     const [voucher, setVoucher] = useState('');
+    const [vouchers, setVouchers] = useState([]);
     const [discount, setDiscount] = useState(0);
     const [shippingFee, setShippingFee] = useState(20000);
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [defaultAddress, setDefaultAddress] = useState(null);
     const [shippingMethod, setShippingMethod] = useState('standard');
     const [note, setNote] = useState('');
-    const [voucherType, setVoucherType] = useState('');
     const [addresses, setAddresses] = useState([]);
+    const [finalAmount, setFinalAmount] = useState(0);
+    const [voucherType, setVoucherType] = useState(''); // Nếu bạn đang sử dụng setVoucherType để quản lý trạng thái voucher
+
 
     // State cho Dialog chỉnh sửa địa chỉ
     const [openDialog, setOpenDialog] = useState(false);
@@ -36,6 +62,88 @@ const CheckoutPage = () => {
     const [wards, setWards] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const voucherList = await fetchVouchersFromDatabase();
+            setVouchers(voucherList);
+        };
+        fetchData();
+    }, []);
+
+    // Tính tổng số tiền (không bao gồm giảm giá)
+    const calculateTotalAmount = () => {
+        return cart.reduce((total, product) => {
+            if (selectedItems[product.id]) {
+                return total + product.price * product.quantity;
+            }
+            return total;
+        }, 0);
+    };
+
+    // Lọc và áp dụng voucher hợp lệ
+    const applyVoucherDiscount = (voucher) => {
+        const totalAmount = calculateTotalAmount(); // Tổng số tiền giỏ hàng trước giảm giá
+        let discountAmount = 0;
+
+        // Kiểm tra điều kiện sử dụng voucher
+        const isValidDate = new Date(voucher.expirationDate) >= new Date(); // Kiểm tra ngày hết hạn
+        const isValidAmount = totalAmount >= parseInt(voucher.minOrderAmount); // Kiểm tra điều kiện minOrderAmount
+        const isNotUsedUp = voucher.usedCount < voucher.quantity; // Kiểm tra số lần sử dụng chưa hết
+
+        if (isValidDate && isValidAmount && isNotUsedUp) {
+            if (voucher.discountType === 'percentage') {
+                // Nếu discountType là "percentage", tính discount theo phần trăm
+                discountAmount = (totalAmount * parseFloat(voucher.discountValue)) / 100;
+            } else if (voucher.discountType === 'amount') {
+                // Nếu discountType là "amount", discount là một giá trị cố định
+                discountAmount = parseFloat(voucher.discountValue);
+            }
+
+            // Nếu discount lớn hơn tổng số tiền giỏ hàng, đặt discount bằng totalAmount
+            if (discountAmount > totalAmount) {
+                discountAmount = totalAmount;
+            }
+
+            setDiscount(discountAmount); // Cập nhật discount
+        } else {
+            // Nếu không hợp lệ, đặt discount = 0
+            setDiscount(0);
+        }
+    };
+
+    // Khi voucher thay đổi
+    const handleVoucherChange = (voucherCode) => {
+        const voucher = vouchers.find((voucher) => voucher.code === voucherCode);
+        if (voucher) {
+            applyVoucherDiscount(voucher); // Áp dụng giảm giá nếu voucher hợp lệ
+        } else {
+            setDiscount(0); // Nếu không tìm thấy voucher, đặt discount về 0
+        }
+    };
+
+    // Cập nhật finalAmount mỗi khi có sự thay đổi trong giỏ hàng, giảm giá, phí vận chuyển
+    useEffect(() => {
+        const totalAmount = calculateTotalAmount() + shippingFee - discount;
+        setFinalAmount(totalAmount < 0 ? 0 : totalAmount); // Đảm bảo finalAmount không âm
+    }, [cart, discount, shippingFee, selectedItems]);
+
+    // Lấy dữ liệu voucher từ Firebase
+    const fetchVouchersFromDatabase = async () => {
+        try {
+            const promotionsRef = ref(database, 'promotions');
+            const snapshot = await get(promotionsRef);
+            if (snapshot.exists()) {
+                return Object.values(snapshot.val());
+            }
+            return [];
+        } catch (error) {
+            console.error('Error fetching vouchers: ', error);
+            return [];
+        }
+    };
+
+
 
     // Lấy danh sách tỉnh/thành phố
     useEffect(() => {
@@ -160,33 +268,6 @@ const CheckoutPage = () => {
         setDefaultAddress(defaultAddr);
     }, [location.state]);
 
-    const calculateTotalAmount = () => {
-        return cart.reduce((total, product) => {
-            if (selectedItems[product.id]) {
-                return total + product.price * product.quantity;
-            }
-            return total;
-        }, 0);
-    };
-
-    const totalAmount = calculateTotalAmount() + shippingFee - discount;
-
-    const handleVoucherChange = (e) => {
-        setVoucher(e.target.value);
-        // Kiểm tra mã voucher
-        const validVouchers = [
-            { code: 'DISCOUNT10', discount: 0.1 },
-            { code: 'DISCOUNT20', discount: 0.2 },
-            { code: 'DISCOUNT30', discount: 0.3 }
-        ];
-        const foundVoucher = validVouchers.find(v => v.code === e.target.value);
-        if (foundVoucher) {
-            setDiscount(foundVoucher.discount * calculateTotalAmount());
-        } else {
-            setDiscount(0);
-        }
-    };
-
     const handleVoucherTypeChange = (e) => {
         setVoucherType(e.target.value);
         setVoucher('');
@@ -199,21 +280,21 @@ const CheckoutPage = () => {
             navigate('/cart');
             return;
         }
-    
+
         if (!defaultAddress) {
             alert('Vui lòng thêm địa chỉ giao hàng trước khi thanh toán.');
             return;
         }
-    
+
         const selectedProducts = cart.filter((product) => selectedItems[product.id]);
         if (selectedProducts.length === 0) {
             alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
             return;
         }
-    
+
         const shippingFeeValue = Number(shippingFee) || 0;
         const discountValue = Number(discount) || 0;
-    
+
         const newOrder = {
             id: String(Date.now()), // Lấy ID đơn hàng từ timestamp
             customer: {
@@ -237,24 +318,24 @@ const CheckoutPage = () => {
             ) + shippingFeeValue - discountValue,
             createdAt: new Date().toISOString(),
         };
-    
+
         try {
             // Gửi đơn hàng vào Firebase (thêm đơn hàng vào node orders/{orderId})
             const orderRef = ref(database, 'orders/' + newOrder.id);
             await set(orderRef, newOrder);
-    
+
             alert('Mua hàng thành công!');
-    
+
             // Cập nhật giỏ hàng sau khi thanh toán
             const updatedCart = cart.filter((product) => !selectedItems[product.id]);
-    
+
             // Cập nhật giỏ hàng trong Firebase sử dụng product.id làm ID
             const cartRef = ref(database, 'cart/' + selectedProducts[0].id); // Sử dụng id sản phẩm đầu tiên trong giỏ hàng
             await update(cartRef, { items: updatedCart });
-    
+
             // Cập nhật lại giỏ hàng cục bộ
             setCart(updatedCart);
-    
+
             // Chuyển hướng đến trang danh sách đơn hàng
             navigate('/orders');
         } catch (error) {
@@ -387,20 +468,28 @@ const CheckoutPage = () => {
                             </Paper>
                         )
                     ))}
-                    {/* Chọn Voucher */}
-                    <FormControl fullWidth sx={{ marginBottom: 2 }}>
-                        <InputLabel >Chọn Voucher</InputLabel>
-                        <Select value={voucher} onChange={handleVoucherChange} label="Voucher">
-                            <MenuItem value="DISCOUNT10">Giảm 10%</MenuItem>
-                            <MenuItem value="DISCOUNT20">Giảm 20%</MenuItem>
-                            <MenuItem value="DISCOUNT30">Giảm 30%</MenuItem>
-                        </Select>
-                    </FormControl>
 
+                    {/* Chọn Voucher */}
+                    <SelectVoucher
+                        onVoucherChange={(discount) => setDiscount(discount)}
+                        calculateTotalAmount={calculateTotalAmount}
+                    />
                     {/* Phương thức vận chuyển */}
                     <FormControl fullWidth sx={{ marginBottom: 2 }}>
                         <InputLabel>Phương thức vận chuyển</InputLabel>
-                        <Select value={shippingMethod} onChange={(e) => setShippingMethod(e.target.value)} label="Phương thức vận chuyển">
+                        <Select
+                            value={shippingMethod}
+                            onChange={(e) => {
+                                setShippingMethod(e.target.value);
+                                // Cập nhật phí vận chuyển dựa trên phương thức chọn
+                                if (e.target.value === "express") {
+                                    setShippingFee(50000); // Phí giao hàng nhanh
+                                } else {
+                                    setShippingFee(20000); // Phí giao hàng tiêu chuẩn
+                                }
+                            }}
+                            label="Phương thức vận chuyển"
+                        >
                             <MenuItem value="standard">Giao hàng tiêu chuẩn (3-5 ngày)</MenuItem>
                             <MenuItem value="express">Giao hàng nhanh (1-2 ngày)</MenuItem>
                         </Select>
@@ -427,8 +516,8 @@ const CheckoutPage = () => {
                         >
                             <MenuItem value="cash">Thanh toán khi nhận hàng</MenuItem>
                             <MenuItem value="wallet">Thanh toán qua ví điện tử Momo</MenuItem>
-                            <MenuItem value="wallet">Thanh toán qua ngân hàng</MenuItem>
-                            <MenuItem value="wallet">Thẻ tín dụng/Ghi nợ</MenuItem>
+                            <MenuItem value="bank">Thanh toán qua ngân hàng</MenuItem>
+                            <MenuItem value="credit-card">Thẻ tín dụng/Ghi nợ</MenuItem>
                         </Select>
                     </FormControl>
 
@@ -437,7 +526,7 @@ const CheckoutPage = () => {
                         Phí vận chuyển: {shippingFee.toLocaleString()} VND
                     </Typography>
                     <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        Tổng số tiền cần thanh toán: {totalAmount.toLocaleString()} VND
+                        Tổng số tiền cần thanh toán: {finalAmount.toLocaleString()} VND
                     </Typography>
 
                     {/* Xác nhận thanh toán */}
@@ -451,6 +540,7 @@ const CheckoutPage = () => {
                     </Button>
                 </>
             )}
+
 
             {/* Dialog chỉnh sửa địa chỉ */}
             <Dialog open={openDialog} onClose={handleDialogClose}>
