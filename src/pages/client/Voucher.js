@@ -1,117 +1,64 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, TextField, List, ListItem, ListItemText, Divider, IconButton, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Button, List, ListItem, ListItemText, Snackbar, Paper, Grid, Card, CardContent } from '@mui/material';
+import Sidebar from '../../function/Sidebar';
+import { database, ref, get } from '../../firebaseConfig'; // Import Firebase functions
 
 const Voucher = () => {
-  // Dữ liệu giả cho các voucher
-  const [vouchers, setVouchers] = useState([
-    { id: 1, code: 'VOUCHER1', discount: '10%', description: 'Giảm giá 10%' },
-    { id: 2, code: 'VOUCHER2', discount: '20%', description: 'Giảm giá 20%' },
-    { id: 3, code: 'VOUCHER3', discount: '15%', description: 'Giảm giá 15%' },
-  ]);
+  const [vouchers, setVouchers] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  // State để mở/đóng dialog thêm/sửa voucher
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editVoucher, setEditVoucher] = useState(null); // Dữ liệu voucher đang chỉnh sửa
+  useEffect(() => {
+    fetchVouchersFromDatabase();
+  }, []);
 
-  // Hàm mở/đóng dialog
-  const handleDialogOpen = (voucher = null) => {
-    setEditVoucher(voucher);
-    setOpenDialog(true);
-  };
-
-  const handleDialogClose = () => {
-    setOpenDialog(false);
-    setEditVoucher(null);
-  };
-
-  // Hàm thêm hoặc sửa voucher
-  const handleSaveVoucher = () => {
-    if (editVoucher) {
-      // Sửa voucher
-      setVouchers(vouchers.map(v => v.id === editVoucher.id ? editVoucher : v));
-    } else {
-      // Thêm voucher
-      const newVoucher = {
-        id: vouchers.length + 1,
-        code: editVoucher.code,
-        discount: editVoucher.discount,
-        description: editVoucher.description,
-      };
-      setVouchers([...vouchers, newVoucher]);
+  const fetchVouchersFromDatabase = async () => {
+    try {
+      const promotionsRef = ref(database, 'promotions');
+      const snapshot = await get(promotionsRef);
+      if (snapshot.exists()) {
+        setVouchers(Object.values(snapshot.val()));
+      }
+    } catch (error) {
+      console.error('Error fetching vouchers: ', error);
     }
-    handleDialogClose();
-  };
-
-  // Hàm xóa voucher
-  const handleDeleteVoucher = (id) => {
-    setVouchers(vouchers.filter(voucher => voucher.id !== id));
   };
 
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" sx={{ marginBottom: 3 }}>Quản lý Voucher</Typography>
-      <Button variant="contained" color="primary" onClick={() => handleDialogOpen()}>
-        Thêm Voucher
-      </Button>
-      
-      <List sx={{ marginTop: 2 }}>
-        {vouchers.map((voucher) => (
-          <ListItem key={voucher.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box>
-              <Typography variant="h6">{voucher.code}</Typography>
-              <Typography variant="body2" color="textSecondary">{voucher.description}</Typography>
-            </Box>
-            <Box>
-              <IconButton color="primary" onClick={() => handleDialogOpen(voucher)}>
-                <Edit />
-              </IconButton>
-              <IconButton color="secondary" onClick={() => handleDeleteVoucher(voucher.id)}>
-                <Delete />
-              </IconButton>
-            </Box>
-          </ListItem>
-        ))}
-      </List>
+    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#fafafa' }}>
+      <Sidebar />
+      <Box sx={{ padding: 3, flex: 1 }}>
+        <Typography variant="h4" sx={{ marginBottom: 3, fontWeight: 'bold' }}>Quản lý Voucher</Typography>
 
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>{editVoucher ? 'Chỉnh sửa Voucher' : 'Thêm Voucher'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Mã Voucher"
-            fullWidth
-            variant="outlined"
-            value={editVoucher ? editVoucher.code : ''}
-            onChange={(e) => setEditVoucher({ ...editVoucher, code: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Giảm giá"
-            fullWidth
-            variant="outlined"
-            value={editVoucher ? editVoucher.discount : ''}
-            onChange={(e) => setEditVoucher({ ...editVoucher, discount: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Mô tả"
-            fullWidth
-            variant="outlined"
-            value={editVoucher ? editVoucher.description : ''}
-            onChange={(e) => setEditVoucher({ ...editVoucher, description: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Hủy
-          </Button>
-          <Button onClick={handleSaveVoucher} color="primary">
-            Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
+        {/* Grid container for better spacing */}
+        <Grid container spacing={3}>
+          {vouchers.map((voucher) => (
+            <Grid item xs={12} sm={6} md={4} key={voucher.id}>
+              <Card sx={{ boxShadow: 3, height: '100%' }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {voucher.code}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
+                    {voucher.description}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
+                    Số lượng đã sử dụng: {voucher.usedCount} / {voucher.quantity}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Snackbar for feedback messages */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMessage}
+        />
+      </Box>
     </Box>
   );
 };

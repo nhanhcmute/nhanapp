@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert, Modal, Fade, Backdrop } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { auth, signInWithEmailAndPassword, sendPasswordResetEmail } from '../../firebaseConfig'; 
+import { auth, sendPasswordResetEmail } from '../../firebaseConfig'; 
 import { database, ref, get, update } from '../../firebaseConfig'; 
 
 const LoginPage = () => {
@@ -50,10 +50,11 @@ const LoginPage = () => {
         return;
       }
 
-      // Login success
+      // Save user data to localStorage to keep personal information
       setSuccess(true);
       localStorage.setItem('user', JSON.stringify(userFound));
 
+      // Navigate based on the username or role (e.g., admin)
       if (username === 'admin' && password === 'Xenlulozo1@') {
         setTimeout(() => {
           navigate('/admin');
@@ -163,6 +164,9 @@ const LoginPage = () => {
     }
   };
 
+  // Get user information from localStorage (if logged in)
+  const user = JSON.parse(localStorage.getItem('user'));
+
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Box
@@ -191,6 +195,13 @@ const LoginPage = () => {
         {success && (
           <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
             Đăng nhập thành công! Bạn sẽ được chuyển hướng.
+          </Alert>
+        )}
+
+        {/* Display user info if logged in */}
+        {user && (
+          <Alert severity="info" sx={{ mb: 2, width: '100%' }}>
+            Chào {user.name || user.username}, bạn đã đăng nhập thành công!
           </Alert>
         )}
 
@@ -240,6 +251,7 @@ const LoginPage = () => {
         </Button>
       </Box>
 
+      {/* Forgot password modal */}
       <Modal
         open={forgotPassword}
         onClose={() => setForgotPassword(false)}
