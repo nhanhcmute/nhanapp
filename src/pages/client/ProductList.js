@@ -7,14 +7,15 @@ import { database } from '../../firebaseConfig';
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1); // Trang hiện tại
+  const [page, setPage] = useState(1); 
   const [productsPerPage] = useState(6);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Lấy sản phẩm cho từng trang
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true); // Bắt đầu tải lại dữ liệu
       try {
-        // Tham chiếu đến nút `products` trong Realtime Database
         const productsRef = ref(database, 'products');
         onValue(productsRef, (snapshot) => {
           const data = snapshot.val();
@@ -23,20 +24,19 @@ const ProductList = () => {
               id: key,
               ...data[key],
             }));
-            setProducts(productList);
             setTotalPages(Math.ceil(productList.length / productsPerPage));
+            setProducts(productList.slice((page - 1) * productsPerPage, page * productsPerPage));
           }
-          setLoading(false);
+          setLoading(false); // Đã tải xong
         });
       } catch (error) {
         console.error('Lỗi khi lấy sản phẩm:', error);
+        setLoading(false); // Nếu có lỗi, tắt loading
       }
     };
 
     fetchProducts();
-  }, [productsPerPage]);
-
-  const currentProducts = products.slice((page - 1) * productsPerPage, page * productsPerPage);
+  }, [page, productsPerPage]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -69,7 +69,7 @@ const ProductList = () => {
         Danh sách sản phẩm
       </Typography>
       <Grid container spacing={3}>
-        {currentProducts.map((product) => (
+        {products.map((product) => (
           <Grid item xs={12} sm={6} md={4} key={product.id}>
             <Card
               sx={{

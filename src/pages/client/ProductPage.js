@@ -1,62 +1,90 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Grid, Typography, CardMedia, Button, Snackbar, Alert } from '@mui/material';
-import { ref, get } from 'firebase/database'; 
-import { database } from '../../firebaseConfig'; 
+import { ref, get, set } from 'firebase/database';
+import { database } from '../../firebaseConfig';
 import { useCart } from '../../function/CartContext';
-import RatingAndReviews from '../../function/RatingAndReviews'; 
+import RatingAndReviews from '../../function/RatingAndReviews';
 
 const ProductPage = () => {
-  const { id } = useParams(); // ID sản phẩm từ URL
+  const { id } = useParams(); // Lấy ID sản phẩm từ URL
   const navigate = useNavigate(); // Điều hướng trang
   const [product, setProduct] = useState(null); // Lưu thông tin sản phẩm
   const [loading, setLoading] = useState(true);
-  const { cart, addToCart } = useCart();
+  const { addToCart, cart, setCart } = useCart();
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [error, setError] = useState(null); // Để lưu thông tin lỗi nếu có
+  const [selectedItems, setSelectedItems] = useState({}); // Trạng thái chọn sản phẩm trong giỏ hàng
 
+  // Lấy thông tin sản phẩm từ Firebase khi component được load
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const productRef = ref(database, 'products'); // Truy vấn tất cả sản phẩm
         const snapshot = await get(productRef);
-  
+
         if (snapshot.exists()) {
           const products = snapshot.val();
-  
           // Chuyển đổi các object thành mảng và sắp xếp theo thứ tự của id
-          const sortedProducts = Object.keys(products)
+          const currentProduct = Object.keys(products)
             .map(key => ({ id: key, ...products[key] }))
-            .sort((a, b) => parseInt(a.id) - parseInt(b.id)); // Sắp xếp theo id
-  
-          const currentProduct = sortedProducts.find(product => product.id === id); // Lấy sản phẩm theo id
-  
+            .find(product => product.id === id); // Lấy sản phẩm theo id
+
           if (currentProduct) {
             setProduct(currentProduct);
           } else {
-            console.error('Sản phẩm không tồn tại!');
+            setError('Sản phẩm không tồn tại');
           }
         } else {
-          console.error('Không có sản phẩm nào trong cơ sở dữ liệu!');
+          setError('Không có sản phẩm nào trong cơ sở dữ liệu');
         }
-  
         setLoading(false);
-      } catch (error) {
-        console.error('Lỗi khi lấy sản phẩm:', error);
+      } catch (err) {
+        console.error('Lỗi khi lấy sản phẩm:', err);
+        setError('Lỗi khi lấy dữ liệu sản phẩm');
         setLoading(false);
       }
     };
-  
+
     fetchProduct();
   }, [id]);
-  
+
+  // Cập nhật trạng thái selectedItems khi sản phẩm được thêm vào giỏ hàng
   const handleAddToCart = () => {
     addToCart(product);
     setOpenSnackbar(true);
+
+    // Cập nhật selectedItems để tự động tick vào checkbox của sản phẩm vừa thêm vào giỏ hàng
+    setSelectedItems(prev => ({
+      ...prev,
+      [product.id]: true, // Đánh dấu sản phẩm này là đã chọn
+    }));
   };
 
-  const handleBuyNow = () => {
-    addToCart(product);
-    navigate('/cart');
+  // Xử lý khi bấm "Mua ngay"
+  const handleBuyNow = async () => {
+    try {
+      const cartRef = ref(database, 'cart');
+      const snapshot = await get(cartRef);
+      const cartData = snapshot.exists() ? snapshot.val() : {};
+      
+      if (!cartData[product.id]) {
+        const newProduct = { ...product, quantity: 1 };
+        const newProductRef = ref(database, `cart/${product.id}`);
+        await set(newProductRef, newProduct);  // Thêm sản phẩm vào giỏ hàng Firebase
+      }
+      
+      // Cập nhật selectedItems để tự động tick vào checkbox
+      setSelectedItems(prev => ({
+        ...prev,
+        [product.id]: true,  // Đánh dấu sản phẩm này là đã chọn
+      }));
+
+      // Điều hướng đến trang thanh toán
+      navigate('/checkout');
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+    }
   };
 
   const handleCloseSnackbar = () => {
@@ -67,13 +95,17 @@ const ProductPage = () => {
     return <Typography variant="h6" align="center">Đang tải dữ liệu...</Typography>;
   }
 
+  if (error) {
+    return <Typography variant="h6" align="center" color="error">{error}</Typography>;
+  }
+
   if (!product) {
     return <Typography variant="h6" align="center">Sản phẩm không tồn tại.</Typography>;
   }
 
   const statusColor =
-    product.status === "Hết hàng" ? "error" :
-      product.status === "Ngừng kinh doanh" ? "grey" : "success";
+    product.status === 'Hết hàng' ? 'error' :
+    product.status === 'Ngừng kinh doanh' ? 'grey' : 'success';
 
   return (
     <Container>
@@ -91,7 +123,7 @@ const ProductPage = () => {
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             {/* Tên sản phẩm */}
             <Typography variant="h4" gutterBottom>
               {product.name}
@@ -113,11 +145,7 @@ const ProductPage = () => {
             </Typography>
 
             {/* Trạng thái sản phẩm */}
-            <Typography
-              variant="body2"
-              color={statusColor}
-              paragraph
-            >
+            <Typography variant="body2" color={statusColor} paragraph>
               <strong>Trạng thái:</strong> {product.status || 'Chưa có trạng thái'}
             </Typography>
 
@@ -141,11 +169,9 @@ const ProductPage = () => {
 
       {/* Tích hợp RatingAndReviews */}
       <RatingAndReviews productId={id} />
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
+
+      {/* Thông báo khi thêm sản phẩm vào giỏ hàng */}
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           Sản phẩm đã được thêm vào giỏ hàng!
         </Alert>

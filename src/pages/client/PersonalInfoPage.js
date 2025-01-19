@@ -150,7 +150,7 @@ const PersonalInfoPage = () => {
       <form onSubmit={handleSubmit}>
         <TextField
           label="Họ tên"
-          variant="outlined"
+          variant="standard"
           fullWidth
           margin="normal"
           value={name}
@@ -158,7 +158,7 @@ const PersonalInfoPage = () => {
         />
         <TextField
           label="Số điện thoại"
-          variant="outlined"
+          variant="standard"
           fullWidth
           margin="normal"
           value={phone}
@@ -166,7 +166,7 @@ const PersonalInfoPage = () => {
         />
         <TextField
           label="Ngày sinh"
-          variant="outlined"
+          variant="standard"
           fullWidth
           margin="normal"
           type="date"
@@ -176,7 +176,7 @@ const PersonalInfoPage = () => {
             shrink: true,
           }}
         />
-        <FormControl fullWidth margin="normal">
+        <FormControl fullWidth variant='standard' margin="normal">
           <InputLabel id="province-label">Tỉnh/Thành phố</InputLabel>
           <Select
             labelId="province-label"
@@ -192,7 +192,7 @@ const PersonalInfoPage = () => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth margin="normal">
+        <FormControl fullWidth variant='standard' margin="normal">
           <InputLabel id="district-label">Quận/Huyện</InputLabel>
           <Select
             labelId="district-label"
@@ -209,7 +209,7 @@ const PersonalInfoPage = () => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth margin="normal">
+        <FormControl fullWidth variant='standard' margin="normal">
           <InputLabel id="ward-label">Phường/Xã</InputLabel>
           <Select
             labelId="ward-label"
@@ -230,7 +230,7 @@ const PersonalInfoPage = () => {
         <MapComponent latitude={latitude} longitude={longitude} />
 
         <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
-          <Button variant="contained" color="primary" type="submit" disabled={loading}>
+          <Button variant="outlined" color="primary" type="submit" disabled={loading}>
             Lưu Thông Tin
           </Button>
         </Box>
