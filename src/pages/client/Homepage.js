@@ -1,125 +1,69 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Typography, Box, Grid } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import PetsIcon from '@mui/icons-material/Pets';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
+import React from "react";
+import Banner from "../../component/Banner";
+import Categories from "../../component/Categories";
+import ProductsGrid from "../../component/ProductsGrid";
+import { Container, Box  } from "@mui/material";
+import Footer from "../../Footer";
 
-const HomePage = () => {
-  const navigate = useNavigate();
-
+const Homepage = () => {
   return (
-    <div className="homepage">
+<Box
+      sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%',
+        height: '100vh',
+        backgroundImage: 'url(/homepage.jpg)',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Overlay */}
       <Box
         sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+      />
+
+      {/* Nội dung trang */}
+      <Container
+        sx={{
           position: 'relative',
-          minHeight: '100vh',
-          backgroundImage: 'url(/path/to/your/image.jpg)',
-          //background: 'linear-gradient(to right, #87CEEB, #FFDAB9)',
-          color: '#fff',
-          padding: '20px',
-          textAlign: 'center',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          color: 'white',
+          padding: 0,
         }}
       >
-        <Box sx={{ pt: 6 }}>
-          <Typography variant="h2" sx={{ mb: 3, fontWeight: 'bold' }}>
-            Welcome to <span style={{ color: '#FFD700' }}>Nhân's Pet Haven</span>
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 4 }}>
-            Your one-stop shop for all your pet's needs. Browse our products, meet our team, and explore exclusive offers!
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<StorefrontIcon />}
-            sx={{ backgroundColor: '#FFD700', color: '#000', px: 4, py: 2 }}
-            onClick={() => navigate('/productlist')}
-          >
-            View Products
-          </Button>
-        </Box>
+      </Container>
 
-        <Grid container spacing={4} sx={{ mt: 6 }}>
-          <Grid item xs={12} md={4}>
-            <Box
-              onClick={() => navigate('/petsupplies')}
-              sx={{
-                borderRadius: '10px',
-                boxShadow: 3,
-                background: '#fff',
-                color: '#000',
-                p: 4,
-                textAlign: 'center',
-                transition: 'transform 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                },
-              }}
-            >
-              <PetsIcon sx={{ fontSize: 50, color: '#87CEEB' }} />
-              <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold' }}>
-                Quality Pet Supplies
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
-                Find the best products for your furry friends, from food to toys and everything in between.
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Box
-              onClick={() => navigate('/expertadvice')}
-              sx={{
-                borderRadius: '10px',
-                boxShadow: 3,
-                background: '#fff',
-                color: '#000',
-                p: 4,
-                textAlign: 'center',
-                transition: 'transform 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                },
-              }}
-            >
-              <EmojiPeopleIcon sx={{ fontSize: 50, color: '#FFD700' }} />
-              <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold' }}>
-                Expert Advice
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
-                Our experts are here to help with all your pet care questions. Connect with us today!
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Box
-              onClick={() => navigate('/exclusivedeals')}
-              sx={{
-                borderRadius: '10px',
-                boxShadow: 3,
-                background: '#fff',
-                color: '#000',
-                p: 4,
-                textAlign: 'center',
-                transition: 'transform 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                },
-              }}
-            >
-              <StorefrontIcon sx={{ fontSize: 50, color: '#FFA07A' }} />
-              <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold' }}>
-                Exclusive Deals
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
-                Explore discounts and offers available only at Nhân's Pet Haven. Don't miss out!
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
+      {/* Về Chúng Tôi */}
+      <Box sx={{ backgroundColor: '#f4f4f9', padding: '40px 0' }}>
+        <Container maxWidth="xl">
+        <Banner />
+        <Categories />
+        <Box mt={4}>
+          <ProductsGrid title="Flash Sale" />
+          <ProductsGrid title="Gợi Ý Hôm Nay" />
+        </Box>
+          </Container>
       </Box>
-    </div>
+      <Footer />
+    </Box>
   );
 };
 
-export default HomePage;
+export default Homepage;

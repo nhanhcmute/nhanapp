@@ -28,26 +28,25 @@ import axios from 'axios';
 
 
 const CheckoutPage = () => {
-    const location = useLocation();
+    const location = useLocation(); 
     const navigate = useNavigate();
+    const product = location.state?.product || null; 
 
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState([]);  
     const [selectedItems, setSelectedItems] = useState({});
-    const [voucher, setVoucher] = useState('');
-    const [vouchers, setVouchers] = useState([]);
+    const [voucher, setVoucher] = useState('');  
+    const [vouchers, setVouchers] = useState([]);  
     const [discount, setDiscount] = useState(0);
-    const [shippingFee, setShippingFee] = useState(20000);
-    const [paymentMethod, setPaymentMethod] = useState('cash');
-    const [defaultAddress, setDefaultAddress] = useState(null);
-    const [shippingMethod, setShippingMethod] = useState('standard');
-    const [note, setNote] = useState('');
-    const [addresses, setAddresses] = useState([]);
+    const [shippingFee, setShippingFee] = useState(20000); 
+    const [paymentMethod, setPaymentMethod] = useState('cash'); 
+    const [defaultAddress, setDefaultAddress] = useState(null); 
+    const [shippingMethod, setShippingMethod] = useState('standard'); 
+    const [note, setNote] = useState(''); 
+    const [addresses, setAddresses] = useState([]); 
     const [finalAmount, setFinalAmount] = useState(0);
-    const [voucherType, setVoucherType] = useState(''); // Nếu bạn đang sử dụng setVoucherType để quản lý trạng thái voucher
+    const [voucherType, setVoucherType] = useState('');
 
-
-    // State cho Dialog chỉnh sửa địa chỉ
-    const [openDialog, setOpenDialog] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false); 
     const [newAddress, setNewAddress] = useState({
         fullName: '',
         phone: '',
@@ -57,6 +56,7 @@ const CheckoutPage = () => {
         details: '',
         addressType: '',
     });
+
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
@@ -70,6 +70,7 @@ const CheckoutPage = () => {
         };
         fetchData();
     }, []);
+
 
     // Tính tổng số tiền (không bao gồm giảm giá)
     const calculateTotalAmount = () => {
@@ -531,7 +532,7 @@ const CheckoutPage = () => {
 
                     {/* Xác nhận thanh toán */}
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         color="primary"
                         onClick={handleConfirmPayment}
                         sx={{ marginTop: 2, borderRadius: 0 }}

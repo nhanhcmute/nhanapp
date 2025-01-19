@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Button, Card, CardContent, Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../function/Sidebar';
-import MapComponent from '../../component/MapComponent'; 
+import MapComponent from '../../component/MapComponent';
 
 const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -20,8 +20,8 @@ const ProfilePage = () => {
     navigate('/personal'); // Điều hướng đến trang chỉnh sửa thông tin
   };
 
-  const latitude = userInfo?.latitude ? userInfo.latitude : 21.0285;  
-  const longitude = userInfo?.longitude ? userInfo.longitude : 105.8542; 
+  const latitude = userInfo?.latitude ? userInfo.latitude : 21.0285;
+  const longitude = userInfo?.longitude ? userInfo.longitude : 105.8542;
 
   if (!userInfo) {
     return (
@@ -66,7 +66,7 @@ const ProfilePage = () => {
           alignItems: 'flex-start',
           padding: 3,
           overflowY: 'auto',
-          paddingTop: '60px', // Thêm padding-top để tránh bị che bởi header
+          paddingTop: '60px', 
         }}
       >
         <Container maxWidth="sm">
@@ -93,6 +93,7 @@ const ProfilePage = () => {
               padding: 3,
               marginBottom: 3,
               overflow: 'hidden',
+              borderRadius: 0,
             }}
           >
             <CardContent>
@@ -120,36 +121,28 @@ const ProfilePage = () => {
               {/* Hiển thị bản đồ */}
               <Box mb={3}>
                 <Typography variant="h6" style={{ fontWeight: 'bold', color: '#1976d2' }}>Vị trí:</Typography>
-                <MapComponent 
-                  latitude={latitude} 
-                  longitude={longitude} 
+                <MapComponent
+                  latitude={latitude}
+                  longitude={longitude}
                 />
               </Box>
 
               <Box display="flex" justifyContent="space-between" marginTop={4}>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   color="primary"
                   onClick={handleEdit}
                   sx={{
                     width: '48%',
-                    backgroundColor: '#1976d2',
-                    '&:hover': {
-                      backgroundColor: '#1565c0',
-                    }
                   }}
                 >
                   Chỉnh sửa thông tin
                 </Button>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   color="secondary"
                   sx={{
                     width: '48%',
-                    backgroundColor: '#e53935',
-                    '&:hover': {
-                      backgroundColor: '#c62828',
-                    }
                   }}
                 >
                   Lưu thông tin

@@ -1,0 +1,213 @@
+[
+    { 
+      "id": "1", 
+      "name": "Pet Grooming Kit",
+      "description": "Bộ dụng cụ chăm sóc thú cưng đầy đủ cho chó mèo của bạn.",
+      "price": 29.99,
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSryeI_dKCE1zfvj3bXgJ3MM3E0F4SLeOISVw&se"
+    },
+    { 
+      "id": "2", 
+      "name": "Pet Bed",
+      "description": "Giường nằm êm ái cho thú cưng, giúp chúng nghỉ ngơi thoải mái.",
+      "price": 45.00,
+      "image": "https://media.istockphoto.com/id/626194772/photo/dog-cushion-in-studio.jpg?s=612x612&w=0&k=20&c=-h1z1VVeO9zcwhRU1ymOiGT58g8Lrx6b94vqAyCBIG0="
+    },
+    { 
+      "id": "3", 
+      "name": "Pet Leash",
+      "description": "Dây xích an toàn cho thú cưng, giúp bạn dễ dàng dẫn thú đi dạo.",
+      "price": 12.50,
+      "image": "https://media.istockphoto.com/id/456799367/photo/dog-leather-leash.jpg?s=612x612&w=0&k=20&c=xYzL9-C-MhCVO0PQAPLZCK2QW4uptAlgZEYBa-zE_K4="
+    },
+    { 
+      "id": "4", 
+      "name": "Pet Food Bowl",
+      "description": "Bát ăn cho thú cưng, thiết kế tiện lợi và dễ vệ sinh.",
+      "price": 8.75,
+      "image": "https://media.istockphoto.com/id/1326701268/photo/kibble-and-canned-dog-food-in-bowls-two-types-of-dog-food.jpg?s=612x612&w=0&k=20&c=uQ3R38oLsPi5Nnc70t_jesqD_ehOAnrljcPE2NgUKHA="
+    },
+    { 
+      "id": "5", 
+      "name": "Pet Carrier",
+      "description": "Túi xách vận chuyển cho thú cưng, tiện lợi khi đi du lịch.",
+      "price": 35.99,
+      "image": "https://media.istockphoto.com/id/1225054153/photo/sad-cat-behind-bars-closed-in-trasport-box-or-pet-carrier-homeless-pets-and-veterinary-concept.jpg?s=612x612&w=0&k=20&c=a-WHfiffWmGDz-L5aLasBwO6OX5s3l43UmO9vK2aKYI="
+    },
+    { 
+      "id": "6", 
+      "name": "Pet Toy",
+      "description": "Đồ chơi cho thú cưng giúp giải trí và phát triển trí tuệ.",
+      "price": 6.30,
+      "image": "https://media.istockphoto.com/id/154956025/photo/dog-equipment.jpg?s=612x612&w=0&k=20&c=iAYDmm18Gp-nw5YNyiLJHOo-NxAoB_TM63MgV5YSCfY="
+    },
+    { 
+      "id": "7", 
+      "name": "Pet Shampoo",
+      "description": "Dầu gội cho thú cưng, giúp làm sạch và bảo vệ lông.",
+      "price": 14.99,
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5uT2qMdDOd-8YJzid0UsAVSOxTWGmONzZfw&s"
+    },
+    { 
+      "id": "8", 
+      "name": "Pet Collar",
+      "description": "Vòng cổ cho thú cưng, có thể điều chỉnh được kích cỡ.",
+      "price": 10.00,
+      "image": "https://media.istockphoto.com/id/184402383/photo/a-colored-dog-collar-with-blank-id-tag.jpg?s=612x612&w=0&k=20&c=9F8sQjopfNx8k2JFZVC-fPJCBC-ZCq_ydlNxYFWjKZE="
+    },
+    { 
+      "id": "9", 
+      "name": "Pet Car Seat Cover",
+      "description": "Lót ghế xe cho thú cưng, bảo vệ ghế xe khỏi lông và vết bẩn.",
+      "price": 20.00,
+      "image": "https://media.istockphoto.com/id/2073287568/photo/portrait-of-finnish-lapphund-dog-in-car-seat.jpg?s=612x612&w=0&k=20&c=nNHC1TYS6AWS6kNRevjzB9m5m_wV9SzFSPjWpOERnb0="
+    },
+    { 
+      "id": "10", 
+      "name": "Pet Dental Chew",
+      "description": "Bánh nhai giúp làm sạch răng miệng cho thú cưng.",
+      "price": 4.50,
+      "image": "https://cdn.pixabay.com/photo/2013/07/26/11/50/dog-167663_640.jpg"
+    },
+    { 
+    "id": "11", 
+    "name": "Pet Harness",
+    "description": "Dây đai cho thú cưng, giúp giữ an toàn khi ra ngoài.",
+    "price": 18.99,
+    "image": "https://media.istockphoto.com/id/598558802/photo/miniature-goldendoodle-puppy-dog-portrait.jpg?s=612x612&w=0&k=20&c=gJMr3lJ_YNixxux6QQkOHzpjZwKNIeJPpgeELEWM6KY="
+  },
+  { 
+    "id": "12", 
+    "name": "Pet Playpen",
+    "description": "Chuồng chơi cho thú cưng, tạo không gian an toàn và thoải mái.",
+    "price": 50.00,
+    "image": "https://media.istockphoto.com/id/1335031200/photo/woman-near-playpen-with-akita-inu-puppies-indoors-baby-animals.jpg?s=612x612&w=0&k=20&c=eh7ht5q2y819Z6-arT8ovFEQZIv0fFlvZ6wh4cQUYqc="
+  },
+  { 
+    "id": "13", 
+    "name": "Pet Carrier Backpack",
+    "description": "Túi đeo lưng vận chuyển cho thú cưng, tiện lợi khi di chuyển.",
+    "price": 40.99,
+    "image": "https://media.istockphoto.com/id/1350307956/photo/domestic-gray-cat-in-a-harness-and-a-leash-next-to-a-transparent-backpack-carrying-for-pets.jpg?s=612x612&w=0&k=20&c=McUvndLYR1lTw5HE-8VU0hpMDh63sW07hN1BK8KblkE="
+  },
+  { 
+    "id": "14", 
+    "name": "Pet Raincoat",
+    "description": "Áo mưa cho thú cưng, giúp chúng không bị ướt khi trời mưa.",
+    "price": 15.50,
+    "image": "https://media.istockphoto.com/id/1206234208/photo/cute-dachshund-dog-black-and-tan-dressed-in-a-yellow-rain-coat-stands-in-a-puddle-on-a-city.jpg?s=612x612&w=0&k=20&c=ZvsqSXhld4Vw2mNoQdC7lEgz2IzvFq-bbIeizfpBUAA="
+  },
+  { 
+    "id": "15", 
+    "name": "Pet Treat Dispenser",
+    "description": "Máy phân phát thức ăn cho thú cưng, tiện lợi khi bạn không có ở nhà.",
+    "price": 22.75,
+    "image": "https://media.istockphoto.com/id/1332012374/photo/playful-cat-touches-and-punches-food-with-paw-slow-feeder-tower-toy-for-cats-stimulates.jpg?s=612x612&w=0&k=20&c=S9KdvMcqy00LZSmbSNAMO8KRg4Jbd69GX9DuYuXY9Wo="
+  },
+  { 
+    "id": "16", 
+    "name": "Pet Cooling Mat",
+    "description": "Đệm làm mát cho thú cưng, giúp chúng cảm thấy thoải mái trong mùa hè nóng.",
+    "price": 25.00,
+    "image": "https://media.istockphoto.com/id/1413016268/photo/cute-mixed-breed-dog-lying-on-cool-mat-looking-up-on-white-background-isolated.jpg?s=612x612&w=0&k=20&c=jhn660RqF4EBx7kRZEB1rdyBTuW3xs7GWEUKvVhqFrc="
+  },
+  { 
+    "id": "17", 
+    "name": "Pet Flea Collar",
+    "description": "Vòng cổ ngừa ve, rận cho thú cưng, bảo vệ sức khỏe của chúng.",
+    "price": 10.50,
+    "image": "https://media.istockphoto.com/id/963491422/photo/woman-wearing-a-collar-for-dog-kill-and-repel-tick-and-flea.jpg?s=612x612&w=0&k=20&c=_JWfplvrnXVU2F9COWualzdjphvY82zwH22luk1c2ns="
+  },
+  { 
+    "id": "18", 
+    "name": "Pet Car Booster Seat",
+    "description": "Ghế nâng cho thú cưng trong xe, giúp thú cưng ngồi an toàn và thoải mái.",
+    "price": 38.99,
+    "image": "https://media.istockphoto.com/id/1483929305/photo/happy-frenchie-dog-sitting-inside-dog-car-seat.jpg?s=612x612&w=0&k=20&c=kSvsVt7mUC3Di_dm_hW1lF4XMLn8lA3warJzAGMLLRk="
+  },
+  { 
+    "id": "19", 
+    "name": "Pet Water Fountain",
+    "description": "Máy nước uống tự động cho thú cưng, cung cấp nước sạch liên tục.",
+    "price": 45.00,
+    "image": "https://media.istockphoto.com/id/1292164945/photo/cat-with-water-dispenser-cat-water-fountain-pet-thirst-dehydration-in-a-cat.jpg?s=612x612&w=0&k=20&c=2J3ibMOPoeRfF_IEyEImyvzeEKwUuGCZaevrJZWFelo="
+  },
+  { 
+    "id": "20", 
+    "name": "Pet Trolley",
+    "description": "Xe đẩy cho thú cưng, lý tưởng cho những chuyến đi dạo hoặc du lịch.",
+    "price": 55.00,
+    "image": "https://media.istockphoto.com/id/1166717563/photo/dog-in-baby-carriages-3d-rendering.jpg?s=612x612&w=0&k=20&c=Oe6SOem62k3uJnANolhwHpGW2Mv7ZQ_qITWnAPzE96Y="
+  },
+  { 
+    "id": "21", 
+    "name": "Pet Jogging Stroller",
+    "description": "Xe đẩy cho thú cưng, lý tưởng cho các buổi đi bộ hoặc chạy bộ cùng thú cưng.",
+    "price": 65.00,
+    "image": "https://media.istockphoto.com/id/532959438/photo/pet-dog-sitting-in-the-stroller.jpg?s=612x612&w=0&k=20&c=DW_EfgokCM_gmGXfmjEpRsqm1WDr00kZ9KeymP7XK0E="
+  },
+  { 
+    "id": "22", 
+    "name": "Pet GPS Tracker",
+    "description": "Thiết bị định vị GPS giúp theo dõi vị trí của thú cưng, đảm bảo an toàn khi ra ngoài.",
+    "price": 48.00,
+    "image": "https://media.istockphoto.com/id/1201055972/photo/cat-gps-tracker.jpg?s=612x612&w=0&k=20&c=TaGpwaxTbG5WwtpvdxKPtHluwAdwO4Ut0GfhZmHkSKY="
+  },
+  { 
+    "id": "23", 
+    "name": "Pet Water Bottle",
+    "description": "Bình nước di động cho thú cưng, giúp chúng uống nước dễ dàng khi ra ngoài.",
+    "price": 12.00,
+    "image": "https://media.istockphoto.com/id/478389584/photo/pet-and-water.jpg?s=612x612&w=0&k=20&c=w5pv2I9jNEf1IZIwwoWIBlP7qevOg4GJiTSlgTYkQ2g="
+  },
+  { 
+    "id": "24", 
+    "name": "Pet Massage Brush",
+    "description": "Bàn chải mát xa cho thú cưng giúp giảm căng thẳng và thư giãn.",
+    "price": 19.99,
+    "image": "https://media.istockphoto.com/id/1441011773/photo/owner-of-the-dog-combs-the-animals-coat-with-a-rubber-massage-brush.jpg?s=612x612&w=0&k=20&c=iy7-QyUXdHovd_ncGb4SIUirjO20aZT1qPXi7_jq2e8="
+  },
+  { 
+    "id": "25", 
+    "name": "Pet Sleeping Bag",
+    "description": "Túi ngủ cho thú cưng, giúp chúng có không gian riêng để nghỉ ngơi.",
+    "price": 29.99,
+    "image": "https://media.istockphoto.com/id/1225892074/photo/abyssinian-guinea-pig.jpg?s=612x612&w=0&k=20&c=PbY2bTXSlPNk8b4S4Gcu4dpkaUCr4zQ3iEplHR4_Upk="
+  },
+  { 
+    "id": "26", 
+    "name": "Pet Car Window Hammock",
+    "description": "Giường treo trên cửa sổ ô tô cho thú cưng, giúp chúng thoải mái khi đi xe.",
+    "price": 24.99,
+    "image": "https://i5.walmartimages.com/seo/Cats-Window-Bed-Window-Car-Mount-Sunny-Seat-Lounger-With-4-Suction-Cups-Resting-Sofa-Safe-Sunbath-Window-For-Cats_ca0e8a2e-807a-4964-ba34-45565efe1db6.ce5b15307c1ec2fa07ee017cd151b8ac.jpeg"
+  },
+  { 
+    "id": "27", 
+    "name": "Pet Booties",
+    "description": "Giày cho thú cưng, bảo vệ chân của chúng khỏi nắng nóng hoặc tuyết lạnh.",
+    "price": 18.00,
+    "image": "https://media.istockphoto.com/id/1248966434/photo/bernese-mountain-dog-on-the-gray-asphalt-in-shoes-for-dogs.jpg?s=612x612&w=0&k=20&c=2GIVgeu9H4cF-fJyLjSCmBizzN0VNHjTSGVeFWg1ZMk="
+  },
+  { 
+    "id": "28", 
+    "name": "Pet Scented Candle",
+    "description": "Nến thơm dành cho thú cưng, giúp không gian trong nhà trở nên dễ chịu.",
+    "price": 12.50,
+    "image": "https://media.istockphoto.com/id/513708669/photo/scented-candles.jpg?s=612x612&w=0&k=20&c=s60U3I0bRAqjlNF7ubt0Llp_zsl6lwFa6KHd4qVriWI="
+  },
+  { 
+    "id": "29", 
+    "name": "Pet Exercise Wheel",
+    "description": "Bánh xe tập thể dục cho thú cưng, giúp chúng vận động và giảm căng thẳng.",
+    "price": 40.00,
+    "image": "https://media.istockphoto.com/id/1430962919/photo/bengal-cat-on-a-running-wheel.jpg?s=612x612&w=0&k=20&c=QfYxqveboLzNvn4Ay-te97YtF7Xski775CbYUE2rjWw="
+  },
+  { 
+    "id": "30", 
+    "name": "Pet GPS Collar",
+    "description": "Vòng cổ tích hợp GPS giúp theo dõi và bảo vệ thú cưng của bạn mọi lúc.",
+    "price": 49.99,
+    "image": "https://media.istockphoto.com/id/1394199447/photo/young-black-and-white-greyster-dog-posing-outdoors-wearing-an-orange-collar-with-a-yellow-gps.jpg?s=612x612&w=0&k=20&c=vGKyl0ETlxjvr9M09T1w4tZMnTed3kfT28n6h_Q_XyM="
+  }
+  ]
+  

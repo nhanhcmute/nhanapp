@@ -96,7 +96,6 @@ const ChangePassword = () => {
             alignItems: 'center',
             padding: 4,
             boxShadow: 3,
-            borderRadius: 2,
             backgroundColor: 'white',
           }}
         >
@@ -117,7 +116,7 @@ const ChangePassword = () => {
 
           <TextField
             label="Mật khẩu cũ"
-            variant="outlined"
+            variant="standard"
             fullWidth
             margin="normal"
             type="password"
@@ -126,7 +125,7 @@ const ChangePassword = () => {
           />
           <TextField
             label="Mật khẩu mới"
-            variant="outlined"
+            variant="standard"
             fullWidth
             margin="normal"
             type="password"
@@ -135,7 +134,7 @@ const ChangePassword = () => {
           />
           <TextField
             label="Xác nhận mật khẩu"
-            variant="outlined"
+            variant="standard"
             fullWidth
             margin="normal"
             type="password"
@@ -144,10 +143,9 @@ const ChangePassword = () => {
           />
 
           <Button
-            variant="contained"
-            color="primary"
+            variant="outlined"
             fullWidth
-            sx={{ mt: 3 }}
+            sx={{ mt: 3 , color: 'black' , borderColor: 'black' }}
             onClick={handleChangePassword}
           >
             Cập nhật mật khẩu
