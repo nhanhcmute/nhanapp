@@ -7,7 +7,7 @@ import { useCart } from '../../function/CartContext';
 import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
-  const { cart, updateCartQuantity, removeFromCart } = useCart();
+  const { cart, updateCartQuantity, removeFromCart, clearCart } = useCart();
   const [selectAll, setSelectAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState({});
   const navigate = useNavigate();
@@ -21,12 +21,8 @@ const CartPage = () => {
     }, 0);
   };
 
-  const handleQuantityChange = (product, quantity) => {
-    if (quantity > 0) updateCartQuantity(product, quantity);
-  };
-
   const handleRemoveFromCart = (product) => {
-    removeFromCart(product.id); 
+    removeFromCart(product.id);
   };
 
   const handleSelectAllChange = (event) => {
@@ -47,8 +43,16 @@ const CartPage = () => {
     }));
   };
 
-  const handleRemoveAll = () => {
-    cart.forEach((product) => removeFromCart(product));
+  const handleRemoveAll = async () => {
+    if (cart.length === 0) {
+      return; 
+    }
+  
+    try {
+      await Promise.all(cart.map(product => removeFromCart(product.id)));
+    } catch (error) {
+      console.error("Lỗi khi xóa tất cả sản phẩm:", error);
+    }
   };
 
   const handleCheckout = () => {

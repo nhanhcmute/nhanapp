@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Card, CardContent, CardMedia, Button, CircularProgress, Alert } from '@mui/material';
-import { ref, get } from 'firebase/database'; // Import các hàm của Realtime Database
-import { database } from '../../firebaseConfig'; // Import database từ firebaseConfig
 
 const PetSuppliesPage = () => {
   const [petSupplies, setPetSupplies] = useState([]);
@@ -11,23 +9,14 @@ const PetSuppliesPage = () => {
   useEffect(() => {
     const fetchPetSupplies = async () => {
       try {
-        // Lấy dữ liệu từ Realtime Database
-        const petSuppliesRef = ref(database, 'petSupplies'); // Truy cập đến node 'petSupplies'
-        const snapshot = await get(petSuppliesRef);
-
-        if (snapshot.exists()) {
-          const data = snapshot.val(); // Lấy giá trị của node 'petSupplies'
-          // Chuyển dữ liệu thành mảng
-          const suppliesData = Object.keys(data).map(key => ({
-            id: key,
-            ...data[key],
-          }));
-          
-          setPetSupplies(suppliesData);
-        } else {
-          setError('Không có dữ liệu');
+        // Lấy dữ liệu từ petsupplies.json trong thư mục public
+        const response = await fetch('/petsupplies.json');
+        if (!response.ok) {
+          throw new Error('Không thể tải dữ liệu');
         }
 
+        const data = await response.json();
+        setPetSupplies(data);
         setLoading(false);
       } catch (err) {
         setError('Lỗi khi tải dữ liệu!');

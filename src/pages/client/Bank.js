@@ -108,15 +108,13 @@ const Bank = () => {
             Quản Lý Ngân Hàng
           </Typography>
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             onClick={() => setOpenDialog(true)}
             sx={{
-              borderRadius: '25px',
               padding: '10px 30px',
               textTransform: 'none',
               fontWeight: 'bold',
-              '&:hover': { backgroundColor: '#3f51b5' }
             }}
           >
             Thêm Ngân Hàng
@@ -131,7 +129,7 @@ const Bank = () => {
             <Card
               key={bank.id}
               sx={{
-                borderRadius: '10px',
+                borderRadius: 0,
                 boxShadow: '0px 3px 6px rgba(0,0,0,0.1)',
                 padding: 2,
                 backgroundColor: '#fff',
@@ -139,7 +137,7 @@ const Bank = () => {
                 '&:hover': { transform: 'scale(1.02)', boxShadow: '0px 5px 15px rgba(0,0,0,0.1)' }
               }}
             >
-              <CardContent>
+              <CardContent sx={{ borderRadius: 0 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
                     <Typography
@@ -183,8 +181,8 @@ const Bank = () => {
         {/* Dialog Thêm Ngân Hàng */}
         <Dialog open={openDialog} onClose={handleDialogClose}>
           <DialogTitle>Thêm Ngân Hàng</DialogTitle>
-          <DialogContent>
-            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+          <DialogContent sx={{borderRadius: 0}}>
+            <FormControl fullWidth variant='standard' sx={{ marginBottom: 2 }}>
               <InputLabel>Tên Ngân Hàng</InputLabel>
               <Select
                 value={newBank.bankName}
@@ -211,7 +209,7 @@ const Bank = () => {
 
             <TextField
               label="Số Tài Khoản"
-              variant="outlined"
+              variant="standard"
               fullWidth
               value={newBank.accountNumber}
               onChange={(e) => setNewBank({ ...newBank, accountNumber: e.target.value })}
@@ -219,7 +217,7 @@ const Bank = () => {
             />
             <TextField
               label="Chủ Tài Khoản"
-              variant="outlined"
+              variant="standard"
               fullWidth
               value={newBank.accountHolder}
               onChange={(e) => setNewBank({ ...newBank, accountHolder: e.target.value })}
@@ -227,7 +225,7 @@ const Bank = () => {
             />
             <TextField
               label="Số Dư"
-              variant="outlined"
+              variant="standard"
               fullWidth
               type="number"
               value={newBank.balance}

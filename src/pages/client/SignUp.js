@@ -73,96 +73,271 @@ const SignupPage = () => {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ mt: 8 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: 4,
-          boxShadow: 3,
-          borderRadius: 2,
-          backgroundColor: 'white',
-        }}
-        onKeyDown={handleKeyDown} 
-        tabIndex={0} 
-      >
-        <Typography variant="h5" mb={2}>
-          Đăng ký tài khoản
-        </Typography>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-            {error}
-          </Alert>
-        )}
-
-        {success && (
-          <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
-            Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.
-          </Alert>
-        )}
-
-        <TextField
-          label="Họ và tên"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <TextField
-          label="Email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          label="Tên đăng nhập"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <TextField
-          label="Mật khẩu"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <TextField
-          label="Xác nhận mật khẩu"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleSignup}
+    <Box
+      sx={{
+        width: '100%',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'url(/blackcathalloween.jpg) no-repeat center center',
+        backgroundSize: 'cover',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
+      }}
+    >
+      <Container maxWidth="xs" sx={{ mt: 8 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: 4,
+            boxShadow: 3,
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            color: 'white',
+          }}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
         >
-          Đăng ký
-        </Button>
+          <Typography variant="h5" mb={2}>
+            Đăng ký tài khoản
+          </Typography>
 
-        <Typography variant="body2" sx={{ mt: 2 }}>
-          Bạn đã có tài khoản?{' '}
-          <Button color="primary" onClick={() => navigate('/login')}>
-            Đăng nhập
+          {error && (
+            <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
+              Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.
+            </Alert>
+          )}
+
+          <TextField
+            label="Họ và tên"
+            variant="standard"
+            color="white"
+            fullWidth
+            margin="normal"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{
+
+              "& .MuiInputBase-root": {
+                color: "white",
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiInputLabel-root": {
+                color: "white",
+              },
+
+              "& .MuiInput-underline:before": {
+                borderBottom: "1px solid white",
+              },
+              "& .MuiInput-underline.Mui-focused:before": {
+                borderBottom: "1px solid #ffffff",
+              },
+              "& .MuiInput-underline.Mui-focused": {
+                borderBottom: "1px solid #ffffff",
+              },
+
+              "& input:-webkit-autofill": {
+                backgroundColor: "transparent !important",
+                color: "white !important",
+                boxShadow: "0 0 0px 1000px transparent inset !important",
+              },
+
+              "& input:-webkit-autofill:focus": {
+                backgroundColor: "transparent !important",
+              },
+            }}
+          />
+
+          <TextField
+            label="Email"
+            variant="standard"
+            color='white'
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{
+
+              "& .MuiInputBase-root": {
+                color: "white",
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiInputLabel-root": {
+                color: "white",
+              },
+
+              "& .MuiInput-underline:before": {
+                borderBottom: "1px solid white",
+              },
+              "& .MuiInput-underline.Mui-focused:before": {
+                borderBottom: "1px solid #ffffff",
+              },
+              "& .MuiInput-underline.Mui-focused": {
+                borderBottom: "1px solid #ffffff",
+              },
+
+              "& input:-webkit-autofill": {
+                backgroundColor: "transparent !important",
+                color: "white !important",
+                boxShadow: "0 0 0px 1000px transparent inset !important",
+              },
+
+              "& input:-webkit-autofill:focus": {
+                backgroundColor: "transparent !important",
+              },
+            }}
+          />
+
+          <TextField
+            label="Tên đăng nhập"
+            variant="standard"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            sx={{
+
+              "& .MuiInputBase-root": {
+                color: "white",
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiInputLabel-root": {
+                color: "white",
+              },
+
+              "& .MuiInput-underline:before": {
+                borderBottom: "1px solid white",
+              },
+              "& .MuiInput-underline.Mui-focused:before": {
+                borderBottom: "1px solid #ffffff",
+              },
+              "& .MuiInput-underline.Mui-focused": {
+                borderBottom: "1px solid #ffffff",
+              },
+
+              "& input:-webkit-autofill": {
+                backgroundColor: "transparent !important",
+                color: "white !important",
+                boxShadow: "0 0 0px 1000px transparent inset !important",
+              },
+
+              "& input:-webkit-autofill:focus": {
+                backgroundColor: "transparent !important",
+              },
+            }}
+          />
+
+          <TextField
+            label="Mật khẩu"
+            variant="standard"
+            fullWidth
+            margin="normal"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{
+
+              "& .MuiInputBase-root": {
+                color: "white",
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiInputLabel-root": {
+                color: "white",
+              },
+
+              "& .MuiInput-underline:before": {
+                borderBottom: "1px solid white",
+              },
+              "& .MuiInput-underline.Mui-focused:before": {
+                borderBottom: "1px solid #ffffff",
+              },
+              "& .MuiInput-underline.Mui-focused": {
+                borderBottom: "1px solid #ffffff",
+              },
+
+              "& input:-webkit-autofill": {
+                backgroundColor: "transparent !important",
+                color: "white !important",
+                boxShadow: "0 0 0px 1000px transparent inset !important",
+              },
+
+              "& input:-webkit-autofill:focus": {
+                backgroundColor: "transparent !important",
+              },
+            }}
+          />
+
+          <TextField
+            label="Xác nhận mật khẩu"
+            variant="standard"
+            fullWidth
+            margin="normal"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            sx={{
+
+              "& .MuiInputBase-root": {
+                color: "white",
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiInputLabel-root": {
+                color: "white",
+              },
+
+              "& .MuiInput-underline:before": {
+                borderBottom: "1px solid white",
+              },
+              "& .MuiInput-underline.Mui-focused:before": {
+                borderBottom: "1px solid #ffffff",
+              },
+              "& .MuiInput-underline.Mui-focused": {
+                borderBottom: "1px solid #ffffff",
+              },
+
+              "& input:-webkit-autofill": {
+                backgroundColor: "transparent !important",
+                color: "white !important",
+                boxShadow: "0 0 0px 1000px transparent inset !important",
+              },
+
+              "& input:-webkit-autofill:focus": {
+                backgroundColor: "transparent !important",
+              },
+            }}
+          />
+
+          <Button
+            variant="outlined"
+            color="white"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={handleSignup}
+          >
+            Đăng ký
           </Button>
-        </Typography>
-      </Box>
-    </Container>
+
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            Bạn đã có tài khoản?{' '}
+            <Button color="white" onClick={() => navigate('/login')}>
+              Đăng nhập
+            </Button>
+          </Typography>
+        </Box>
+      </Container >
+    </Box >
   );
 };
 

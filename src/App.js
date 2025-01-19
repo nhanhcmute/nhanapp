@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
+import Header from './Header';
 
 // Import các trang
 import HomePage from './pages/client/Homepage';
@@ -15,9 +16,7 @@ import CartPage from './pages/client/CartPage';
 import CheckoutPage from './pages/client/CheckoutPage';
 import OrderPage from './pages/client/OrderPage';
 import AddressPage from './pages/client/AddressPage';
-import ExpertAdvicePage from './pages/client/ExpertAdvicePage';
 import PetSuppliesPage from './pages/client/PetSuppliesPage';
-import ExclusiveDealsPage from './pages/client/ExclusiveDealsPage';
 import Bank from './pages/client/Bank';
 import Alerts from './pages/client/Alerts';
 import NotificationSetting from './pages/client/NotificationSetting';
@@ -28,6 +27,11 @@ import Pricacy from './pages/client/Privacy';
 import ChangePassword from './pages/client/ChangePassword';
 import Voucher from './pages/client/Voucher';
 import GetVoucher from './pages/client/GetVoucher';
+import ProductDetail from './component/ProductDetail';
+import ProductsGrid from './component/ProductsGrid';
+import Cats from './pages/client/Cats';
+import Dogs from './pages/client/Dogs';
+import PetDetails from './pages/client/PetDetails';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -50,7 +54,8 @@ import LayoutPage from './function/LayoutPage';
 import AdminLayout from './function/AdminLayout';
 // Components
 import AutoLogout from './function/AutoLogout';
-
+import ContactButtons from './component/ContactButtons';
+import SearchResults from './component/SearchResults';
 // Context
 import { CartProvider } from './function/CartContext';
 
@@ -62,19 +67,37 @@ function App() {
 
   const clientId = 'YOUR_GOOGLE_CLIENT_ID';
 
+  const ShowHeader = () => {
+    const location = useLocation();
+
+    const isAuthPage = ['/login', '/signup' , '/homepage', '/aboutus'].includes(location.pathname);
+
+    return isAuthPage && <Header />;
+  };
+
+  const ShowContactButtons = () => {
+    const location = useLocation();
+    const isAuthPage = ['/login', '/signup'].includes(location.pathname);
+
+    return !isAuthPage ? <ContactButtons /> : null;
+  };
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <Router>
-        <AutoLogout/>
+        <AutoLogout />
         <CartProvider>
+          <ShowContactButtons />
+        <ShowHeader />
           <Routes>
+          <Route path="/login" element={<LoginPage setUser={setUser} />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/homepage" element={<HomePage />} />
+          <Route path="/aboutus" element={<AboutUs />} />
             {/* Routes dành cho khách hàng */}
             <Route element={<LayoutPage />}>
               <Route path="/" element={<HomePage />} />
-              <Route path="/homepage" element={<HomePage />} />
               <Route path="/nhanpet" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage setUser={setUser} />} />
-              <Route path="/signup" element={<SignupPage />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/personal" element={<PersonalInfoPage />} />
@@ -85,18 +108,22 @@ function App() {
               <Route path="/address" element={<AddressPage />} />
               <Route path="/bank" element={<Bank />} />
               <Route path="/notificationsetting" element={<NotificationSetting />} />
-              <Route path="/expertadvice" element={<ExpertAdvicePage />} />
               <Route path="/petsupplies" element={<PetSuppliesPage />} />
-              <Route path="/exclusivedeals" element={<ExclusiveDealsPage />} />
-              <Route path="/aboutus" element={<AboutUs />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/privacy" element={<Pricacy />} />
               <Route path="/alerts" element={<Alerts />} />
-              <Route path="/changepassword" element={<ChangePassword/>}/>
-              <Route path="/voucher" element={<Voucher/>} />
-              <Route path="/getvoucher" element={<GetVoucher/>} />
+              <Route path="/changepassword" element={<ChangePassword />} />
+              <Route path="/voucher" element={<Voucher />} />
+              <Route path="/getvoucher" element={<GetVoucher />} />
+              <Route path="/" element={<ProductsGrid title="Danh Sách Sản Phẩm" />} />
+              <Route path="/productdetail/:id" element={<ProductDetail />} />
+              <Route path="/cats" element={<Cats />} />
+              <Route path="/dogs" element={<Dogs />} />
+              <Route path="/petdetails" element={<PetDetails />} />
+              <Route path="/search" element={<SearchResults />} />
             </Route>
+
 
             {/* Routes dành cho Admin */}
             <Route element={<AdminLayout />}>
@@ -104,7 +131,7 @@ function App() {
                 path="/admin"
                 element={
                   <AdminRoute
-                    element={<AdminPage />} 
+                    element={<AdminPage />}
                   />
                 }
               />
@@ -112,7 +139,7 @@ function App() {
                 path="/admin/dashboard"
                 element={
                   <AdminRoute
-                    element={<AdminDashboard />} 
+                    element={<AdminDashboard />}
                   />
                 }
               />

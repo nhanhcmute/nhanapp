@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, CssBaseline } from '@mui/material';
-import Header from '../Header'; 
-import Footer from '../Footer'; 
-import { Outlet } from 'react-router-dom'; 
+import Header from '../Header'; // Thành phần Header
+import Footer from '../Footer'; // Thành phần Footer
+import { Outlet } from 'react-router-dom'; // Hiển thị nội dung route con
 
 const Layout = () => {
   return (
@@ -10,29 +10,46 @@ const Layout = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100vh', // Đảm bảo chiều cao 100% của viewport
-        backgroundColor: '#f9f9f9',
+        minHeight: '100vh', // Chiều cao tối thiểu là viewport
+        backgroundColor: '#f9f9f9', // Màu nền của bố cục
       }}
     >
-      <CssBaseline /> {/* Đảm bảo các reset CSS cơ bản */}
+      <CssBaseline /> {/* Reset các thiết lập mặc định của trình duyệt */}
 
-      <Header />
+      {/* Header */}
+      <Header
+        sx={{
+          position: 'sticky', // Giữ cố định khi cuộn
+          top: 0,
+          zIndex: 1100, // Đảm bảo header hiển thị trên các thành phần khác
+          backgroundColor: '#ffffff', // Màu nền header
+        }}
+      />
 
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
-          flex: 1, // Để phần thân chiếm không gian còn lại
-          p: 3, // Padding cho nội dung chính
-          maxWidth: 'auto', 
-          margin: '0 auto',
-          width: '100%', 
-          overflow: 'auto', // Đảm bảo nội dung không bị tràn ra ngoài khi có nhiều thông tin
+          flex: 1, // Chiếm không gian còn lại giữa Header và Footer
+          width: '100%', // Chiếm toàn bộ chiều ngang
+          maxWidth: '1200px', // Giới hạn chiều ngang nội dung
+          margin: '0 auto', // Căn giữa nội dung
+          padding: '16px', // Thêm khoảng cách nội dung
+          overflowY: 'auto', // Cuộn dọc nếu nội dung dài
         }}
       >
-        <Outlet /> {/* Hiển thị nội dung của các route con */}
+        <Outlet /> {/* Nội dung động từ các route con */}
       </Box>
 
-      <Footer />
+      {/* Footer */}
+      <Footer
+        sx={{
+          backgroundColor: '#121212',
+          color: 'white',
+          textAlign: 'center',
+          py: 3,
+        }}
+      />
     </Box>
   );
 };

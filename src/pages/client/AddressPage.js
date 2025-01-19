@@ -23,7 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../function/Sidebar';
 import axios from 'axios';
 import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
-import { database } from '../../firebaseConfig'; 
+import { database } from '../../firebaseConfig';
 import { toast } from 'react-toastify'; // Nếu bạn sử dụng toast để thông báo
 
 import MapComponent from '../../component/MapComponent';
@@ -261,15 +261,13 @@ const AddressPage = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>Địa chỉ của tôi</Typography>
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             onClick={() => setOpenDialog(true)}
             sx={{
-              borderRadius: '25px',
               padding: '10px 30px',
               textTransform: 'none',
               fontWeight: 'bold',
-              '&:hover': { backgroundColor: '#3f51b5' }
             }}
           >
             Thêm Địa chỉ
@@ -277,73 +275,73 @@ const AddressPage = () => {
         </Box>
         <Divider sx={{ marginBottom: 3 }} />
         {addresses.length === 0 ? (
-  <Typography variant="body1" sx={{ textAlign: 'center', color: '#888' }}>
-    Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới!
-  </Typography>
-) : (
-  // Sắp xếp danh sách địa chỉ sao cho địa chỉ mặc định luôn ở đầu
-  addresses
-    .sort((a, b) => (a.isDefault ? -1 : 1)) // Đặt địa chỉ mặc định lên đầu
-    .map((address) => (
-      <Card key={address.id} sx={{ marginBottom: 2, padding: 2, backgroundColor: '#fff' }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            {address.fullName}
+          <Typography variant="body1" sx={{ textAlign: 'center', color: '#888' }}>
+            Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới!
           </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            {address.street}, {address.wardName}, {address.districtName}, {address.provinceName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            Số điện thoại: {address.phone}
-          </Typography>
-          <Typography variant="body2" sx={{ color: address.isDefault ? '#3f51b5' : '#888' }}>
-            {address.isDefault ? 'Địa chỉ mặc định' : ''}
-          </Typography>
+        ) : (
+          // Sắp xếp danh sách địa chỉ sao cho địa chỉ mặc định luôn ở đầu
+          addresses
+            .sort((a, b) => (a.isDefault ? -1 : 1)) // Đặt địa chỉ mặc định lên đầu
+            .map((address) => (
+              <Card key={address.id} sx={{ marginBottom: 2, padding: 2, backgroundColor: '#fff', borderRadius: 0 }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {address.fullName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#666' }}>
+                    {address.street}, {address.wardName}, {address.districtName}, {address.provinceName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#666' }}>
+                    Số điện thoại: {address.phone}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: address.isDefault ? '#3f51b5' : '#888' }}>
+                    {address.isDefault ? 'Địa chỉ mặc định' : ''}
+                  </Typography>
 
-          {/* Hiển thị bản đồ chỉ khi địa chỉ là mặc định */}
-          {address.isDefault && (
-            <Box style={{ marginTop: "20px", marginBottom: "40px" }}>
-              <Typography variant="h6" style={{ fontWeight: 'bold', color: '#1976d2' }}>Vị trí:</Typography>
-              <MapComponent latitude={latitude} longitude={longitude} />
-            </Box>
-          )}
+                  {/* Hiển thị bản đồ chỉ khi địa chỉ là mặc định */}
+                  {address.isDefault && (
+                    <Box style={{ marginTop: "20px", marginBottom: "40px" }}>
+                      <Typography variant="h6" style={{ fontWeight: 'bold', color: '#1976d2' }}>Vị trí:</Typography>
+                      <MapComponent latitude={latitude} longitude={longitude} />
+                    </Box>
+                  )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
-            <Button
-              variant="text"
-              color="primary"
-              onClick={() => handleEditDialogOpen(address)}
-            >
-              Chỉnh sửa
-            </Button>
-            <Button
-              variant="text"
-              color="error"
-              onClick={() => handleDeleteAddress(address.id)}
-            >
-              Xóa
-            </Button>
-            {!address.isDefault && (
-              <Button
-                variant="text"
-                color="secondary"
-                onClick={() => handleSetDefaultAddress(address.id)}
-              >
-                Đặt mặc định
-              </Button>
-            )}
-          </Box>
-        </CardContent>
-      </Card>
-    ))
-)}
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
+                    <Button
+                      variant="text"
+                      color="primary"
+                      onClick={() => handleEditDialogOpen(address)}
+                    >
+                      Chỉnh sửa
+                    </Button>
+                    <Button
+                      variant="text"
+                      color="error"
+                      onClick={() => handleDeleteAddress(address.id)}
+                    >
+                      Xóa
+                    </Button>
+                    {!address.isDefault && (
+                      <Button
+                        variant="text"
+                        color="secondary"
+                        onClick={() => handleSetDefaultAddress(address.id)}
+                      >
+                        Đặt mặc định
+                      </Button>
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            ))
+        )}
 
-<Dialog open={openDialog} onClose={handleDialogClose}>
+        <Dialog open={openDialog} onClose={handleDialogClose}>
           <DialogTitle>{newAddress.id ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới'}</DialogTitle>
           <DialogContent>
             <TextField
               label="Họ và tên"
-              variant="outlined"
+              variant="standard"
               fullWidth
               margin="normal"
               value={newAddress.fullName}
@@ -353,7 +351,7 @@ const AddressPage = () => {
             />
             <TextField
               label="Số điện thoại"
-              variant="outlined"
+              variant="standard"
               fullWidth
               margin="normal"
               value={newAddress.phone}
@@ -361,7 +359,7 @@ const AddressPage = () => {
                 setNewAddress({ ...newAddress, phone: e.target.value })
               }
             />
-            <FormControl fullWidth margin="normal">
+            <FormControl fullWidth variant='standard' margin="normal">
               <InputLabel>Tỉnh/Thành phố</InputLabel>
               <Select
                 value={newAddress.province}
@@ -388,7 +386,7 @@ const AddressPage = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth margin="normal" disabled={!newAddress.province}>
+            <FormControl fullWidth variant='standard' margin="normal" disabled={!newAddress.province}>
               <InputLabel>Quận/Huyện</InputLabel>
               <Select
                 value={newAddress.district}
@@ -413,7 +411,7 @@ const AddressPage = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth margin="normal" disabled={!newAddress.district}>
+            <FormControl fullWidth variant='standard' margin="normal" disabled={!newAddress.district}>
               <InputLabel>Phường/Xã</InputLabel>
               <Select
                 value={newAddress.ward}
@@ -435,7 +433,7 @@ const AddressPage = () => {
             </FormControl>
             <TextField
               label="Tên đường/Số nhà"
-              variant="outlined"
+              variant="standard"
               fullWidth
               margin="normal"
               value={newAddress.street}
@@ -445,7 +443,7 @@ const AddressPage = () => {
             />
             <TextField
               label="Ghi chú thêm (nếu có)"
-              variant="outlined"
+              variant="standard"
               fullWidth
               margin="normal"
               value={newAddress.details}
@@ -483,7 +481,7 @@ const AddressPage = () => {
             <Button
               onClick={newAddress.id ? handleEditAddress : handleAddAddress}
               color="primary"
-              variant="contained"
+              variant="outlined"
             >
               {newAddress.id ? 'Lưu thay đổi' : 'Thêm mới'}
             </Button>
