@@ -1,5 +1,8 @@
 [build]
-  functions = "functions"  # Thư mục chứa các hàm serverless
+  base = "frontend"  # Base directory for the build
+  command = "npm run build"
+  publish = "build"  # Output directory relative to base
+  functions = "../functions"  # Functions directory relative to repo root
 
 [[redirects]]
   from = "/api/*"

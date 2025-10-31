@@ -42,3 +42,8 @@ yarn-error.log*
 # Other
 *.dll
 *.exe
+
+# React build
+frontend/build/
+# Hoặc nếu là dist
+# frontend/dist/
