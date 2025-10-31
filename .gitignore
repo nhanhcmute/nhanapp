@@ -28,3 +28,17 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+# .NET build
+**/bin/
+**/obj/
+
+# Visual Studio
+*.user
+*.suo
+*.vspx
+*.pdb
+
+# Other
+*.dll
+*.exe

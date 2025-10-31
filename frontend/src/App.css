@@ -20,7 +20,6 @@ main {
   background-image: url('./assets/images/background.jpg');
   background-position: center;
   background-repeat: no-repeat;
-<<<<<<< HEAD:frontend/src/App.css
   background-size: cover; 
   height: 100vh;
   background-color: #F5F5F5; /* Fallback background color */
@@ -54,8 +53,4 @@ body {
   to {
     transform: rotate(360deg);
   }
-=======
-  background-size: cover;
-  min-height: 100vh;  /* Sửa từ height thành min-height để tránh lỗi */
->>>>>>> f011f0b652c1d8351eaf0e6090ca6c093231e807:src/App.css
 }

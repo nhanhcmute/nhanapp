@@ -1,4 +1,3 @@
-<<<<<<< HEAD:frontend/src/hooks/useOrder.js
 import { useState, useEffect } from 'react';
 import { ref, get } from 'firebase/database';
 import { database } from '../firebaseConfig';
@@ -39,49 +38,3 @@ const useOrders = () => {
 };
 
 export default useOrders;
-=======
-import { useState, useEffect } from 'react';
-import { ref, get } from 'firebase/database';
-import { database } from '../firebaseConfig';
-
-const useOrders = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const ordersRef = ref(database, 'orders'); // Đường dẫn đến danh sách đơn hàng trong Firebase
-        const snapshot = await get(ordersRef);
-
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          const ordersArray = Object.entries(data).map(([id, order]) => ({
-            id,
-            ...order,
-          }));
-          setOrders(ordersArray); // Cập nhật đơn hàng
-          setLoading(false);
-        } else {
-          console.log('Không có đơn hàng nào.');
-          setLoading(false);
-        }
-      } catch (error) {
-        setError(error);
-        setLoading(false);
-        console.error('Lỗi khi tải dữ liệu đơn hàng:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
-
-  return { orders, loading, error };
-};
-
-export default useOrders;
->>>>>>> f011f0b652c1d8351eaf0e6090ca6c093231e807:src/hooks/useOrder.js
