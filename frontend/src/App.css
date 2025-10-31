@@ -1,22 +1,26 @@
-.App {
-  text-align: center;
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;  /* Cực kỳ quan trọng để tránh lỗi co giãn */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+main {
+  flex: 1;  /* Đảm bảo nội dung chính mở rộng, đẩy footer xuống */
+  width: 100%;
 }
 
 .homepage {
   background-image: url('./assets/images/background.jpg');
   background-position: center;
   background-repeat: no-repeat;
+<<<<<<< HEAD:frontend/src/App.css
   background-size: cover; 
   height: 100vh;
   background-color: #F5F5F5; /* Fallback background color */
@@ -50,4 +54,8 @@ body {
   to {
     transform: rotate(360deg);
   }
+=======
+  background-size: cover;
+  min-height: 100vh;  /* Sửa từ height thành min-height để tránh lỗi */
+>>>>>>> f011f0b652c1d8351eaf0e6090ca6c093231e807:src/App.css
 }
