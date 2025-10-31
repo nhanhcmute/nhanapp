@@ -33,6 +33,7 @@
     "react-scripts": "^5.0.1",
     "react-slick": "^0.30.3",
     "react-toastify": "^10.0.6",
+    "sass": "^1.93.3",
     "serverless-http": "^3.2.0",
     "slick-carousel": "^1.8.1",
     "swiper": "^11.2.1",
