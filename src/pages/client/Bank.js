@@ -103,7 +103,7 @@ const Bank = () => {
     <Box display="flex">
       <Sidebar />
       <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 , overflow: 'auto'}}>
           <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>
             Quản Lý Ngân Hàng
           </Typography>

@@ -62,7 +62,7 @@ const OrderPage = () => {
       }}
     >
       <Sidebar />
-      <Container>
+      <Container style={{overflowY: 'auto'}}>
         <Typography variant="h4" align="center" gutterBottom>
           Quản lý Đơn Hàng
         </Typography>
@@ -101,70 +101,79 @@ const OrderPage = () => {
         </Box>
 
         <Grid container spacing={2}>
-          {paginatedOrders.length > 0 ? (
-            paginatedOrders.map((order) => (
-              <Grid item xs={12} key={order.id}>
-                <Paper sx={{ padding: '20px', boxShadow: 3 }}>
-                  <Typography variant="h6" gutterBottom>
-                    ID Đơn hàng: {order.id}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    Trạng thái: {order.status}
-                  </Typography>
-                  <Typography variant="body2" gutterBottom>
-                    Tổng tiền: {order.totalAmount ? order.totalAmount.toLocaleString() : 'Không có dữ liệu'} VND
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Ngày tạo: {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Không có dữ liệu'}
-                  </Typography>
-
-                  {/* Kiểm tra nếu có sản phẩm trong đơn hàng */}
-                  <Box mt={2}>
-                    {order.products && order.products.length > 0 ? (
-                      order.products.map((product) => (
-                        <Paper
-                          key={product.id}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            marginBottom: 1,
-                            padding: 1,
-                          }}
-                        >
-                          <img
-                            src={product.image || '/default-image.png'} 
-                            alt={product.name}
-                            width={60}
-                            height={60}
-                            style={{ objectFit: 'cover', marginRight: 16 }}
-                          />
-                          <Box>
-                            <Typography variant="body1">
-                              {product.name} - {product.quantity} x{' '}
-                              {product.price ? product.price.toLocaleString() : 'Không có giá'} VND
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              Tổng: {product.total ? product.total.toLocaleString() : 'Không có tổng'} VND
-                            </Typography>
-                          </Box>
-                        </Paper>
-                      ))
-                    ) : (
-                      <Typography variant="body2" color="textSecondary">
-                        Không có sản phẩm trong đơn hàng này.
-                      </Typography>
-                    )}
-                  </Box>
-                </Paper>
+          {
+            loading ? (
+              <Grid item xs={12}>
+                <Typography variant="body1" style={{ color: '#757575', textAlign: 'center', marginTop: '20px' }}>
+                  Đang tải dữ liệu, vui lòng chờ trong giây lát...
+                </Typography>
               </Grid>
-            ))
-          ) : (
-            <Grid item xs={12}>
-              <Typography variant="body1" style={{ color: '#757575', textAlign: 'center', marginTop: '20px' }}>
-                Không có đơn hàng nào với trạng thái này hoặc từ khóa tìm kiếm.
-              </Typography>
-            </Grid>
-          )}
+            )
+            : paginatedOrders.length > 0 ? (
+              paginatedOrders.map((order) => (
+                <Grid item xs={12} key={order.id}>
+                  <Paper sx={{ padding: '20px', boxShadow: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                      ID Đơn hàng: {order.id}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      Trạng thái: {order.status}
+                    </Typography>
+                    <Typography variant="body2" gutterBottom>
+                      Tổng tiền: {order.totalAmount ? order.totalAmount.toLocaleString() : 'Không có dữ liệu'} VND
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Ngày tạo: {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Không có dữ liệu'}
+                    </Typography>
+  
+                    {/* Kiểm tra nếu có sản phẩm trong đơn hàng */}
+                    <Box mt={2}>
+                      {order.products && order.products.length > 0 ? (
+                        order.products.map((product) => (
+                          <Paper
+                            key={product.id}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              marginBottom: 1,
+                              padding: 1,
+                            }}
+                          >
+                            <img
+                              src={product.image || '/default-image.png'} 
+                              alt={product.name}
+                              width={60}
+                              height={60}
+                              style={{ objectFit: 'cover', marginRight: 16 }}
+                            />
+                            <Box>
+                              <Typography variant="body1">
+                                {product.name} - {product.quantity} x{' '}
+                                {product.price ? product.price.toLocaleString() : 'Không có giá'} VND
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary">
+                                Tổng: {product.total ? product.total.toLocaleString() : 'Không có tổng'} VND
+                              </Typography>
+                            </Box>
+                          </Paper>
+                        ))
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">
+                          Không có sản phẩm trong đơn hàng này.
+                        </Typography>
+                      )}
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <Typography variant="body1" style={{ color: '#757575', textAlign: 'center', marginTop: '20px' }}>
+                  Không có đơn hàng nào với trạng thái này hoặc từ khóa tìm kiếm.
+                </Typography>
+              </Grid>
+            )
+          }
         </Grid>
 
         <Box display="flex" justifyContent="center" mt={3}>

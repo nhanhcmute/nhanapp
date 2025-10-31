@@ -17,8 +17,10 @@ function Footer() {
         textAlign: 'center',
         py: 3,
         px: 2,
+        mt: 'auto',
       }}
     >
+
       {/* Logo hoặc thương hiệu */}
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
         <PetsIcon sx={{ fontSize: 40, mr: 1, color: '#FFD700' }} />
@@ -47,9 +49,9 @@ function Footer() {
           mb: 2,
           color: "inherit",
           cursor: "pointer",
-          textDecoration: "none", 
+          textDecoration: "none",
           "&:hover": {
-            textDecoration: "underline" 
+            textDecoration: "underline"
           }
         }}
       >

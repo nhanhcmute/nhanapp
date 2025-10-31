@@ -3,21 +3,21 @@ import { Box, Typography, CardContent, CardMedia, Card } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Import hook điều hướng
 
 // Import hình ảnh thực
-import fashionImage from "../asset/images/sp40.jpg";
-import phoneImage from "../asset/images/sp40.jpg";
-import computerImage from "../asset/images/sp40.jpg";
-import homeImage from "../asset/images/sp40.jpg";
-import petImage from "../asset/images/sp40.jpg";
-import bookImage from "../asset/images/sp40.jpg";
+import dogImage from "../asset/images/sp40.jpg";
+import catImage from "../asset/images/sp2.jpg";
+import otherpetImage from "../asset/images/sp50.jpg";
+import petsuppliesImage from "../asset/images/petsupplies1.jpg";
+import catlitterImage from "../asset/images/catlitter1.jpg";
+import otherImage from "../asset/images/food1.jpg";
 
 // Danh sách danh mục với hình ảnh thật
 const categories = [
-  { name: "Chó", image: fashionImage, path: "/dogs" },
-  { name: "Mèo", image: phoneImage, path: "/cats" },
-  { name: "Thú cưng khác", image: computerImage, path: "/otherpets" },
-  { name: "Phụ kiện", image: homeImage, path: "/petsupplies" },
-  { name: "Cát vệ sinh", image: petImage, path: "/catlitter" },
-  { name: "Khác", image: bookImage, path: "/others" },
+  { name: "Chó", image: dogImage, path: "/dogs" },
+  { name: "Mèo", image: catImage, path: "/cats" },
+  { name: "Thú cưng khác", image: otherpetImage, path: "/otherpets" },
+  { name: "Phụ kiện", image: petsuppliesImage, path: "/petsupplies" },
+  { name: "Cát vệ sinh", image: catlitterImage, path: "/catlitter" },
+  { name: "Khác", image: otherImage, path: "/others" },
 ];
 
 const Categories = () => {

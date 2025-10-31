@@ -93,6 +93,8 @@ const ProductDetail = () => {
 
   // Hàm xử lý mua ngay
   const handleBuyNow = () => {
+    console.log('product', product);
+    
     navigate('/checkout'); 
   };
 

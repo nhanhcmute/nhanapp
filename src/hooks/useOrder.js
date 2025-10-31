@@ -10,6 +10,7 @@ const useOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        setLoading(true);
         const ordersRef = ref(database, 'orders'); // Đường dẫn đến danh sách đơn hàng trong Firebase
         const snapshot = await get(ordersRef);
 
@@ -20,11 +21,14 @@ const useOrders = () => {
             ...order,
           }));
           setOrders(ordersArray); // Cập nhật đơn hàng
+          setLoading(false);
         } else {
           console.log('Không có đơn hàng nào.');
+          setLoading(false);
         }
       } catch (error) {
         setError(error);
+        setLoading(false);
         console.error('Lỗi khi tải dữ liệu đơn hàng:', error);
       } finally {
         setLoading(false);

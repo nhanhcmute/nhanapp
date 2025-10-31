@@ -64,24 +64,29 @@ const ProductPage = () => {
   // Xử lý khi bấm "Mua ngay"
   const handleBuyNow = async () => {
     try {
-      const cartRef = ref(database, 'cart');
-      const snapshot = await get(cartRef);
-      const cartData = snapshot.exists() ? snapshot.val() : {};
+      // const cartRef = ref(database, 'cart');
+      // const snapshot = await get(cartRef);
+      // const cartData = snapshot.exists() ? snapshot.val() : {};
       
-      if (!cartData[product.id]) {
-        const newProduct = { ...product, quantity: 1 };
-        const newProductRef = ref(database, `cart/${product.id}`);
-        await set(newProductRef, newProduct);  // Thêm sản phẩm vào giỏ hàng Firebase
-      }
+      // if (!cartData[product.id]) {
+      //   const newProduct = { ...product, quantity: 1 };
+      //   const newProductRef = ref(database, `cart/${product.id}`);
+      //   await set(newProductRef, newProduct);  // Thêm sản phẩm vào giỏ hàng Firebase
+      // }
       
-      // Cập nhật selectedItems để tự động tick vào checkbox
-      setSelectedItems(prev => ({
-        ...prev,
-        [product.id]: true,  // Đánh dấu sản phẩm này là đã chọn
-      }));
-
+      // // Cập nhật selectedItems để tự động tick vào checkbox
+      // setSelectedItems(prev => ({
+      //   ...prev,
+      //   [product.id]: true,  // Đánh dấu sản phẩm này là đã chọn
+      // }));
+      const newProduct = { ...product, quantity: 1 };
       // Điều hướng đến trang thanh toán
-      navigate('/checkout');
+      navigate('/checkout', {
+        state: {
+          cart: [newProduct],
+          selectedItems: { [product.id]: true},
+        },
+      });
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error);
     }

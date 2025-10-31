@@ -204,10 +204,10 @@ function Header() {
         <AppBar
           position="sticky"
           sx={{
-            backgroundColor: scrolled ? '#fff' : 'transparent', // Thay đổi màu nền khi cuộn
-            color: scrolled ? '#000' : '#fff', // Thay đổi màu chữ khi cuộn
-            boxShadow: scrolled ? '0 2px 5px rgba(0, 0, 0, 0.1)' : 'none', // Thêm bóng khi cuộn
-            transition: 'background-color 0.3s ease, box-shadow 0.3s ease', // Hiệu ứng chuyển đổi mượt mà
+            backgroundColor: scrolled ? '#fff' : 'transparent', 
+            color: scrolled ? '#000' : '#fff', 
+            boxShadow: scrolled ? '0 2px 5px rgba(0, 0, 0, 0.1)' : 'none', 
+            transition: 'background-color 0.3s ease, box-shadow 0.3s ease', 
           }}
         >
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

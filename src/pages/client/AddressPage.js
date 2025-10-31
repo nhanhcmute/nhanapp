@@ -257,7 +257,7 @@ const AddressPage = () => {
   return (
     <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#fafafa', marginBottom: "20px" }}>
       <Sidebar />
-      <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+      <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 , overflowY: 'auto'}}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>Địa chỉ của tôi</Typography>
           <Button

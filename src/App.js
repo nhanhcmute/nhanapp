@@ -32,6 +32,8 @@ import ProductsGrid from './component/ProductsGrid';
 import Cats from './pages/client/Cats';
 import Dogs from './pages/client/Dogs';
 import PetDetails from './pages/client/PetDetails';
+import ErrorPage from './pages/client/ErrorPage';
+
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -122,6 +124,7 @@ function App() {
               <Route path="/dogs" element={<Dogs />} />
               <Route path="/petdetails" element={<PetDetails />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="*" element={<ErrorPage />} />
             </Route>
 
 
