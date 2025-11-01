@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
+using System.Security.Authentication;
 
 namespace ECommerceAI.DataAccess
 {
@@ -10,37 +11,36 @@ namespace ECommerceAI.DataAccess
         public MongoContext(IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("MongoDb");
-            
+
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException(
                     "MongoDB connection string is not configured. " +
                     "Please add 'ConnectionStrings:MongoDb' to appsettings.json. " +
-                    "Example: \"ConnectionStrings\": { \"MongoDb\": \"mongodb+srv://ssnn01:xenlulozo1@nhanapp-cluster.yfdohhl.mongodb.net/pet_shop?retryWrites=true&w=majority\" }");
+                    "Example: \"ConnectionStrings\": { \"MongoDb\": \"mongodb+srv://user:pass@cluster.mongodb.net/dbname?retryWrites=true&w=majority&tls=true\" }");
             }
-            
-            // Configure MongoDB client with SSL settings
+
+            // Parse MongoDB connection
             var mongoUrl = new MongoUrl(connectionString);
-            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            
-            // Ensure SSL/TLS is enabled (MongoDB Atlas requires SSL)
-            // mongodb+srv:// automatically enables TLS, but we'll set it explicitly
-            clientSettings.UseTls = true;
-            
-            // Configure SSL settings if needed
-            if (clientSettings.SslSettings == null)
+            var settings = MongoClientSettings.FromUrl(mongoUrl);
+
+            // ✅ BẮT BUỘC: Fix lỗi TLS handshake trên Render
+            settings.UseTls = true;
+            settings.SslSettings = new SslSettings
             {
-                clientSettings.SslSettings = new SslSettings();
-            }
-            clientSettings.SslSettings.CheckCertificateRevocation = false; // Disable certificate revocation check
-            clientSettings.SslSettings.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13;
-            
-            // Increase connection timeout
-            clientSettings.ConnectTimeout = TimeSpan.FromSeconds(30);
-            clientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(30);
-            clientSettings.SocketTimeout = TimeSpan.FromSeconds(30);
-            
-            var client = new MongoClient(clientSettings);
+                EnabledSslProtocols = SslProtocols.Tls12,
+                CheckCertificateRevocation = false
+            };
+
+            // ✅ Giảm timeout để tránh đơ khi mạng chậm
+            settings.ConnectTimeout = TimeSpan.FromSeconds(20);
+            settings.ServerSelectionTimeout = TimeSpan.FromSeconds(20);
+            settings.SocketTimeout = TimeSpan.FromSeconds(30);
+
+            // ✅ Tạo client MongoDB
+            var client = new MongoClient(settings);
+
+            // ✅ Lấy tên database (tự fallback nếu thiếu)
             var databaseName = mongoUrl.DatabaseName ?? "pet_shop";
             _database = client.GetDatabase(databaseName);
         }
@@ -48,4 +48,3 @@ namespace ECommerceAI.DataAccess
         public IMongoDatabase Database => _database;
     }
 }
-
