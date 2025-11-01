@@ -24,13 +24,16 @@ namespace ECommerceAI.DataAccess
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
             
             // Ensure SSL/TLS is enabled (MongoDB Atlas requires SSL)
+            // mongodb+srv:// automatically enables TLS, but we'll set it explicitly
             clientSettings.UseTls = true;
-            clientSettings.SslSettings = new SslSettings
+            
+            // Configure SSL settings if needed
+            if (clientSettings.SslSettings == null)
             {
-                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13,
-                CheckCertificateRevocation = false, // Disable certificate revocation check
-                AllowInvalidCertificates = true // Temporarily allow invalid certificates for testing
-            };
+                clientSettings.SslSettings = new SslSettings();
+            }
+            clientSettings.SslSettings.CheckCertificateRevocation = false; // Disable certificate revocation check
+            clientSettings.SslSettings.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13;
             
             // Increase connection timeout
             clientSettings.ConnectTimeout = TimeSpan.FromSeconds(30);
