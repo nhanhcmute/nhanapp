@@ -7,4 +7,6 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: MONGODB_URI
+        sync: false
 
