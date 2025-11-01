@@ -27,8 +27,15 @@ namespace ECommerceAI.DataAccess
             clientSettings.UseTls = true;
             clientSettings.SslSettings = new SslSettings
             {
-                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13
+                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13,
+                CheckCertificateRevocation = false, // Disable certificate revocation check
+                AllowInvalidCertificates = true // Temporarily allow invalid certificates for testing
             };
+            
+            // Increase connection timeout
+            clientSettings.ConnectTimeout = TimeSpan.FromSeconds(30);
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(30);
+            clientSettings.SocketTimeout = TimeSpan.FromSeconds(30);
             
             var client = new MongoClient(clientSettings);
             var databaseName = mongoUrl.DatabaseName ?? "pet_shop";
