@@ -21,22 +21,17 @@ namespace ECommerceAI.DataAccess
             }
 
             // Parse MongoDB connection
+            // Note: mongodb+srv:// automatically enables TLS, so we let driver handle it
             var mongoUrl = new MongoUrl(connectionString);
+            
+            // ✅ Đơn giản hóa: Để MongoDB driver tự xử lý SSL/TLS
+            // mongodb+srv:// tự động enable TLS, không cần config thủ công
             var settings = MongoClientSettings.FromUrl(mongoUrl);
-
-            // ✅ BẮT BUỘC: Fix lỗi TLS handshake trên Render
-            settings.UseTls = true;
-            settings.SslSettings = new SslSettings
-            {
-                EnabledSslProtocols = SslProtocols.Tls12,
-                CheckCertificateRevocation = false
-            };
-
-            // ✅ Giảm timeout để tránh đơ khi mạng chậm
-            settings.ConnectTimeout = TimeSpan.FromSeconds(20);
-            settings.ServerSelectionTimeout = TimeSpan.FromSeconds(20);
-            settings.SocketTimeout = TimeSpan.FromSeconds(30);
-
+            
+            // ✅ Chỉ tăng timeout nếu cần
+            settings.ConnectTimeout = TimeSpan.FromSeconds(30);
+            settings.ServerSelectionTimeout = TimeSpan.FromSeconds(30);
+            
             // ✅ Tạo client MongoDB
             var client = new MongoClient(settings);
 
