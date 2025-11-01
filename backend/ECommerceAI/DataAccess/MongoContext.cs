@@ -16,7 +16,7 @@ namespace ECommerceAI.DataAccess
                 throw new InvalidOperationException(
                     "MongoDB connection string is not configured. " +
                     "Please add 'ConnectionStrings:MongoDb' to appsettings.json. " +
-                    "Example: \"ConnectionStrings\": { \"MongoDb\": \"mongodb://localhost:27017/pet_shop\" }");
+                    "Example: \"ConnectionStrings\": { \"MongoDb\": \"mongodb+srv://ssnn01:xenlulozo1@nhanapp-cluster.yfdohhl.mongodb.net/pet_shop?retryWrites=true&w=majority\" }");
             }
             
             var client = new MongoClient(connectionString);
