@@ -14,6 +14,11 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
+# Install CA certificates for SSL/TLS connections (required for MongoDB Atlas)
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy the published app from build stage
 COPY --from=build /app/out .
 
