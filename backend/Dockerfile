@@ -1,5 +1,5 @@
-# Use the official .NET 9.0 SDK image for building
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+# Use the official .NET 8.0 SDK image for building (LTS, more stable)
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy csproj file and restore dependencies
@@ -11,7 +11,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # Use the .NET runtime image for running
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # Install and update CA certificates for SSL/TLS connections (required for MongoDB Atlas)

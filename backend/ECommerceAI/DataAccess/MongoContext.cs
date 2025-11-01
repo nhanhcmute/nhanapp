@@ -1,6 +1,5 @@
 using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
-using System.Security.Authentication;
 
 namespace ECommerceAI.DataAccess
 {
