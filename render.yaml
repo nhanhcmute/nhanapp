@@ -2,12 +2,9 @@ services:
   - type: web
     name: nhanapp-backend
     rootDir: backend
-    env: dotnet
-    buildCommand: dotnet restore && dotnet publish -c Release -o output
-    startCommand: dotnet output/backend.dll
+    env: docker
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: DOTNET_VERSION
-        value: 9.0
 
