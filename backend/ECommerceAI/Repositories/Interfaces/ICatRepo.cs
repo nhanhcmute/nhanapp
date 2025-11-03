@@ -5,16 +5,16 @@ namespace ECommerceAI.Repositories.Interfaces
 {
     public interface ICatRepo
     {
-        Task<IEnumerable<CatModel>> GetAllAsync();
-        Task<CatModel?> GetByIdAsync(string id);
-        Task<CatModel?> GetByCatIdAsync(string catId);
-        Task<PaginationResponse<CatModel>> GetPagedAsync(int page, int pageSize);
-        Task<IEnumerable<CatModel>> SearchAsync(string searchTerm);
-        Task<CatModel> CreateAsync(CatModel cat);
-        Task<CatModel> UpdateAsync(string id, CatModel cat);
+        Task<IEnumerable<cat_model>> GetAllAsync();
+        Task<cat_model?> GetByIdAsync(string id);
+        Task<cat_model?> GetByCatIdAsync(string catId);
+        Task<PaginationResponse<cat_model>> GetPagedAsync(int page, int pageSize);
+        Task<IEnumerable<cat_model>> SearchAsync(string searchTerm);
+        Task<cat_model> CreateAsync(cat_model cat);
+        Task<cat_model> UpdateAsync(string id, cat_model cat);
         Task<bool> DeleteAsync(string id);
         Task<long> CountAsync();
-        Task<bool> BulkInsertAsync(IEnumerable<CatModel> cats);
+        Task<bool> BulkInsertAsync(IEnumerable<cat_model> cats);
     }
 }
 

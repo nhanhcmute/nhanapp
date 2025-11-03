@@ -1,6 +1,8 @@
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
 using ECommerceAI.Repositories.Implementations;
+using ECommerceAI.Services.Interfaces;
+using ECommerceAI.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +11,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Memory Cache cho OTP
+builder.Services.AddMemoryCache();
+
 // Add MongoDB context
 builder.Services.AddSingleton<MongoContext>();
 
 // Add Repositories
 builder.Services.AddScoped<ICatRepo, CatRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IProductRepo, ProductRepo>();
+builder.Services.AddScoped<IOTPRepo, OTPRepo>();
+
+// Add Services
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<IOTPCacheService, OTPCacheService>();
 
 // Configure CORS
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();

@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ECommerceAI.Models.Pet
 {
-    public class CatModel
+    public class cat_model
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -13,10 +13,13 @@ namespace ECommerceAI.Models.Pet
         public string CatId { get; set; } = string.Empty; 
 
         [BsonElement("weight")]
-        public CatWeight? Weight { get; set; }
+        public cat_weight? Weight { get; set; }
 
         [BsonElement("name")]
         public string Name { get; set; } = string.Empty;
+
+        [BsonElement("image_data")]
+        public string? ImageData { get; set; } 
 
         [BsonElement("cfa_url")]
         public string? CfaUrl { get; set; }
@@ -134,7 +137,7 @@ namespace ECommerceAI.Models.Pet
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 
-    public class CatWeight
+    public class cat_weight
     {
         [BsonElement("imperial")]
         public string? Imperial { get; set; }

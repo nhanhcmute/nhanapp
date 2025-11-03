@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Checkbox, List, ListItem, ListItemText, IconButton, Paper, Divider, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import Sidebar from '../components/layout/Sidebar';
 import { ref, onValue, update, remove } from "firebase/database";
-import { database } from '../firebaseConfig'; 
+import { database } from '../firebaseConfig';
+import { FaPaw } from 'react-icons/fa'; 
 
 const Alerts = () => {
   const [alerts, setAlerts] = useState([]);
@@ -131,41 +133,100 @@ const Alerts = () => {
   };
 
   return (
-    <Box display="flex">
+    <Box 
+      display="flex"
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
+      }}
+    >
       <Sidebar />
-      <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
-        <Box sx={{ width: '100%', padding: 2 }}>
-          <Typography variant="h4" gutterBottom>
-            Thông Báo
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {unreadCount} thông báo chưa đọc
+      <Box sx={{ padding: 4, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+        <Box sx={{ width: '100%', mb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <FaPaw size={32} color="#ff6b81" />
+            <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
+              🔔 Thông Báo
+            </Typography>
+            <FaPaw size={32} color="#ff6b81" />
+          </Box>
+          <Typography variant="body1" sx={{ color: '#666', fontWeight: 600 }}>
+            {unreadCount} thông báo chưa đọc 🐾
           </Typography>
         </Box>
 
         {loading ? (
           <Box sx={{ textAlign: 'center', marginTop: 4 }}>
-            <CircularProgress />
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+              <FaPaw size={32} color="#ff6b81" />
+              <CircularProgress sx={{ color: '#ff6b81' }} />
+              <FaPaw size={32} color="#ff6b81" />
+            </Box>
+            <Typography sx={{ color: '#ff6b81', fontWeight: 600, mt: 2 }}>
+              Đang tải thông báo...
+            </Typography>
           </Box>
         ) : error ? (
-          <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginTop: 2 }}>
-            {error}
-          </Typography>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 71, 87, 0.1)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 71, 87, 0.2)',
+            }}
+          >
+            <Typography variant="body1" sx={{ color: '#ff4757', fontWeight: 600 }}>
+              {error}
+            </Typography>
+          </Paper>
         ) : (
-          <Paper sx={{ padding: 3, boxShadow: 3 }}>
+          <Paper 
+            elevation={0}
+            sx={{ 
+              padding: 4,
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '24px',
+              border: '2px solid rgba(255, 107, 129, 0.2)',
+              boxShadow: '0 8px 24px rgba(255, 107, 129, 0.15)',
+            }}
+          >
             {alerts.length === 0 ? (
-              <Typography variant="body1" sx={{ textAlign: 'center', color: '#888', marginTop: 2 }}>
-                Không có thông báo nào.
-              </Typography>
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <FaPaw size={64} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
+                <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 1 }}>
+                  Không có thông báo nào
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666' }}>
+                  Bạn chưa có thông báo nào. 🐾
+                </Typography>
+              </Box>
             ) : (
               <>
                 <Button
                   variant="contained"
-                  color="primary"
                   onClick={handleMarkAllAsRead}
-                  sx={{ marginBottom: 2 }}
+                  startIcon={<NotificationsIcon />}
+                  sx={{
+                    marginBottom: 3,
+                    backgroundColor: '#ff6b81',
+                    color: 'white',
+                    borderRadius: '16px',
+                    px: 3,
+                    py: 1.5,
+                    fontWeight: 600,
+                    boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+                    '&:hover': {
+                      backgroundColor: '#ff4757',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
                 >
-                  Đánh dấu tất cả là đã đọc
+                  🐾 Đánh dấu tất cả là đã đọc
                 </Button>
 
                 <List>
@@ -175,38 +236,63 @@ const Alerts = () => {
                       sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        backgroundColor: alert.isRead ? '#f5f5f5' : '#e8f5e9',
+                        backgroundColor: alert.isRead 
+                          ? 'rgba(255, 255, 255, 0.5)' 
+                          : 'rgba(255, 107, 129, 0.1)',
                         marginBottom: 2,
-                        borderRadius: 1,
-                        boxShadow: 1,
+                        borderRadius: '16px',
+                        border: '2px solid rgba(255, 107, 129, 0.2)',
+                        boxShadow: alert.isRead 
+                          ? '0 2px 8px rgba(255, 107, 129, 0.1)' 
+                          : '0 4px 12px rgba(255, 107, 129, 0.2)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateX(4px)',
+                          boxShadow: '0 6px 16px rgba(255, 107, 129, 0.3)',
+                          borderColor: 'rgba(255, 107, 129, 0.4)',
+                        },
                       }}
                     >
                       <Checkbox
                         checked={alert.isRead}
-                        onChange={() => handleMarkAsRead(alert.id, alert.isRead)} // Cập nhật trạng thái checkbox khi thay đổi
-                        sx={{ marginRight: 2 }}
+                        onChange={() => handleMarkAsRead(alert.id, alert.isRead)}
+                        sx={{
+                          marginRight: 2,
+                          color: '#ff6b81',
+                          '&.Mui-checked': {
+                            color: '#ff6b81',
+                          },
+                        }}
                       />
                       <ListItemText
                         primary={alert.title}
                         secondary={
                           <>
-                            <Typography variant="body2" sx={{ color: alert.isRead ? 'text.secondary' : 'text.primary' }}>
+                            <Typography variant="body2" sx={{ color: alert.isRead ? '#666' : '#333', mb: 0.5, lineHeight: 1.6 }}>
                               {alert.message}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#888', marginTop: 1 }}>
-                              {formatTimestamp(alert.timestamp)} {/* Sử dụng hàm formatTimestamp */}
+                            <Typography variant="caption" sx={{ color: '#888', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <FaPaw size={12} color="#ff6b81" />
+                              {formatTimestamp(alert.timestamp)}
                             </Typography>
                           </>
                         }
                         primaryTypographyProps={{
-                          fontWeight: alert.isRead ? 'normal' : 'bold',
-                          color: alert.isRead ? 'text.secondary' : 'text.primary',
+                          fontWeight: alert.isRead ? 500 : 700,
+                          color: alert.isRead ? '#666' : '#ff6b81',
                         }}
                       />
                       <IconButton
-                        color="error"
-                        onClick={() => handleDeleteAlert(alert.id)} // Gọi hàm xóa theo ID
-                        sx={{ marginLeft: 'auto' }}
+                        onClick={() => handleDeleteAlert(alert.id)}
+                        sx={{
+                          marginLeft: 'auto',
+                          color: '#ff4757',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 71, 87, 0.1)',
+                            transform: 'scale(1.1)',
+                          },
+                          transition: 'all 0.2s ease',
+                        }}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -214,15 +300,30 @@ const Alerts = () => {
                   ))}
                 </List>
 
-                <Divider sx={{ margin: '16px 0' }} />
+                <Divider sx={{ margin: '24px 0', borderColor: 'rgba(255, 107, 129, 0.2)' }} />
 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <IconButton color="error" onClick={handleDeleteReadAlerts}>
-                    <DeleteIcon />
-                    <Typography variant="body2" sx={{ marginLeft: 1 }}>
-                      Xóa thông báo đã đọc
-                    </Typography>
-                  </IconButton>
+                  <Button
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleDeleteReadAlerts}
+                    sx={{
+                      borderColor: '#ff4757',
+                      color: '#ff4757',
+                      borderRadius: '16px',
+                      px: 3,
+                      py: 1,
+                      fontWeight: 600,
+                      '&:hover': {
+                        borderColor: '#ff4757',
+                        backgroundColor: 'rgba(255, 71, 87, 0.1)',
+                        transform: 'translateY(-2px)',
+                      },
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    🗑️ Xóa thông báo đã đọc
+                  </Button>
                 </Box>
               </>
             )}

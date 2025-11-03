@@ -8,7 +8,10 @@ import {
     CardContent,
     CardMedia,
     Button,
+    Chip,
+    Paper,
 } from "@mui/material";
+import { FaPaw } from 'react-icons/fa';
 const featuredPost = {
     title: "Top 5+ cách làm cây thông Noel bằng giấy đơn giản, sáng tạo",
     description:
@@ -125,74 +128,105 @@ const handleClick = (link) => {
 const Blog = () => {
     return (
         <div>
-            <Box sx={{ backgroundColor: "#fff", pb: 5 }}>
+            <Box sx={{ 
+                background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
+                pb: 5,
+                minHeight: '100vh',
+            }}>
 
                 {/* Nội dung chính */}
-                <Container maxWidth="lg" sx={{ mt: 3 }}>
-                    <Grid container spacing={0.5}>
+                <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
+                        <FaPaw size={32} color="#ff6b81" />
+                        <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center' }}>
+                            📝 Blog Thú Cưng
+                        </Typography>
+                        <FaPaw size={32} color="#ff6b81" />
+                    </Box>
+                    <Grid container spacing={3}>
                         {/* Bài viết lớn */}
                         <Grid onClick={() => window.location.href = "https://vi.wikipedia.org/wiki/Ch%C3%B3_c%E1%BB%8F"} style={{ cursor: "pointer" }} item xs={12} md={8} >
-                            <Card sx={{
-                                display: "flex", flexDirection: "column", height: "100%", boxShadow: 3, transition: 'opacity 0.3s ease, background-color 0.3s ease',
-                                '&:hover': {
-                                    opacity: 0.7,  // Giảm độ mờ khi hover
-                                },
-                            }}>
+                            <Card
+                                elevation={0}
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    height: "100%",
+                                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                    backdropFilter: 'blur(10px)',
+                                    borderRadius: '24px',
+                                    border: '2px solid rgba(255, 107, 129, 0.2)',
+                                    boxShadow: '0 8px 24px rgba(255, 107, 129, 0.15)',
+                                    transition: 'all 0.3s ease',
+                                    overflow: 'hidden',
+                                    '&:hover': {
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: '0 12px 32px rgba(255, 107, 129, 0.25)',
+                                        borderColor: 'rgba(255, 107, 129, 0.4)',
+                                    },
+                                }}
+                            >
                                 <CardMedia
                                     component="img"
                                     height="359"
                                     image={featuredPost.image}
                                     alt={featuredPost.title}
+                                    sx={{ borderRadius: '24px 24px 0 0' }}
                                 />
-                                <CardContent sx={{ position: "relative" }}>
-                                    <Typography
-                                        variant="subtitle1"
+                                <CardContent sx={{ position: "relative", p: 3 }}>
+                                    <Chip
+                                        label={featuredPost.category}
                                         sx={{
                                             position: "absolute",
-                                            top: 10,
-                                            left: 10,
-                                            backgroundColor: "#ff7043",
+                                            top: 16,
+                                            left: 16,
+                                            backgroundColor: "#ff6b81",
                                             color: "#fff",
-                                            px: 1,
-                                            py: 0.5,
-                                            fontWeight: "bold",
-                                            fontSize: "0.8rem",
+                                            fontWeight: 700,
+                                            borderRadius: '12px',
+                                            fontSize: '0.8rem',
                                         }}
-                                    >
-                                        {featuredPost.category}
-                                    </Typography>
-                                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "#333", mt: 5 }}>
+                                    />
+                                    <Typography variant="h5" sx={{ fontWeight: 700, color: "#ff6b81", mt: 5, mb: 2 }}>
                                         {featuredPost.title}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: "#666", mt: 1 }}>
+                                    <Typography variant="body1" sx={{ color: "#666", mb: 2, lineHeight: 1.8 }}>
                                         {featuredPost.description}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ color: "#999", mt: 1, display: "block" }}>
-                                        Cập nhật {featuredPost.date}
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <FaPaw size={14} color="#ff6b81" />
+                                        <Typography variant="caption" sx={{ color: "#999" }}>
+                                            Cập nhật {featuredPost.date}
+                                        </Typography>
+                                    </Box>
                                 </CardContent>
                             </Card>
                         </Grid>
 
                         {/* Bài viết nhỏ */}
                         <Grid item xs={12} md={4} >
-                            <Grid container direction="column" spacing={0.5} sx={{ height: "100%" }}>
+                            <Grid container direction="column" spacing={2} sx={{ height: "100%" }}>
                                 {sidePosts.map((post, index) => (
-                                    <Grid item key={index} onClick={() => handleClick(post.link)} style={{ cursor: "pointer" }} sx={{
-                                        transition: 'opacity 0.3s ease, background-color 0.3s ease',
-                                        '&:hover': {
-                                            opacity: 0.8,  // Giảm độ mờ khi hover
-                                            backgroundColor: '#45a049',  // Thay đổi màu sắc khi hover
-                                        },
-                                    }} >
+                                    <Grid item key={index} onClick={() => handleClick(post.link)} style={{ cursor: "pointer" }}>
                                         <Card
+                                            elevation={0}
                                             sx={{
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 height: "100%",
-                                                boxShadow: 1,
-                                                "&:hover": { boxShadow: 3 },
+                                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                                backdropFilter: 'blur(10px)',
+                                                borderRadius: '20px',
+                                                border: '2px solid rgba(255, 107, 129, 0.2)',
+                                                boxShadow: '0 4px 12px rgba(255, 107, 129, 0.15)',
                                                 position: "relative",
+                                                overflow: 'hidden',
+                                                transition: 'all 0.3s ease',
+                                                '&:hover': {
+                                                    transform: 'translateY(-4px)',
+                                                    boxShadow: '0 8px 20px rgba(255, 107, 129, 0.25)',
+                                                    borderColor: 'rgba(255, 107, 129, 0.4)',
+                                                },
                                             }}
                                         >
                                             <CardMedia
@@ -216,29 +250,28 @@ const Blog = () => {
                                                     flexDirection: "column",
                                                     justifyContent: "center",
                                                     alignItems: "center",
-                                                    backgroundColor: "rgba(0, 0, 0, 0.4)",
+                                                    background: 'linear-gradient(135deg, rgba(255, 107, 129, 0.7) 0%, rgba(255, 217, 61, 0.6) 100%)',
                                                     color: "#fff",
                                                     padding: "1rem",
                                                     textAlign: "center",
                                                     zIndex: 1,
                                                 }}
                                             >
-                                                <Typography
-                                                    variant="subtitle2"
+                                                <Chip
+                                                    label={post.category}
                                                     sx={{
-                                                        color: "#ff7043",
-                                                        fontWeight: "bold",
+                                                        backgroundColor: "#ff6b81",
+                                                        color: "#fff",
+                                                        fontWeight: 700,
                                                         mb: 1,
-                                                        textTransform: "uppercase",
+                                                        borderRadius: '12px',
                                                         fontSize: "0.8rem",
                                                     }}
-                                                >
-                                                    {post.category}
-                                                </Typography>
+                                                />
                                                 <Typography
-                                                    variant="body2"
+                                                    variant="body1"
                                                     sx={{
-                                                        fontWeight: "bold",
+                                                        fontWeight: 700,
                                                         color: "#fff",
                                                         lineHeight: 1.4,
                                                         overflow: "hidden",

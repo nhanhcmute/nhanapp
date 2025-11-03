@@ -17,15 +17,20 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Divider
+  Divider,
+  Chip,
+  Paper,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
+import AddLocationIcon from '@mui/icons-material/AddLocation';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { toast } from 'react-toastify'; 
-
+import { FaPaw } from 'react-icons/fa';
 import MapComponent from '../components/common/MapComponent';
 
 const AddressPage = () => {
@@ -255,79 +260,214 @@ const AddressPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#fafafa', marginBottom: "20px" }}>
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
+      marginBottom: "20px" 
+    }}>
       <Sidebar />
-      <Box sx={{ padding: 3, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>Địa chỉ của tôi</Typography>
+      <Box sx={{ padding: 4, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FaPaw size={32} color="#ff6b81" />
+            <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff6b81' }}>
+              📍 Địa chỉ của tôi
+            </Typography>
+            <FaPaw size={32} color="#ff6b81" />
+          </Box>
           <Button
-            variant="outlined"
-            color="primary"
+            variant="contained"
+            startIcon={<AddLocationIcon />}
             onClick={() => setOpenDialog(true)}
             sx={{
-              padding: '10px 30px',
-              textTransform: 'none',
-              fontWeight: 'bold',
+              backgroundColor: '#ff6b81',
+              color: 'white',
+              borderRadius: '16px',
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+              '&:hover': {
+                backgroundColor: '#ff4757',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+              },
+              transition: 'all 0.3s ease',
             }}
           >
-            Thêm Địa chỉ
+            🐾 Thêm Địa chỉ
           </Button>
         </Box>
-        <Divider sx={{ marginBottom: 3 }} />
+        <Divider sx={{ marginBottom: 4, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
         {addresses.length === 0 ? (
-          <Typography variant="body1" sx={{ textAlign: 'center', color: '#888' }}>
-            Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới!
-          </Typography>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '24px',
+              border: '2px solid rgba(255, 107, 129, 0.2)',
+              boxShadow: '0 8px 24px rgba(255, 107, 129, 0.15)',
+            }}
+          >
+            <FaPaw size={64} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
+            <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 2 }}>
+              Chưa có địa chỉ nào
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#666', mb: 3 }}>
+              Hãy thêm địa chỉ mới để tiếp tục mua sắm! 🐾
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddLocationIcon />}
+              onClick={() => setOpenDialog(true)}
+              sx={{
+                backgroundColor: '#ff6b81',
+                color: 'white',
+                borderRadius: '16px',
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+                '&:hover': {
+                  backgroundColor: '#ff4757',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              🐾 Thêm Địa chỉ
+            </Button>
+          </Paper>
         ) : (
           // Sắp xếp danh sách địa chỉ sao cho địa chỉ mặc định luôn ở đầu
           addresses
-            .sort((a, b) => (a.isDefault ? -1 : 1)) // Đặt địa chỉ mặc định lên đầu
+            .sort((a, b) => (a.isDefault ? -1 : 1))
             .map((address) => (
-              <Card key={address.id} sx={{ marginBottom: 2, padding: 2, backgroundColor: '#fff', borderRadius: 0 }}>
+              <Card 
+                key={address.id} 
+                elevation={0}
+                sx={{ 
+                  marginBottom: 3, 
+                  padding: 3, 
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  backdropFilter: 'blur(10px)',
+                  borderRadius: '20px',
+                  border: '2px solid rgba(255, 107, 129, 0.2)',
+                  boxShadow: address.isDefault 
+                    ? '0 8px 24px rgba(255, 107, 129, 0.25)' 
+                    : '0 4px 12px rgba(255, 107, 129, 0.15)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 12px 32px rgba(255, 107, 129, 0.25)',
+                    borderColor: 'rgba(255, 107, 129, 0.4)',
+                  },
+                }}
+              >
                 <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {address.fullName}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <FaPaw size={20} color="#ff6b81" />
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81', flexGrow: 1 }}>
+                      {address.fullName}
+                    </Typography>
+                    {address.isDefault && (
+                      <Chip
+                        label="Địa chỉ mặc định"
+                        sx={{
+                          backgroundColor: '#4caf50',
+                          color: 'white',
+                          fontWeight: 600,
+                          borderRadius: '12px',
+                        }}
+                      />
+                    )}
+                  </Box>
+                  <Typography variant="body1" sx={{ color: '#666', mb: 1, lineHeight: 1.8 }}>
+                    📍 {address.street}, {address.wardName}, {address.districtName}, {address.provinceName}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#666' }}>
-                    {address.street}, {address.wardName}, {address.districtName}, {address.provinceName}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#666' }}>
-                    Số điện thoại: {address.phone}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: address.isDefault ? '#3f51b5' : '#888' }}>
-                    {address.isDefault ? 'Địa chỉ mặc định' : ''}
+                  <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
+                    📞 Số điện thoại: {address.phone}
                   </Typography>
 
                   {/* Hiển thị bản đồ chỉ khi địa chỉ là mặc định */}
                   {address.isDefault && (
-                    <Box style={{ marginTop: "20px", marginBottom: "40px" }}>
-                      <Typography variant="h6" style={{ fontWeight: 'bold', color: '#1976d2' }}>Vị trí:</Typography>
-                      <MapComponent latitude={latitude} longitude={longitude} />
+                    <Box sx={{ marginTop: 3, marginBottom: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                        <FaPaw size={16} color="#ff6b81" />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>📍 Vị trí:</Typography>
+                      </Box>
+                      <Box sx={{ borderRadius: '16px', overflow: 'hidden', border: '2px solid rgba(255, 107, 129, 0.2)' }}>
+                        <MapComponent latitude={latitude} longitude={longitude} />
+                      </Box>
                     </Box>
                   )}
 
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
                     <Button
-                      variant="text"
-                      color="primary"
+                      variant="outlined"
+                      startIcon={<EditIcon />}
                       onClick={() => handleEditDialogOpen(address)}
+                      sx={{
+                        borderColor: '#ff6b81',
+                        color: '#ff6b81',
+                        borderRadius: '12px',
+                        px: 3,
+                        fontWeight: 600,
+                        '&:hover': {
+                          borderColor: '#ff4757',
+                          backgroundColor: 'rgba(255, 107, 129, 0.1)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
                     >
                       Chỉnh sửa
                     </Button>
                     <Button
-                      variant="text"
-                      color="error"
+                      variant="outlined"
+                      startIcon={<DeleteIcon />}
                       onClick={() => handleDeleteAddress(address.id)}
+                      sx={{
+                        borderColor: '#ff4757',
+                        color: '#ff4757',
+                        borderRadius: '12px',
+                        px: 3,
+                        fontWeight: 600,
+                        '&:hover': {
+                          borderColor: '#ff4757',
+                          backgroundColor: 'rgba(255, 71, 87, 0.1)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
                     >
                       Xóa
                     </Button>
                     {!address.isDefault && (
                       <Button
-                        variant="text"
-                        color="secondary"
+                        variant="contained"
                         onClick={() => handleSetDefaultAddress(address.id)}
+                        sx={{
+                          backgroundColor: '#ff6b81',
+                          color: 'white',
+                          borderRadius: '12px',
+                          px: 3,
+                          fontWeight: 600,
+                          boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+                          '&:hover': {
+                            backgroundColor: '#ff4757',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+                          },
+                          transition: 'all 0.3s ease',
+                        }}
                       >
-                        Đặt mặc định
+                        🐾 Đặt mặc định
                       </Button>
                     )}
                   </Box>
@@ -336,31 +476,86 @@ const AddressPage = () => {
             ))
         )}
 
-        <Dialog open={openDialog} onClose={handleDialogClose}>
-          <DialogTitle>{newAddress.id ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới'}</DialogTitle>
+        <Dialog 
+          open={openDialog} 
+          onClose={handleDialogClose}
+          PaperProps={{
+            sx: {
+              borderRadius: '24px',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid rgba(255, 107, 129, 0.2)',
+              boxShadow: '0 8px 32px rgba(255, 107, 129, 0.25)',
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1, 
+            color: '#ff6b81',
+            fontWeight: 700,
+          }}>
+            <FaPaw size={20} color="#ff6b81" />
+            {newAddress.id ? '📝 Chỉnh sửa địa chỉ' : '➕ Thêm địa chỉ mới'}
+          </DialogTitle>
           <DialogContent>
             <TextField
               label="Họ và tên"
-              variant="standard"
+              variant="outlined"
               fullWidth
               margin="normal"
               value={newAddress.fullName}
               onChange={(e) =>
                 setNewAddress({ ...newAddress, fullName: e.target.value })
               }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#ff6b81',
+                  },
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#ff6b81',
+                },
+              }}
             />
             <TextField
               label="Số điện thoại"
-              variant="standard"
+              variant="outlined"
               fullWidth
               margin="normal"
               value={newAddress.phone}
               onChange={(e) =>
                 setNewAddress({ ...newAddress, phone: e.target.value })
               }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#ff6b81',
+                  },
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#ff6b81',
+                },
+              }}
             />
-            <FormControl fullWidth variant='standard' margin="normal">
-              <InputLabel>Tỉnh/Thành phố</InputLabel>
+            <FormControl fullWidth variant='outlined' margin="normal">
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Tỉnh/Thành phố</InputLabel>
               <Select
                 value={newAddress.province}
                 onChange={(e) => {
@@ -378,6 +573,18 @@ const AddressPage = () => {
                   });
                   setDistricts([]);
                 }}
+                sx={{
+                  borderRadius: '12px',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#ff6b81',
+                  },
+                }}
               >
                 {provinces.map((province) => (
                   <MenuItem key={province.code} value={province.code}>
@@ -386,8 +593,8 @@ const AddressPage = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth variant='standard' margin="normal" disabled={!newAddress.province}>
-              <InputLabel>Quận/Huyện</InputLabel>
+            <FormControl fullWidth variant='outlined' margin="normal" disabled={!newAddress.province}>
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Quận/Huyện</InputLabel>
               <Select
                 value={newAddress.district}
                 onChange={(e) => {
@@ -403,6 +610,18 @@ const AddressPage = () => {
                   });
                   setWards([]);
                 }}
+                sx={{
+                  borderRadius: '12px',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#ff6b81',
+                  },
+                }}
               >
                 {districts.map((district) => (
                   <MenuItem key={district.code} value={district.code}>
@@ -411,8 +630,8 @@ const AddressPage = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth variant='standard' margin="normal" disabled={!newAddress.district}>
-              <InputLabel>Phường/Xã</InputLabel>
+            <FormControl fullWidth variant='outlined' margin="normal" disabled={!newAddress.district}>
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Phường/Xã</InputLabel>
               <Select
                 value={newAddress.ward}
                 onChange={(e) => {
@@ -422,6 +641,18 @@ const AddressPage = () => {
                     ward: e.target.value,
                     wardName: selectedWard ? selectedWard.name : '',
                   });
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#ff6b81',
+                  },
                 }}
               >
                 {wards.map((ward) => (
@@ -433,23 +664,59 @@ const AddressPage = () => {
             </FormControl>
             <TextField
               label="Tên đường/Số nhà"
-              variant="standard"
+              variant="outlined"
               fullWidth
               margin="normal"
               value={newAddress.street}
               onChange={(e) =>
                 setNewAddress({ ...newAddress, street: e.target.value })
               }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#ff6b81',
+                  },
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#ff6b81',
+                },
+              }}
             />
             <TextField
               label="Ghi chú thêm (nếu có)"
-              variant="standard"
+              variant="outlined"
               fullWidth
               margin="normal"
+              multiline
+              rows={3}
               value={newAddress.details}
               onChange={(e) =>
                 setNewAddress({ ...newAddress, details: e.target.value })
               }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.3)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 107, 129, 0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#ff6b81',
+                  },
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#ff6b81',
+                },
+              }}
             />
             <FormControl component="fieldset" margin="normal">
               <Typography variant="body1" sx={{ marginBottom: 1 }}>
@@ -474,16 +741,42 @@ const AddressPage = () => {
               </RadioGroup>
             </FormControl>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="error">
+          <DialogActions sx={{ p: 3, gap: 2 }}>
+            <Button 
+              onClick={handleDialogClose}
+              sx={{
+                borderColor: '#ff4757',
+                color: '#ff4757',
+                borderRadius: '12px',
+                px: 3,
+                fontWeight: 600,
+                '&:hover': {
+                  borderColor: '#ff4757',
+                  backgroundColor: 'rgba(255, 71, 87, 0.1)',
+                },
+              }}
+            >
               Hủy
             </Button>
             <Button
               onClick={newAddress.id ? handleEditAddress : handleAddAddress}
-              color="primary"
-              variant="outlined"
+              variant="contained"
+              sx={{
+                backgroundColor: '#ff6b81',
+                color: 'white',
+                borderRadius: '12px',
+                px: 4,
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+                '&:hover': {
+                  backgroundColor: '#ff4757',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+                },
+                transition: 'all 0.3s ease',
+              }}
             >
-              {newAddress.id ? 'Lưu thay đổi' : 'Thêm mới'}
+              🐾 {newAddress.id ? 'Lưu thay đổi' : 'Thêm mới'}
             </Button>
           </DialogActions>
         </Dialog>

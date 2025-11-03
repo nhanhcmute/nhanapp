@@ -13,6 +13,8 @@ import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignUp';
+import VerifyOTPPage from './pages/VerifyOTPPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import PersonalInfoPage from './pages/PersonalInfoPage';
 import ProductList from './pages/ProductList';
@@ -68,6 +70,8 @@ import { CartProvider } from './store/CartContext';
 
 // AdminRoute bảo vệ các route của admin
 import AdminRoute from './components/common/AdminRoute';
+// ProtectedRoute bảo vệ các route yêu cầu đăng nhập
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -101,36 +105,78 @@ function App() {
           <Routes>
           <Route path="/login" element={<LoginPage setUser={setUser} />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/verify-otp" element={<VerifyOTPPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/aboutus" element={<AboutUs />} />
             {/* Routes dành cho khách hàng */}
             <Route element={<LayoutPage />}>
+              {/* Public Routes - Không cần đăng nhập */}
               <Route path="/" element={<HomePage />} />
               <Route path="/nhanpet" element={<HomePage />} />
               <Route path="/product/:id" element={<ProductPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/personal" element={<PersonalInfoPage />} />
               <Route path="/productlist" element={<ProductList />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/orders" element={<OrderPage />} />
-              <Route path="/address" element={<AddressPage />} />
-              <Route path="/bank" element={<Bank />} />
-              <Route path="/notificationsetting" element={<NotificationSetting />} />
               <Route path="/petsupplies" element={<PetSuppliesPage />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/privacy" element={<Privacy />} />
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/changepassword" element={<ChangePassword />} />
-              <Route path="/voucher" element={<Voucher />} />
-              <Route path="/getvoucher" element={<GetVoucher />} />
               <Route path="/" element={<ProductsGrid title="Danh Sách Sản Phẩm" />} />
               <Route path="/productdetail/:id" element={<ProductDetail />} />
               <Route path="/cats" element={<Cats />} />
               <Route path="/dogs" element={<Dogs />} />
               <Route path="/petdetails" element={<PetDetails />} />
               <Route path="/search" element={<SearchResults />} />
+              
+              {/* Protected Routes - Yêu cầu đăng nhập */}
+              <Route 
+                path="/profile" 
+                element={<ProtectedRoute element={<ProfilePage />} />} 
+              />
+              <Route 
+                path="/personal" 
+                element={<ProtectedRoute element={<PersonalInfoPage />} />} 
+              />
+              <Route 
+                path="/cart" 
+                element={<ProtectedRoute element={<CartPage />} />} 
+              />
+              <Route 
+                path="/checkout" 
+                element={<ProtectedRoute element={<CheckoutPage />} />} 
+              />
+              <Route 
+                path="/orders" 
+                element={<ProtectedRoute element={<OrderPage />} />} 
+              />
+              <Route 
+                path="/address" 
+                element={<ProtectedRoute element={<AddressPage />} />} 
+              />
+              <Route 
+                path="/bank" 
+                element={<ProtectedRoute element={<Bank />} />} 
+              />
+              <Route 
+                path="/notificationsetting" 
+                element={<ProtectedRoute element={<NotificationSetting />} />} 
+              />
+              <Route 
+                path="/alerts" 
+                element={<ProtectedRoute element={<Alerts />} />} 
+              />
+              <Route 
+                path="/changepassword" 
+                element={<ProtectedRoute element={<ChangePassword />} />} 
+              />
+              <Route 
+                path="/voucher" 
+                element={<ProtectedRoute element={<Voucher />} />} 
+              />
+              <Route 
+                path="/getvoucher" 
+                element={<ProtectedRoute element={<GetVoucher />} />} 
+              />
+              
               <Route path="*" element={<ErrorPage />} />
             </Route>
 

@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { FaPaw } from 'react-icons/fa';
 import { useCart } from '../../store/CartContext';
 import { database, ref, get, query, orderByChild } from '../../firebaseConfig';
 import { update } from "firebase/database";
@@ -204,44 +205,55 @@ function Header() {
         <AppBar
           position="sticky"
           sx={{
-            // Khi chưa cuộn: nền mờ trắng nhẹ để chữ nhìn rõ trên cả nền sáng và tối
-            // Khi đã cuộn: nền trắng đậm
-            backgroundColor: scrolled ? '#fff' : 'rgba(245, 245, 245, 0.4)',
+            // Theme thú cưng: trong suốt mờ mờ giống form đăng nhập
+            backgroundColor: scrolled 
+              ? 'rgba(255, 255, 255, 0.95)' 
+              : 'rgba(255, 255, 255, 0.25)',
             
-            // Backdrop blur để làm mờ nền phía sau, tăng độ tương phản
-            backdropFilter: scrolled ? 'none' : 'blur(10px) saturate(180%)',
-            WebkitBackdropFilter: scrolled ? 'none' : 'blur(10px) saturate(180%)',
+            // Backdrop blur mạnh để làm mờ nền phía sau (giống form đăng nhập)
+            backdropFilter: 'blur(12px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(180%)',
             
-            // Màu chữ: đen khi cuộn, dùng primary color (#42A5F5) khi ở đầu trang để nổi bật trên mọi nền
-            color: scrolled ? '#212121' : '#42A5F5',
+            // Màu chữ: hồng cam dễ thương (#ff6b81)
+            color: '#ff6b81',
             
-            // Text shadow mạnh hơn cho chữ primary color khi ở đầu trang
-            textShadow: scrolled 
-              ? 'none' 
-              : '0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3)',
+            // Text shadow mềm mại
+            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(255, 107, 129, 0.15)',
             
-            // Border nhẹ khi ở đầu trang
-            borderBottom: scrolled 
-              ? 'none' 
-              : '1px solid rgba(66, 165, 245, 0.2)',
+            // Border hồng cam nhẹ (giống form)
+            borderBottom: '2px solid rgba(255, 107, 129, 0.2)',
             
-            // Shadow khi cuộn
+            // Shadow dễ thương với màu hồng (giống form)
             boxShadow: scrolled 
-              ? '0 2px 5px rgba(0, 0, 0, 0.1)' 
-              : '0 1px 3px rgba(0, 0, 0, 0.1)',
+              ? '0 4px 16px rgba(255, 107, 129, 0.2)' 
+              : '0 8px 32px rgba(255, 107, 129, 0.15)',
             
             // Transition mượt mà
-            transition: 'background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, text-shadow 0.3s ease',
+            transition: 'all 0.3s ease',
           }}
         >
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {/* Logo */}
-            <Avatar
-              onClick={() => navigate('/homepage')}
-              src={logo}
-              alt="Nhân's Pet Haven logo"
-              sx={{ width: 50, height: 50, cursor: 'pointer' }}
-            />
+          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+            {/* Logo với Paw Icons */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FaPaw size={20} color="#ff6b81" style={{ opacity: 0.7 }} />
+              <Avatar
+                onClick={() => navigate('/homepage')}
+                src={logo}
+                alt="Nhân's Pet Haven logo"
+                sx={{ 
+                  width: 50, 
+                  height: 50, 
+                  cursor: 'pointer',
+                  border: '2px solid rgba(255, 107, 129, 0.3)',
+                  boxShadow: '0 2px 8px rgba(255, 107, 129, 0.2)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                  }
+                }}
+              />
+              <FaPaw size={20} color="#ff6b81" style={{ opacity: 0.7 }} />
+            </Box>
       
             {/* Search Bar */}
             <TextField
@@ -252,26 +264,30 @@ function Header() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSearchSubmit(); 
               }}
-              placeholder="Tìm kiếm thú cưng..."
+              placeholder="Tìm kiếm thú cưng yêu..."
               sx={{
-                backgroundColor: scrolled ? '#fff' : 'rgba(255, 255, 255, 0.6)', 
+                backgroundColor: 'rgba(255, 255, 255, 0.7)', 
+                backdropFilter: 'blur(8px)',
                 width: "100%",
                 maxWidth: "500px",
+                borderRadius: '24px',
                 "& .MuiOutlinedInput-root": {
+                  borderRadius: '24px',
                   "& fieldset": {
-                    borderColor: scrolled ? '#E0E0E0' : 'rgba(66, 165, 245, 0.3)',
+                    borderColor: 'rgba(255, 107, 129, 0.4)',
+                    borderWidth: '2px',
                   },
                   "&:hover fieldset": {
-                    borderColor: "#42A5F5", 
+                    borderColor: "#ff6b81", 
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#42A5F5", 
+                    borderColor: "#ff4757", 
                   },
-                  color: scrolled ? '#212121' : '#42A5F5',
-                  fontWeight: scrolled ? 'normal' : '500',
+                  color: '#ff6b81',
+                  fontWeight: '500',
                 },
                 "& input::placeholder": {
-                  color: scrolled ? '#999' : 'rgba(66, 165, 245, 0.6)',
+                  color: 'rgba(255, 107, 129, 0.6)',
                 },
               }}
               InputProps={{
@@ -279,7 +295,7 @@ function Header() {
                   <InputAdornment position="start">
                     <SearchIcon 
                       sx={{ 
-                        color: scrolled ? '#757575' : '#42A5F5',
+                        color: scrolled ? '#757575' : '#ff6b81',
                       }} 
                     />
                   </InputAdornment>
@@ -293,16 +309,25 @@ function Header() {
               <IconButton 
                 sx={{ 
                   marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
+                  color: '#ff6b81',
                   '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
+                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.3s ease',
                 }} 
                 onClick={() => navigate('/cart')}
               >
-                <Badge badgeContent={totalQuantity} color="error">
+                <Badge 
+                  badgeContent={totalQuantity} 
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      backgroundColor: '#ff6b81',
+                      color: 'white',
+                      fontWeight: 600,
+                    }
+                  }}
+                >
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
@@ -313,262 +338,312 @@ function Header() {
                 onClick={handleClickNotification}
                 sx={{ 
                   marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
+                  color: '#ff6b81',
                   '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
+                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.3s ease',
                 }}
               >
-                <Badge badgeContent={unreadCount} color="error">
+                <Badge 
+                  badgeContent={unreadCount} 
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      backgroundColor: '#ff6b81',
+                      color: 'white',
+                      fontWeight: 600,
+                    }
+                  }}
+                >
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
       
               <Menu
-                anchorEl={anchorElNotification}
-                open={openNotificationMenu}
-                onClose={handleCloseNotification}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                {alerts.length > 0 ? (
-                  alerts.slice(0, 5).map((alert) => (
-                    <MenuItem
-                      key={alert.id}
-                      onClick={() => {
-                        handleMarkAsRead(alert.id);
-                        handleCloseNotification();
-                      }}
-                      sx={{
-                        display: 'flex',
-                        padding: '10px',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box>
-                          <Typography
-                            variant="body1"
-                            sx={{
-                              color: 'black',
-                              marginTop: '5px',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              maxWidth: '230px',
-                            }}
-                          >
-                            {alert.message}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{ color: '#888', marginTop: '5px', display: 'block' }}
-                          >
-                            {new Date(alert.timestamp).toLocaleString()}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      {!alert.isRead && (
-                        <Box
-                          sx={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: '#FF6F61',
-                            marginLeft: '10px',
-                          }}
-                        />
-                      )}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem onClick={handleCloseNotification}>
-                    <ListItemText primary="Không có thông báo" />
-                  </MenuItem>
-                )}
-                <Divider />
-                <MenuItem onClick={() => navigate('/alerts')}>
-                  <ListItemText primary="Xem tất cả thông báo" />
-                </MenuItem>
-              </Menu>
+  open={openNotificationMenu}
+  anchorEl={anchorElNotification}
+  onClose={handleCloseNotification}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  PaperProps={{
+    elevation: 4,
+    sx: {
+      mt: 1,
+      borderRadius: '16px',
+      backgroundColor: '#fff',
+      border: '1px solid rgba(255,107,129,0.2)',
+      boxShadow: '0 4px 15px rgba(255,107,129,0.25)',
+      minWidth: 260,
+      overflow: 'hidden',
+      '& .MuiMenuItem-root': {
+        transition: 'all 0.2s ease',
+        borderBottom: '1px solid rgba(255,107,129,0.1)',
+        '&:hover': {
+          backgroundColor: 'rgba(255,107,129,0.08)',
+          color: '#ff6b81',
+          transform: 'translateX(4px)',
+        },
+      },
+    },
+  }}
+>
+  {alerts.length > 0 ? (
+    alerts.slice(0, 5).map((alert) => (
+      <MenuItem
+        key={alert.id}
+        onClick={() => {
+          handleMarkAsRead(alert.id);
+          handleCloseNotification();
+        }}
+        sx={{ display: 'flex', justifyContent: 'space-between' }}
+      >
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            {alert.message}
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#999' }}>
+            {new Date(alert.timestamp).toLocaleString()}
+          </Typography>
+        </Box>
+        {!alert.isRead && (
+          <Box
+            sx={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: '#ff6b81',
+            }}
+          />
+        )}
+      </MenuItem>
+    ))
+  ) : (
+    <MenuItem disabled>
+      <ListItemText primary="Không có thông báo" />
+    </MenuItem>
+  )}
+  <Divider />
+  <MenuItem
+    onClick={() => navigate('/alerts')}
+    sx={{ fontWeight: 600, color: '#ff6b81', justifyContent: 'center' }}
+  >
+    Xem tất cả thông báo
+  </MenuItem>
+</Menu>
+
       
-              {/* User Profile */}
-              <IconButton 
-                onClick={handleUserClick} 
-                sx={{ 
-                  marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
-                  '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
-                }}
-              >
-                <AccountCircleIcon />
-              </IconButton>
-              <Menu
-                open={openUserMenu}
-                onClose={handleUserClose}
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                {user ? (
-                  <>
-                    <MenuItem
-                      onClick={() => {
-                        navigate('/profile');
-                        handleUserClose();
-                      }}
-                    >
-                      Tài khoản của tôi
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        navigate('/orders');
-                        handleUserClose();
-                      }}
-                    >
-                      Đơn hàng
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        handleLogout();
-                        handleUserClose();
-                      }}
-                    >
-                      Đăng xuất
-                    </MenuItem>
-                  </>
-                ) : (
-                  <>
-                    <MenuItem
-                      onClick={() => {
-                        navigate('/login');
-                        handleUserClose();
-                      }}
-                    >
-                      Đăng nhập
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        navigate('/signup');
-                        handleUserClose();
-                      }}
-                    >
-                      Đăng ký
-                    </MenuItem>
-                  </>
-                )}
-              </Menu>
+              {/* User Profile Icon */}
+              <IconButton onClick={handleUserClick} sx={{ marginRight: '10px', color: '#ff6b81', '&:hover': { backgroundColor: 'rgba(255, 107, 129, 0.15)', transform: 'scale(1.1)', }, transition: 'all 0.3s ease', }} > <AccountCircleIcon /> </IconButton>
+
+{/* Custom Styled Menu */}
+<Menu
+  open={openUserMenu}
+  onClose={handleUserClose}
+  anchorEl={anchorElUser}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  PaperProps={{
+    elevation: 4,
+    sx: {
+      borderRadius: '16px',
+      background: 'rgba(255, 255, 255, 0.9)',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 8px 24px rgba(255, 107, 129, 0.2)',
+      mt: 1,
+      '& .MuiMenuItem-root': {
+        color: '#ff6b81',
+        fontWeight: 600,
+        fontFamily: 'inherit',
+        borderRadius: '8px',
+        mx: 0.5,
+        my: 0.3,
+        transition: 'all 0.25s ease',
+        '&:hover': {
+          backgroundColor: 'rgba(255, 107, 129, 0.15)',
+          transform: 'translateX(3px)',
+        },
+      },
+    },
+  }}
+>
+  {user ? (
+    <>
+      <MenuItem
+        onClick={() => {
+          navigate('/profile');
+          handleUserClose();
+        }}
+      >
+        👤 Tài khoản của tôi
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          navigate('/orders');
+          handleUserClose();
+        }}
+      >
+        📦 Đơn hàng
+      </MenuItem>
+      <Divider sx={{ my: 0.5, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
+      <MenuItem
+        onClick={() => {
+          handleLogout();
+          handleUserClose();
+        }}
+      >
+        🚪 Đăng xuất
+      </MenuItem>
+    </>
+  ) : (
+    <>
+      <MenuItem
+        onClick={() => {
+          navigate('/login');
+          handleUserClose();
+        }}
+      >
+        🔑 Đăng nhập
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          navigate('/signup');
+          handleUserClose();
+        }}
+      >
+        📝 Đăng ký
+      </MenuItem>
+    </>
+  )}
+</Menu>
+
       
               {/* Navigation Buttons */}
               <Button 
                 onClick={() => navigate('/homepage')} 
                 sx={{ 
                   marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
-                  fontWeight: scrolled ? 'normal' : '600',
+                  color: '#ff6b81',
+                  fontWeight: '600',
+                  textTransform: 'none',
+                  borderRadius: '12px',
                   '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
+                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
                 }}
               >
-                Home
+                🏠 Home
               </Button>
               <Button 
                 onClick={() => navigate('/productlist')} 
                 sx={{ 
                   marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
-                  fontWeight: scrolled ? 'normal' : '600',
+                  color: '#ff6b81',
+                  fontWeight: '600',
+                  textTransform: 'none',
+                  borderRadius: '12px',
                   '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
+                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
                 }}
               >
-                Products
+                🛍️ Products
               </Button>
               <Button 
                 onClick={() => navigate('/aboutus')} 
                 sx={{ 
                   marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
-                  fontWeight: scrolled ? 'normal' : '600',
+                  color: '#ff6b81',
+                  fontWeight: '600',
+                  textTransform: 'none',
+                  borderRadius: '12px',
                   '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
+                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
                 }}
               >
-                About Us
+                ℹ️ About Us
               </Button>
               <Button 
                 onClick={() => navigate('/contact')} 
                 sx={{ 
                   marginRight: '10px',
-                  color: scrolled ? '#212121' : '#42A5F5',
-                  fontWeight: scrolled ? 'normal' : '600',
+                  color: '#ff6b81',
+                  fontWeight: '600',
+                  textTransform: 'none',
+                  borderRadius: '12px',
                   '&:hover': { 
-                    backgroundColor: scrolled 
-                      ? 'rgba(66, 165, 245, 0.1)' 
-                      : 'rgba(66, 165, 245, 0.15)' 
-                  }
+                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
                 }}
               >
-                Contact
+                📞 Contact
               </Button>
       
               {!user && (
                 <>
                   <Button 
                     onClick={() => navigate('/login')} 
+                    variant="outlined"
                     sx={{ 
-                      color: scrolled ? '#212121' : '#42A5F5',
-                      fontWeight: scrolled ? 'normal' : '600',
+                      marginRight: '8px',
+                      color: '#ff6b81',
+                      borderColor: 'rgba(255, 107, 129, 0.5)',
+                      fontWeight: '600',
+                      textTransform: 'none',
+                      borderRadius: '12px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                      backdropFilter: 'blur(8px)',
                       '&:hover': { 
-                        backgroundColor: scrolled 
-                          ? 'rgba(66, 165, 245, 0.1)' 
-                          : 'rgba(66, 165, 245, 0.15)' 
-                      }
+                        backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                        borderColor: '#ff6b81',
+                        transform: 'translateY(-2px)',
+                      },
+                      transition: 'all 0.3s ease',
                     }}
                   >
-                    Đăng Nhập
+                    🐾 Đăng Nhập
                   </Button>
                   <Button 
                     onClick={() => navigate('/signup')} 
+                    variant="contained"
                     sx={{ 
-                      color: scrolled ? '#212121' : '#42A5F5',
-                      fontWeight: scrolled ? 'normal' : '600',
+                      backgroundColor: '#ff6b81',
+                      color: 'white',
+                      fontWeight: '600',
+                      textTransform: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+                      backdropFilter: 'blur(8px)',
                       '&:hover': { 
-                        backgroundColor: scrolled 
-                          ? 'rgba(66, 165, 245, 0.1)' 
-                          : 'rgba(66, 165, 245, 0.15)' 
-                      }
+                        backgroundColor: '#ff4757',
+                        boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+                        transform: 'translateY(-2px)',
+                      },
+                      transition: 'all 0.3s ease',
                     }}
                   >
-                    Đăng Ký
+                    🐶 Đăng Ký
                   </Button>
                 </>
               )}
@@ -579,4 +654,5 @@ function Header() {
 }
 
 export default Header;
+
 

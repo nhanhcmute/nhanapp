@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert, Modal, Fade, Backdrop } from '@mui/material';
-import { FaGoogle, FaFacebook, FaGithub } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { auth, sendPasswordResetEmail } from '../firebaseConfig';
-import { database, ref, get, update } from '../firebaseConfig';
+import { FaGoogle, FaFacebook, FaGithub, FaPaw } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+// API URL - Change this for production
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -14,10 +15,14 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resetUsername, setResetUsername] = useState('');
   const [resetEmail, setResetEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [step, setStep] = useState(1);
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [greeting, setGreeting] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Lấy thông tin từ location.state (khi bị redirect từ ProtectedRoute)
+  const from = location.state?.from || '/';
+  const redirectMessage = location.state?.message;
 
   const handleLogin = async () => {
     setError('');
@@ -29,46 +34,41 @@ const LoginPage = () => {
     }
 
     try {
-      // Fetch all user data from Firebase
-      const signupRef = ref(database, 'signup');
-      const snapshot = await get(signupRef);
-
-      if (!snapshot.exists()) {
-        setError('Dữ liệu không tồn tại!');
-        return;
-      }
-
-      const users = snapshot.val();
-      let userFound = null;
-
-      // Search for user in the database
-      Object.values(users).forEach((user) => {
-        if (user.username === username && user.password === password) {
-          userFound = user;
-        }
+      const response = await fetch(`${API_URL}/user.ctr/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password
+        })
       });
 
-      if (!userFound) {
-        setError('Sai tên đăng nhập hoặc mật khẩu!');
-        return;
-      }
+      const result = await response.json();
 
-      // Save user data to localStorage to keep personal information
+      if (result.status === 200) {
       setSuccess(true);
-      localStorage.setItem('user', JSON.stringify(userFound));
+        localStorage.setItem('user', JSON.stringify(result.data));
 
-      // Navigate based on the username or role (e.g., admin)
-      if (username === 'admin' && password === 'Xenlulozo1@') {
-        setTimeout(() => {
-          navigate('/admin');
-        }, 2000);
+        // Navigate dựa trên role từ backend (1 = Admin, 2 = User)
+        if (result.data.role === 1) {
+          setTimeout(() => {
+            navigate('/admin');
+          }, 2000);
+        } else {
+          // Nếu có trang gốc muốn truy cập, redirect về đó, nếu không thì về trang chủ
+          const redirectTo = from && from !== '/login' ? from : '/';
+          setTimeout(() => {
+            navigate(redirectTo);
+          }, 2000);
+        }
       } else {
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
+        setError(result.message);
       }
     } catch (err) {
       setError('Đã xảy ra lỗi khi đăng nhập!');
+      console.error('Login error:', err);
     }
   };
 
@@ -84,98 +84,55 @@ const LoginPage = () => {
   }, []);
 
   const handleForgotPassword = async () => {
-    if (isSubmitting) return; // Ngăn người dùng click nhiều lần
+    if (isSubmitting) return; 
     setIsSubmitting(true);
+    setIsSendingOTP(true);
     setError('');
     setSuccess(false);
 
     if (!resetUsername || !resetEmail) {
       setError('Vui lòng nhập tên đăng nhập và email!');
       setIsSubmitting(false);
+      setIsSendingOTP(false);
       return;
     }
 
     try {
-      const signupRef = ref(database, 'signup');
-      const snapshot = await get(signupRef);
-
-      if (!snapshot.exists()) {
-        setError('Dữ liệu không tồn tại!');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const users = snapshot.val();
-      const userFound = Object.values(users).find(
-        (user) => user.username === resetUsername && user.email === resetEmail
-      );
-
-      if (!userFound) {
-        setError('Thông tin tài khoản hoặc email không đúng!');
-        setIsSubmitting(false);
-        return;
-      }
-
-      await sendPasswordResetEmail(auth, resetEmail);
-      setSuccess(true);
-      setStep(2);
-      alert('Email yêu cầu đặt lại mật khẩu đã được gửi!');
-    } catch (err) {
-      if (err.code === 'auth/user-not-found') {
-        setError('Email không tồn tại trong hệ thống!');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('Email không hợp lệ!');
-      } else {
-        setError('Đã xảy ra lỗi khi gửi yêu cầu đặt lại mật khẩu!');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleResetPassword = async () => {
-    if (!newPassword) {
-      setError('Vui lòng nhập mật khẩu mới!');
-      return;
-    }
-
-    try {
-      const signupRef = ref(database, 'signup');
-      const snapshot = await get(signupRef);
-
-      if (!snapshot.exists()) {
-        setError('Dữ liệu không tồn tại!');
-        return;
-      }
-
-      const users = snapshot.val();
-      let userKey = null;
-
-      // Find user key
-      Object.entries(users).forEach(([key, user]) => {
-        if (user.username === resetUsername) {
-          userKey = key;
-        }
+      const response = await fetch(`${API_URL}/user.ctr/forgot_password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: resetUsername,
+          email: resetEmail
+        })
       });
 
-      if (!userKey) {
-        setError('Người dùng không tồn tại!');
-        return;
+      const result = await response.json();
+
+      if (result.status === 200) {
+        setSuccess(true);
+        // Chuyển đến màn hình verify OTP riêng
+        navigate('/verify-otp', {
+          state: {
+            email: resetEmail,
+            username: resetUsername,
+            type: 'forgot_password'
+          }
+        });
+      } else {
+        setError(result.message);
       }
-
-      // Update password in Firebase
-      const userRef = ref(database, `signup/${userKey}`);
-      await update(userRef, { password: newPassword });
-
-      setSuccess(true);
-      setTimeout(() => {
-        alert('Mật khẩu của bạn đã được thay đổi thành công!');
-        setForgotPassword(false);
-      }, 2000);
     } catch (err) {
-      setError('Đã xảy ra lỗi khi cập nhật mật khẩu!');
+      setError('Đã xảy ra lỗi khi gửi yêu cầu đặt lại mật khẩu!');
+      console.error('Forgot password error:', err);
+    } finally {
+      setIsSubmitting(false);
+      setIsSendingOTP(false);
     }
   };
+
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -277,25 +234,39 @@ const LoginPage = () => {
             flexDirection: 'column',
             alignItems: 'center',
             padding: 4,
-            boxShadow: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '24px',
+            boxShadow: '0 8px 32px rgba(255, 107, 129, 0.3)',
+            backgroundColor: 'rgba(255, 255, 255, 0.25)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
             color: 'white',
           }}
           onKeyDown={handleKeyDown}
           tabIndex={0}
         >
-          <Typography variant="h5" mb={2}>
-            Đăng nhập
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <FaPaw size={28} color="#ff6b81" />
+            <Typography variant="h5" color='white' sx={{ fontWeight: 600 }}>
+              Đăng nhập
+            </Typography>
+            <FaPaw size={28} color="#ff6b81" />
+          </Box>
+
+          {/* Hiển thị thông báo khi bị redirect từ protected route */}
+          {redirectMessage && (
+            <Alert severity="warning" sx={{ mb: 2, width: '100%', borderRadius: '12px' }}>
+              {redirectMessage}
+            </Alert>
+          )}
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+            <Alert severity="error" sx={{ mb: 2, width: '100%', borderRadius: '12px' }}>
               {error}
             </Alert>
           )}
 
           {success && (
-            <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
+            <Alert severity="success" sx={{ mb: 2, width: '100%', borderRadius: '12px' }}>
               Đăng nhập thành công!
             </Alert>
           )}
@@ -334,18 +305,21 @@ const LoginPage = () => {
                   "& .MuiInput-underline.Mui-focused": {
                     borderBottom: "1px solid #ffffff",
                   },
+                  "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                        borderBottom: "2px solid #ffffff",
+                      },
 
                   // Autofill fix
                   "& input:-webkit-autofill": {
-                    backgroundColor: "transparent !important", // Đặt nền trong suốt cho autofill
-                    color: "white !important", // Đảm bảo chữ trắng
-                    boxShadow: "0 0 0px 1000px transparent inset !important", // Xóa bóng của autofill
+                    backgroundColor: "transparent !important", 
+                    color: "white !important", 
+                    boxShadow: "0 0 0px 1000px transparent inset !important", 
                   },
                   "& input:-webkit-autofill:focus": {
-                    backgroundColor: "transparent !important", // Đảm bảo nền trong suốt khi autofill đang được focus
+                    backgroundColor: "transparent !important", 
                   },
                   "& input:-webkit-autofill::first-line": {
-                    backgroundColor: "transparent !important", // Nền trong suốt cho autofill
+                    backgroundColor: "transparent !important", 
                   },
                 }}
               />
@@ -377,17 +351,35 @@ const LoginPage = () => {
               "& .MuiInput-underline.Mui-focused": {
                 borderBottom: "1px solid #ffffff",
               },
+              "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                        borderBottom: "2px solid #ffffff",
+                      },
             }}
           />
 
           <Button
-            variant="outlined"
-            color="white"
+            variant="contained"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ 
+              mt: 2,
+              backgroundColor: '#ff6b81',
+              color: 'white',
+              borderRadius: '12px',
+              padding: '12px',
+              fontWeight: 600,
+              fontSize: '16px',
+              textTransform: 'none',
+              boxShadow: '0 4px 12px rgba(255, 107, 129, 0.4)',
+              '&:hover': {
+                backgroundColor: '#ff4757',
+                boxShadow: '0 6px 16px rgba(255, 107, 129, 0.6)',
+                transform: 'translateY(-2px)',
+              },
+              transition: 'all 0.3s ease',
+            }}
             onClick={handleLogin}
           >
-            Đăng nhập
+            🐾 Đăng nhập
           </Button>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
             <Button
@@ -416,20 +408,45 @@ const LoginPage = () => {
           </div>
           <Button
             variant="text"
-            color="white"
-            sx={{ mt: 2 }}
-            onClick={() => setForgotPassword(true)}
+            sx={{ 
+              mt: 2,
+              color: 'white',
+              textTransform: 'none',
+              fontWeight: 500,
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
+            onClick={() => {
+              setForgotPassword(true);
+              setResetUsername('');
+              setResetEmail('');
+              setError('');
+              setSuccess(false);
+            }}
           >
-            Quên mật khẩu?
+            🔑 Quên mật khẩu?
           </Button>
 
           <Button
-            variant="text"
-            color="white"
-            sx={{ mt: 2 }}
+            variant="outlined"
+            fullWidth
+            sx={{ 
+              mt: 2,
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              borderRadius: '12px',
+              padding: '10px',
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
             onClick={() => navigate('/signup')}
           >
-            Chưa có tài khoản? Đăng ký
+            🐶 Chưa có tài khoản? Đăng ký ngay
           </Button>
         </Box>
 
@@ -450,187 +467,106 @@ const LoginPage = () => {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: 300,
-                height: 300,
+                width: 350,
                 bgcolor: 'background.paper',
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                boxShadow: 24,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                boxShadow: '0 8px 32px rgba(255, 107, 129, 0.3)',
                 padding: 4,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                border: '2px solid rgba(255, 107, 129, 0.3)',
               }}
             >
-              {step === 1 ? (
-                <>
-                  <Typography variant="h6" mb={2} color='white'>
-                    Quên mật khẩu
-                  </Typography>
-                  <Box sx={{ backgroundColor: "transparent", width: "100%" }}>
-                    <form autoComplete="off">
-                      <TextField
-                        label="Tên đăng nhập"
-                        variant="standard"
-                        color="white"
-                        fullWidth
-                        margin="normal"
-                        value={resetUsername}
-                        onChange={(e) => setResetUsername(e.target.value)}
-                        sx={{
-
-                          "& .MuiInputBase-root": {
-                            color: "white",
-                            backgroundColor: "transparent !important",
-                          },
-                          "& .MuiInputLabel-root": {
-                            color: "white",
-                          },
-
-                          "& .MuiInput-underline:before": {
-                            borderBottom: "1px solid white",
-                          },
-                          "& .MuiInput-underline.Mui-focused:before": {
-                            borderBottom: "1px solid #ffffff",
-                          },
-                          "& .MuiInput-underline.Mui-focused": {
-                            borderBottom: "1px solid #ffffff",
-                          },
-
-                          "& input:-webkit-autofill": {
-                            backgroundColor: "transparent !important",
-                            color: "white !important",
-                            boxShadow: "0 0 0px 1000px transparent inset !important",
-                          },
-
-                          "& input:-webkit-autofill:focus": {
-                            backgroundColor: "transparent !important",
-                          },
-                        }}
-                      />
-                      <TextField
-                        label="Email"
-                        variant="standard"
-                        color='white'
-                        fullWidth
-                        margin="normal"
-                        value={resetEmail}
-                        onChange={(e) => setResetEmail(e.target.value)}
-                        sx={{
-
-                          "& .MuiInputBase-root": {
-                            color: "white",
-                            backgroundColor: "transparent !important",
-                          },
-                          "& .MuiInputLabel-root": {
-                            color: "white",
-                          },
-
-                          "& .MuiInput-underline:before": {
-                            borderBottom: "1px solid white",
-                          },
-                          "& .MuiInput-underline.Mui-focused:before": {
-                            borderBottom: "1px solid #ffffff",
-                          },
-                          "& .MuiInput-underline.Mui-focused": {
-                            borderBottom: "1px solid #ffffff",
-                          },
-
-                          "& input:-webkit-autofill": {
-                            backgroundColor: "transparent !important",
-                            color: "white !important",
-                            boxShadow: "0 0 0px 1000px transparent inset !important",
-                          },
-
-                          "& input:-webkit-autofill:focus": {
-                            backgroundColor: "transparent !important",
-                          },
-                        }}
-                      />
-                    </form>
-                  </Box>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    sx={{
-                      mt: 2,
-                      color: "white",
-                      borderColor: "white",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)", // Nền khi hover
-                        borderColor: "white",
-                      },
-                    }}
-                    onClick={handleForgotPassword}
-                  >
-                    Kiểm tra thông tin
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Typography variant="h6" mb={2}>
-                    Đặt lại mật khẩu
-                  </Typography>
-
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                <FaPaw size={24} color="#ff6b81" />
+                <Typography variant="h6" color='#ff6b81' sx={{ fontWeight: 600 }}>
+                  Quên mật khẩu
+                </Typography>
+              </Box>
+              <Box sx={{ backgroundColor: "transparent", width: "100%" }}>
+  <form autoComplete="off">
+    {/* Ô nhập Tên đăng nhập */}
+    <TextField
+      label="Tên đăng nhập"
+      variant="standard"
+      fullWidth
+      margin="normal"
+      value={resetUsername}
+      onChange={(e) => setResetUsername(e.target.value)}
+      sx={{
+        "& .MuiInputBase-root": {
+          color: "#ff6b81", 
+        },
+        "& .MuiInputLabel-root": {
+          color: "#ff6b81",
+        },
+        "& .MuiInput-underline:before": {
+          borderBottom: "2px solid #ff6b81",
+        },
+        "& .MuiInput-underline:after": {
+          borderBottom: "2px solid #ff4757",
+        },
+        "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+          borderBottom: "2px solid #ff6b81",
+        },
+      }}
+    />
                   <TextField
-                    label="Mật khẩu mới"
+                    label="Email"
                     variant="standard"
-                    color='white'
                     fullWidth
                     margin="normal"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
                     sx={{
-
                       "& .MuiInputBase-root": {
-                        color: "white",
-                        backgroundColor: "transparent !important",
+                        color: "#ff6b81",
                       },
                       "& .MuiInputLabel-root": {
-                        color: "white",
+                        color: "#ff6b81",
                       },
-
                       "& .MuiInput-underline:before": {
-                        borderBottom: "1px solid white",
+                        borderBottom: "2px solid #ff6b81",
                       },
-                      "& .MuiInput-underline.Mui-focused:before": {
-                        borderBottom: "1px solid #ffffff",
+                      "& .MuiInput-underline:after": {
+                        borderBottom: "2px solid #ff4757",
                       },
-                      "& .MuiInput-underline.Mui-focused": {
-                        borderBottom: "1px solid #ffffff",
-                      },
-
-                      "& input:-webkit-autofill": {
-                        backgroundColor: "transparent !important",
-                        color: "white !important",
-                        boxShadow: "0 0 0px 1000px transparent inset !important",
-                      },
-
-                      "& input:-webkit-autofill:focus": {
-                        backgroundColor: "transparent !important",
+                      "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                        borderBottom: "2px solid #ff6b81",
                       },
                     }}
                   />
-                  <Button
-                     variant="outlined"
-                     fullWidth
-                     sx={{
-                       mt: 2,
-                       color: "white",
-                       borderColor: "white",
-                       "&:hover": {
-                         backgroundColor: "rgba(255, 255, 255, 0.1)", // Nền khi hover
-                         borderColor: "white",
-                       },
-                     }}
-                    onClick={handleResetPassword}
-                  >
-                    Đặt lại mật khẩu
-                  </Button>
-                </>
-              )}
+                </form>
+              </Box>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{
+                  mt: 3,
+                  backgroundColor: "#ff6b81",
+                  color: "white",
+                  borderRadius: "12px",
+                  padding: "12px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  boxShadow: "0 4px 12px rgba(255, 107, 129, 0.4)",
+                  "&:hover": {
+                    backgroundColor: "#ff4757",
+                    boxShadow: "0 6px 16px rgba(255, 107, 129, 0.6)",
+                  },
+                  "&:disabled": {
+                    backgroundColor: "#ffb3c1",
+                    color: "white",
+                  },
+                }}
+                onClick={handleForgotPassword}
+                disabled={isSendingOTP}
+              >
+                {isSendingOTP ? '📧 Đang gửi...' : '🚀 Gửi mã OTP'}
+              </Button>
             </Box>
           </Fade>
         </Modal>

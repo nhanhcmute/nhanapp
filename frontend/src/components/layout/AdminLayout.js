@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom'; 
-import { Box, Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Typography, IconButton, Button, SwipeableDrawer, Divider } from '@mui/material';
+import { Box, AppBar, Toolbar, List, ListItem, ListItemText, Typography, IconButton, Button, SwipeableDrawer, Divider } from '@mui/material';
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from 'react-router-dom';
-import { Link } from "react-router-dom"; 
-
-const drawerWidth = 240;
+import { Link } from "react-router-dom";
+import { FaPaw } from 'react-icons/fa';
 
 const menuItems = [
   { text: "Dashboard", path: "/admin/dashboard" },
@@ -25,7 +24,6 @@ const menuItems = [
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null); 
   const [drawerOpen, setDrawerOpen] = useState(false); 
 
   // Toggle drawer
@@ -34,26 +32,68 @@ const AdminLayout = () => {
   };
   const handleLogout = () => {
     localStorage.removeItem('user');
-    setUser(null);
     navigate('/login');
-};
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="fixed" sx={{ backgroundColor: "#001f3d" }}>
+      <AppBar 
+        position="fixed" 
+        sx={{ 
+          background: 'linear-gradient(135deg, #ff6b81 0%, #ff8fa3 50%, #ffa8b5 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 20px rgba(255, 107, 129, 0.3)',
+        }}
+      >
         <Toolbar>
           <IconButton
             edge="start"
             color="inherit"
             aria-label="menu"
-            onClick={toggleDrawer(true)}  // Tối ưu toggleDrawer
+            onClick={toggleDrawer(true)}
+            sx={{
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                transform: 'scale(1.1)',
+              },
+              transition: 'all 0.3s ease',
+            }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-            Nhân's Pet Haven Admin
-          </Typography>
-          <Button onClick={handleLogout} color="inherit">Logout</Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
+            <FaPaw size={24} color="white" />
+            <Typography 
+              variant="h6" 
+              noWrap 
+              sx={{ 
+                color: "white",
+                fontWeight: 700,
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              }}
+            >
+              🐾 Nhân's Pet Haven Admin
+            </Typography>
+            <FaPaw size={24} color="white" />
+          </Box>
+          <Button 
+            onClick={handleLogout} 
+            sx={{
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '20px',
+              px: 3,
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(255, 255, 255, 0.3)',
+              },
+              transition: 'all 0.3s ease',
+            }}
+          >
+            Đăng xuất 🚪
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -66,25 +106,68 @@ const AdminLayout = () => {
       >
         <Box
           sx={{
-            width: 250,
-            backgroundColor: "#F4F4F4",
+            width: 280,
+            background: 'linear-gradient(135deg, #fff5f7 0%, #ffe8ec 50%, #ffd3d9 100%)',
             paddingTop: "16px",
             display: "flex",
             flexDirection: "column",
+            height: '100%',
           }}
           role="presentation"
           onClick={toggleDrawer(false)}
           onKeyDown={toggleDrawer(false)}
         >
-          <Typography variant="h6" sx={{ textAlign: "center", p: 2 }}>
-            Admin Menu
-          </Typography>
-          <Divider />
-          <List>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, p: 2 }}>
+            <FaPaw size={20} color="#ff6b81" />
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                textAlign: "center",
+                color: '#ff6b81',
+                fontWeight: 700,
+              }}
+            >
+              🐾 Admin Menu
+            </Typography>
+            <FaPaw size={20} color="#ff6b81" />
+          </Box>
+          <Divider sx={{ borderColor: 'rgba(255, 107, 129, 0.3)', borderWidth: 2 }} />
+          <List sx={{ flexGrow: 1 }}>
             {menuItems.map((item) => (
-              <ListItem button key={item.text}>
-                <Link to={item.path} style={{ textDecoration: "none", color: "inherit", width: "100%" }}>
-                  <ListItemText primary={item.text} />
+              <ListItem 
+                button 
+                key={item.text}
+                sx={{
+                  borderRadius: '12px',
+                  mx: 1,
+                  my: 0.5,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 107, 129, 0.2)',
+                    transform: 'translateX(8px)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <Link 
+                  to={item.path} 
+                  style={{ 
+                    textDecoration: "none", 
+                    width: "100%",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <FaPaw size={14} color="#ff6b81" />
+                  <ListItemText 
+                    primary={item.text}
+                    sx={{
+                      '& .MuiTypography-root': {
+                        color: '#ff6b81',
+                        fontWeight: 600,
+                      }
+                    }}
+                  />
                 </Link>
               </ListItem>
             ))}
@@ -96,9 +179,10 @@ const AdminLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: 'background.default',
+          background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
           p: 3,
           marginTop: '64px', // Make room for the AppBar
+          minHeight: 'calc(100vh - 64px)',
         }}
       >
         <Outlet /> {/* Các trang con sẽ được render ở đây */}

@@ -5,8 +5,8 @@ import { Navigate } from 'react-router-dom';
 const AdminRoute = ({ element, ...rest }) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // Kiểm tra quyền truy cập admin
-  if (user && user.username === 'admin' && user.password === 'Xenlulozo1@') {
+  // Kiểm tra quyền truy cập admin dựa vào role từ backend (1 = Admin, 2 = User)
+  if (user && user.role === 1) {
     return element; // Nếu là admin, cho phép truy cập
   } else {
     return <Navigate to="/homepage" />; // Nếu không phải admin, điều hướng về trang chính

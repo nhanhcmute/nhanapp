@@ -8,29 +8,29 @@ namespace ECommerceAI.Repositories.Implementations
 {
     public class CatRepo : ICatRepo
     {
-        private readonly IMongoCollection<CatModel> _cats;
+        private readonly IMongoCollection<cat_model> _cats;
 
         public CatRepo(MongoContext context)
         {
-            _cats = context.Database.GetCollection<CatModel>("cats");
+            _cats = context.Database.GetCollection<cat_model>("cats");
         }
 
-        public async Task<IEnumerable<CatModel>> GetAllAsync()
+        public async Task<IEnumerable<cat_model>> GetAllAsync()
         {
             return await _cats.Find(cat => true).ToListAsync();
         }
 
-        public async Task<CatModel?> GetByIdAsync(string id)
+        public async Task<cat_model?> GetByIdAsync(string id)
         {
             return await _cats.Find(cat => cat.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<CatModel?> GetByCatIdAsync(string catId)
+        public async Task<cat_model?> GetByCatIdAsync(string catId)
         {
             return await _cats.Find(cat => cat.CatId == catId).FirstOrDefaultAsync();
         }
 
-        public async Task<PaginationResponse<CatModel>> GetPagedAsync(int page, int pageSize)
+        public async Task<PaginationResponse<cat_model>> GetPagedAsync(int page, int pageSize)
         {
             var totalCount = await _cats.CountDocumentsAsync(_ => true);
             var skip = (page - 1) * pageSize;
@@ -42,7 +42,7 @@ namespace ECommerceAI.Repositories.Implementations
                 .SortBy(cat => cat.Name)
                 .ToListAsync();
 
-            return new PaginationResponse<CatModel>
+            return new PaginationResponse<cat_model>
             {
                 Data = cats,
                 Page = page,
@@ -52,19 +52,19 @@ namespace ECommerceAI.Repositories.Implementations
             };
         }
 
-        public async Task<IEnumerable<CatModel>> SearchAsync(string searchTerm)
+        public async Task<IEnumerable<cat_model>> SearchAsync(string searchTerm)
         {
-            var filter = Builders<CatModel>.Filter.Or(
-                Builders<CatModel>.Filter.Regex(cat => cat.Name, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
-                Builders<CatModel>.Filter.Regex(cat => cat.Origin, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
-                Builders<CatModel>.Filter.Regex(cat => cat.Description, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
-                Builders<CatModel>.Filter.Regex(cat => cat.Temperament, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            var filter = Builders<cat_model>.Filter.Or(
+                Builders<cat_model>.Filter.Regex(cat => cat.Name, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<cat_model>.Filter.Regex(cat => cat.Origin, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<cat_model>.Filter.Regex(cat => cat.Description, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<cat_model>.Filter.Regex(cat => cat.Temperament, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
             );
 
             return await _cats.Find(filter).ToListAsync();
         }
 
-        public async Task<CatModel> CreateAsync(CatModel cat)
+        public async Task<cat_model> CreateAsync(cat_model cat)
         {
             cat.CreatedAt = DateTime.UtcNow;
             cat.UpdatedAt = DateTime.UtcNow;
@@ -72,7 +72,7 @@ namespace ECommerceAI.Repositories.Implementations
             return cat;
         }
 
-        public async Task<CatModel> UpdateAsync(string id, CatModel cat)
+        public async Task<cat_model> UpdateAsync(string id, cat_model cat)
         {
             cat.UpdatedAt = DateTime.UtcNow;
             await _cats.ReplaceOneAsync(c => c.Id == id, cat);
@@ -90,7 +90,7 @@ namespace ECommerceAI.Repositories.Implementations
             return await _cats.CountDocumentsAsync(_ => true);
         }
 
-        public async Task<bool> BulkInsertAsync(IEnumerable<CatModel> cats)
+        public async Task<bool> BulkInsertAsync(IEnumerable<cat_model> cats)
         {
             try
             {
