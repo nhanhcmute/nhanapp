@@ -9,7 +9,7 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 import { useCart } from '../../store/CartContext';
 
 // API URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
 
 // Tự động import tất cả ảnh từ thư mục
 const importImages = () => {

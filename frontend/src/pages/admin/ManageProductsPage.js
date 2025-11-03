@@ -26,7 +26,7 @@ import { Edit, Delete } from "@mui/icons-material";
 import { FaPaw } from 'react-icons/fa';
 
 // API URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
 
 const Products = () => {
   const [products, setProducts] = useState([]);

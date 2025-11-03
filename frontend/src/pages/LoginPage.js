@@ -4,7 +4,7 @@ import { FaGoogle, FaFacebook, FaGithub, FaPaw } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // API URL - Change this for production
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');

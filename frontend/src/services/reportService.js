@@ -1,7 +1,7 @@
 export const fetchSalesData = async (dateRange) => {
     try {
       // Gọi API từ JSON Server
-      const response = await fetch(`http://localhost:5000/salesData?dateRange=${dateRange}`);
+      const response = await fetch(`https://petshop-a2ry.onrender.com/salesData?dateRange=${dateRange}`);
   
       // Kiểm tra nếu phản hồi không thành công
       if (!response.ok) {

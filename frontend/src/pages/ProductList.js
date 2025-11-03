@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
 
 // API URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
 
 // Import ảnh từ thư mục
 const importImages = () => {
