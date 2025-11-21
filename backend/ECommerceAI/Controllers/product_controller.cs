@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ECommerceAI.Models.Product;
+using ECommerceAI.Models.Common;
 using ECommerceAI.Repositories.Interfaces;
 
 namespace ECommerceAI.Controllers
@@ -22,11 +23,17 @@ namespace ECommerceAI.Controllers
         /// POST /product.ctr/get_all
         /// </summary>
         [HttpPost("get_all")]
+        [ResponseCache(Duration = 60, VaryByQueryKeys = new[] { "*" })] // Cache 60 giây
         public async Task<IActionResult> get_all()
         {
             try
             {
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var products = await _productRepo.GetAllAsync();
+                stopwatch.Stop();
+                
+                _logger.LogInformation($"GetAllAsync took {stopwatch.ElapsedMilliseconds}ms");
+                
                 return Ok(new
                 {
                     status = 200,
@@ -51,7 +58,7 @@ namespace ECommerceAI.Controllers
         /// POST /product.ctr/get_by_id
         /// </summary>
         [HttpPost("get_by_id")]
-public async Task<IActionResult> get_by_id([FromForm] string id)
+public async Task<IActionResult> get_by_id([FromBody] string id)
 {
     try
     {
@@ -113,7 +120,7 @@ public async Task<IActionResult> get_by_id([FromForm] string id)
         /// POST /product.ctr/search
         /// </summary>
         [HttpPost("search")]
-        public async Task<IActionResult> search([FromForm] string q)
+        public async Task<IActionResult> search([FromBody] string q)
         {
             try
             {
@@ -152,7 +159,7 @@ public async Task<IActionResult> get_by_id([FromForm] string id)
         /// POST /product.ctr/get_sorted
         /// </summary>
         [HttpPost("get_sorted")]
-        public async Task<IActionResult> get_sorted([FromForm] string sort_by)
+        public async Task<IActionResult> get_sorted([FromBody] string sort_by)
         {
             try
             {
@@ -286,7 +293,7 @@ public async Task<IActionResult> get_by_id([FromForm] string id)
         /// POST /product.ctr/delete
         /// </summary>
         [HttpPost("delete")]
-        public async Task<IActionResult> delete([FromForm] string id)
+        public async Task<IActionResult> delete([FromBody] string id)
         {
             try
             {
@@ -335,14 +342,14 @@ public async Task<IActionResult> get_by_id([FromForm] string id)
         /// POST /product.ctr/get_paged
         /// </summary>
         [HttpPost("get_paged")]
-        public async Task<IActionResult> get_paged([FromForm] int page = 1, [FromForm] int page_size = 5)
+        public async Task<IActionResult> get_paged([FromBody] PagingRequest request)
         {
             try
             {
-                if (page < 1) page = 1;
-                if (page_size < 1) page_size = 5;
+                if (request.page < 1) request.page = 1;
+                if (request.page_size < 1) request.page_size = 5;
 
-                var result = await _productRepo.GetPagedAsync(page, page_size);
+                var result = await _productRepo.GetPagedAsync(request.page, request.page_size);
                 return Ok(new
                 {
                     status = 200,

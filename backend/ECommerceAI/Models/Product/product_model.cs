@@ -12,6 +12,15 @@ namespace ECommerceAI.Models.Product
         [BsonElement("name")]
         public string Name { get; set; } = string.Empty;
 
+        [BsonElement("sku")]
+        public string Sku { get; set; } = string.Empty;
+
+        [BsonElement("description")]
+        public string Description { get; set; } = string.Empty;
+
+        [BsonElement("base_price")]
+        public decimal BasePrice { get; set; }
+
         [BsonElement("price")]
         public string  Price { get; set; }
 
@@ -20,9 +29,6 @@ namespace ECommerceAI.Models.Product
 
         [BsonElement("image")]
         public string? Image { get; set; } // Base64 image data
-
-        [BsonElement("description")]
-        public string Description { get; set; } = string.Empty;
 
         [BsonElement("status")]
         public string Status { get; set; } = "Còn hàng"; // "Còn hàng", "Hết hàng", "Ngừng kinh doanh"

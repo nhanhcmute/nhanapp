@@ -3,6 +3,10 @@ using ECommerceAI.Repositories.Interfaces;
 using ECommerceAI.Repositories.Implementations;
 using ECommerceAI.Services.Interfaces;
 using ECommerceAI.Services.Implementations;
+using ECommerceAI.Repositories; 
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +15,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add Memory Cache cho OTP
+// Add Memory Cache cho OTP và caching
 builder.Services.AddMemoryCache();
+
+// Add Response Caching
+builder.Services.AddResponseCaching();
 
 // Add MongoDB context
 builder.Services.AddSingleton<MongoContext>();
@@ -22,6 +29,13 @@ builder.Services.AddScoped<ICatRepo, CatRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
 builder.Services.AddScoped<IOTPRepo, OTPRepo>();
+builder.Services.AddScoped<IAddressRepo, AddressRepo>();
+builder.Services.AddScoped<ICartRepo, CartRepo>();
+builder.Services.AddScoped<IOrderRepo, OrderRepo>();
+builder.Services.AddScoped<IPaymentRepo, PaymentRepo>();
+builder.Services.AddScoped<IShippingRepo, ShippingRepo>();
+builder.Services.AddScoped<ICouponRepo, CouponRepo>();
+builder.Services.AddScoped<IInventoryRepo, InventoryRepo>();
 
 // Add Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -66,6 +80,11 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
+
+// Response Caching
+app.UseResponseCaching();
+
+app.UseRouting();
 
 app.UseAuthorization();
 

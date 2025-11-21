@@ -7,6 +7,7 @@ namespace ECommerceAI.Repositories.Interfaces
     {
         Task<IEnumerable<product_model>> GetAllAsync();
         Task<product_model?> GetByIdAsync(string id);
+        Task<Dictionary<string, product_model>> GetByIdsAsync(IEnumerable<string> ids); // Batch load để tối ưu
         Task<PaginationResponse<product_model>> GetPagedAsync(int page, int pageSize);
         Task<IEnumerable<product_model>> SearchAsync(string searchTerm);
         Task<product_model> CreateAsync(product_model product);

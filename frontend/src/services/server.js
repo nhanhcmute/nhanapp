@@ -199,13 +199,14 @@ app.post('/addresses', (req, res) => {
   res.status(200).json({ address: newAddress });
 });
 // API: Xóa địa chỉ
-app.delete('/addresses/:id', async (req, res) => {
+app.delete('/addresses/:id', (req, res) => {
   const addressId = req.params.id;
   try {
-    const result = await Address.deleteOne({ _id: addressId });
-    if (result.deletedCount === 0) {
+    const addressIndex = addresses.findIndex((addr) => addr.id === addressId);
+    if (addressIndex === -1) {
       return res.status(404).json({ message: "Không tìm thấy địa chỉ để xóa" });
     }
+    addresses.splice(addressIndex, 1);
     res.status(200).json({ message: "Địa chỉ đã được xóa thành công" });
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi xóa địa chỉ", error });

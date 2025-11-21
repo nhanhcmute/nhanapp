@@ -1,11 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Button, Grid, Paper, Pagination, PaginationItem, TextField, InputAdornment, Chip } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import Sidebar from '../components/layout/Sidebar'; 
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FaPaw } from 'react-icons/fa';
-import useOrders from '../hooks/useOrder'; 
+import useOrders from '../hooks/useOrder';
+import { orderService } from '../services/orderService';
+
+// Import ảnh từ thư mục
+const importImages = () => {
+  const context = require.context("../assets/images/products", false, /\.(png|jpe?g|svg)$/);
+  const images = {};
+  context.keys().forEach((key) => {
+    const imageName = key.replace("./", "");
+    images[imageName] = context(key);
+  });
+  return images;
+};
+
+const images = importImages(); 
 
 const OrderPage = () => {
   const orderStatuses = [
@@ -22,7 +36,46 @@ const OrderPage = () => {
   const [selectedStatus, setSelectedStatus] = useState('Tất Cả');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [orderDetails, setOrderDetails] = useState({}); // Lưu order details với items
   const itemsPerPage = 4;
+
+  // Load order details với items khi cần
+  useEffect(() => {
+    const loadOrderDetails = async () => {
+      for (const order of orders) {
+        if (!orderDetails[order.id]) {
+          try {
+            const result = await orderService.getOrderDetail(order.id);
+            if (result.status === 200 && result.data) {
+              // API trả về Items (chữ hoa) hoặc items (chữ thường)
+              const items = result.data.Items || result.data.items || [];
+              // Debug: log để kiểm tra image
+              if (items.length > 0) {
+                console.log('Order items with images:', items.map(item => ({
+                  productName: item.productName || item.ProductName,
+                  image: item.image || item.Image,
+                  productId: item.productId || item.ProductId
+                })));
+              }
+              setOrderDetails(prev => ({
+                ...prev,
+                [order.id]: {
+                  ...order,
+                  products: items,
+                }
+              }));
+            }
+          } catch (error) {
+            console.error(`Error loading order ${order.id}:`, error);
+          }
+        }
+      }
+    };
+
+    if (orders.length > 0) {
+      loadOrderDetails();
+    }
+  }, [orders]);
 
   const handleStatusChange = (status) => {
     setSelectedStatus(status);
@@ -190,21 +243,8 @@ const OrderPage = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <FaPaw size={20} color="#ff6b81" />
                     <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                      📦 ID Đơn hàng: {order.id}
+                      📦 Mã đơn hàng: {order.orderCode || order.id}
                     </Typography>
-                  </Box>
-                  <Box sx={{ mb: 2 }}>
-                    <Chip
-                      label={order.status}
-                      sx={{
-                        backgroundColor: getStatusColor(order.status),
-                        color: 'white',
-                        fontWeight: 600,
-                        fontSize: '14px',
-                        px: 2,
-                        borderRadius: '12px',
-                      }}
-                    />
                   </Box>
                   <Typography variant="body1" sx={{ mb: 1, color: '#666', fontWeight: 600 }}>
                     💰 Tổng tiền: <span style={{ color: '#ff4757', fontSize: '18px' }}>
@@ -217,8 +257,8 @@ const OrderPage = () => {
 
                   {/* Kiểm tra nếu có sản phẩm trong đơn hàng */}
                   <Box mt={2}>
-                    {order.products && order.products.length > 0 ? (
-                      order.products.map((product, idx) => (
+                    {(orderDetails[order.id]?.products || order.products || []).length > 0 ? (
+                      (orderDetails[order.id]?.products || order.products || []).map((product, idx) => (
                         <Paper
                           key={product.id || idx}
                           elevation={0}
@@ -239,8 +279,29 @@ const OrderPage = () => {
                         >
                           <Box
                             component="img"
-                            src={product.image || '/default-image.png'} 
-                            alt={product.name}
+                            src={(() => {
+                              const imageName = product.image || product.Image;
+                              if (!imageName) {
+                                console.log('No image for product:', product.productName || product.name);
+                                return '/default-product.jpg';
+                              }
+                              // Nếu là base64, dùng trực tiếp
+                              if (imageName.startsWith('data:image') || imageName.startsWith('http')) {
+                                return imageName;
+                              }
+                              // Nếu là tên file, tìm trong images object
+                              const imagePath = images[imageName];
+                              if (imagePath) {
+                                return imagePath;
+                              }
+                              // Fallback: thử dùng trực tiếp nếu là relative path
+                              return imageName.startsWith('/') ? imageName : `/assets/images/products/${imageName}`;
+                            })()}
+                            alt={product.productName || product.name}
+                            onError={(e) => {
+                              console.log('Image load error for:', product.productName || product.name, 'src:', e.target.src);
+                              e.target.src = '/default-product.jpg';
+                            }}
                             sx={{
                               width: 80,
                               height: 80,
@@ -252,13 +313,13 @@ const OrderPage = () => {
                           />
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="body1" sx={{ fontWeight: 600, color: '#ff6b81', mb: 0.5 }}>
-                              {product.name}
+                              {product.productName || product.name}
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#666', mb: 0.5 }}>
-                              Số lượng: {product.quantity} x {product.price ? product.price.toLocaleString() : 'Không có giá'} VND
+                              Số lượng: {product.quantity} x {product.unitPrice ? product.unitPrice.toLocaleString() : (product.price ? product.price.toLocaleString() : 'Không có giá')} VND
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#ff4757', fontWeight: 600 }}>
-                              Tổng: {product.total ? product.total.toLocaleString() : 'Không có tổng'} VND
+                              Tổng: {(product.totalPrice || product.total || (product.unitPrice || product.price || 0) * product.quantity).toLocaleString()} VND
                             </Typography>
                           </Box>
                         </Paper>

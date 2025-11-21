@@ -1,0 +1,572 @@
+{
+	"info": {
+		"_postman_id": "ecommerce-api-collection",
+		"name": "ECommerce API Collection",
+		"description": "Collection để test các API của hệ thống ECommerce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Cart APIs",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/cart?customerId={{customerId}}&sessionId={{sessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}",
+									"description": "ID khách hàng (nếu đã login)"
+								},
+								{
+									"key": "sessionId",
+									"value": "{{sessionId}}",
+									"description": "Session ID (nếu chưa login)"
+								}
+							]
+						},
+						"description": "Lấy giỏ hàng hiện tại"
+					}
+				},
+				{
+					"name": "Add Cart Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": \"product_id_here\",\n  \"productVariantId\": \"variant_id_here\",\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/items?customerId={{customerId}}&sessionId={{sessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart", "items"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "sessionId",
+									"value": "{{sessionId}}"
+								}
+							]
+						},
+						"description": "Thêm item vào giỏ hàng"
+					}
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/items/{{cartItemId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart", "items", "{{cartItemId}}"]
+						},
+						"description": "Cập nhật số lượng item trong giỏ hàng"
+					}
+				},
+				{
+					"name": "Delete Cart Item",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/items/{{cartItemId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart", "items", "{{cartItemId}}"]
+						},
+						"description": "Xóa item khỏi giỏ hàng"
+					}
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/cart?customerId={{customerId}}&sessionId={{sessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "sessionId",
+									"value": "{{sessionId}}"
+								}
+							]
+						},
+						"description": "Xóa toàn bộ giỏ hàng"
+					}
+				}
+			]
+		},
+		{
+			"name": "Checkout APIs",
+			"item": [
+				{
+					"name": "Checkout Preview",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"shippingMethodId\": \"shipping_method_id\",\n  \"couponCode\": \"DISCOUNT10\",\n  \"shippingAddress\": {\n    \"fullName\": \"Nguyễn Văn A\",\n    \"phone\": \"0123456789\",\n    \"addressLine\": \"123 Đường ABC\",\n    \"ward\": \"Phường 1\",\n    \"district\": \"Quận 1\",\n    \"city\": \"Hồ Chí Minh\",\n    \"country\": \"Vietnam\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/checkout/preview?customerId={{customerId}}&sessionId={{sessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "checkout", "preview"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "sessionId",
+									"value": "{{sessionId}}"
+								}
+							]
+						},
+						"description": "Tính toán giá, phí ship, coupon"
+					}
+				}
+			]
+		},
+		{
+			"name": "Order APIs (Customer)",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentMethod\": \"COD\",\n  \"shippingMethodId\": \"shipping_method_id\",\n  \"couponCode\": \"DISCOUNT10\",\n  \"shippingAddress\": {\n    \"fullName\": \"Nguyễn Văn A\",\n    \"phone\": \"0123456789\",\n    \"addressLine\": \"123 Đường ABC\",\n    \"ward\": \"Phường 1\",\n    \"district\": \"Quận 1\",\n    \"city\": \"Hồ Chí Minh\",\n    \"country\": \"Vietnam\"\n  },\n  \"note\": \"Giao hàng vào buổi sáng\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders?customerId={{customerId}}&sessionId={{sessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "sessionId",
+									"value": "{{sessionId}}"
+								}
+							]
+						},
+						"description": "Tạo đơn hàng mới"
+					}
+				},
+				{
+					"name": "Get Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders?customerId={{customerId}}&page=1&pageSize=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Lấy danh sách đơn hàng của khách hàng"
+					}
+				},
+				{
+					"name": "Get Order Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders", "{{orderId}}"]
+						},
+						"description": "Lấy chi tiết đơn hàng"
+					}
+				},
+				{
+					"name": "Cancel Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/{{orderId}}/cancel?customerId={{customerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders", "{{orderId}}", "cancel"],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customerId}}"
+								}
+							]
+						},
+						"description": "Khách hàng yêu cầu hủy đơn"
+					}
+				}
+			]
+		},
+		{
+			"name": "Payment APIs",
+			"item": [
+				{
+					"name": "Get Payment Methods",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/payment-methods",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "payments", "payment-methods"]
+						},
+						"description": "Lấy danh sách phương thức thanh toán"
+					}
+				},
+				{
+					"name": "Init Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"paymentMethod\": \"VNPAY\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/init",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "payments", "init"]
+						},
+						"description": "Khởi tạo thanh toán online"
+					}
+				},
+				{
+					"name": "Get Payment Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/{{paymentId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "payments", "{{paymentId}}", "status"]
+						},
+						"description": "Lấy trạng thái thanh toán"
+					}
+				},
+				{
+					"name": "Payment Webhook (VNPAY)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vnp_TxnRef\": \"DH20241115-0001\",\n  \"vnp_TransactionNo\": \"12345678\",\n  \"vnp_ResponseCode\": \"00\",\n  \"vnp_Amount\": \"1000000\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/webhook/vnpay",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "payments", "webhook", "vnpay"]
+						},
+						"description": "Webhook từ cổng thanh toán VNPAY"
+					}
+				},
+				{
+					"name": "Payment Webhook (MOMO)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"DH20241115-0001\",\n  \"transId\": \"12345678\",\n  \"resultCode\": \"0\",\n  \"amount\": \"10000\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/webhook/momo",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "payments", "webhook", "momo"]
+						},
+						"description": "Webhook từ cổng thanh toán MOMO"
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin Order APIs",
+			"item": [
+				{
+					"name": "Get Orders (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders?page=1&pageSize=10&status=PENDING_CONFIRM&paymentStatus=NONE&keyword=&dateFrom=&dateTo=",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "PENDING_CONFIRM",
+									"description": "PENDING_PAYMENT, PENDING_CONFIRM, PAID, PROCESSING, SHIPPING, COMPLETED, CANCELLED, PAYMENT_FAILED"
+								},
+								{
+									"key": "paymentStatus",
+									"value": "NONE",
+									"description": "NONE, PENDING, PAID, FAILED, REFUNDED"
+								},
+								{
+									"key": "keyword",
+									"value": "",
+									"description": "Tìm kiếm theo order code, tên, số điện thoại"
+								},
+								{
+									"key": "dateFrom",
+									"value": "",
+									"description": "YYYY-MM-DD"
+								},
+								{
+									"key": "dateTo",
+									"value": "",
+									"description": "YYYY-MM-DD"
+								}
+							]
+						},
+						"description": "Lấy danh sách đơn hàng với filter (Admin)"
+					}
+				},
+				{
+					"name": "Get Order Detail (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "{{orderId}}"]
+						},
+						"description": "Lấy chi tiết đơn hàng + log trạng thái (Admin)"
+					}
+				},
+				{
+					"name": "Update Order (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"PROCESSING\",\n  \"adminNote\": \"Đã xác nhận đơn hàng\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/{{orderId}}?adminUserId={{adminUserId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "{{orderId}}"],
+							"query": [
+								{
+									"key": "adminUserId",
+									"value": "{{adminUserId}}"
+								}
+							]
+						},
+						"description": "Admin cập nhật đơn hàng"
+					}
+				},
+				{
+					"name": "Confirm Order (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/{{orderId}}/confirm?adminUserId={{adminUserId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "{{orderId}}", "confirm"],
+							"query": [
+								{
+									"key": "adminUserId",
+									"value": "{{adminUserId}}"
+								}
+							]
+						},
+						"description": "Admin xác nhận đơn hàng (đặc biệt cho COD)"
+					}
+				},
+				{
+					"name": "Ship Order (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/{{orderId}}/ship?adminUserId={{adminUserId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "{{orderId}}", "ship"],
+							"query": [
+								{
+									"key": "adminUserId",
+									"value": "{{adminUserId}}"
+								}
+							]
+						},
+						"description": "Admin cập nhật trạng thái giao hàng"
+					}
+				},
+				{
+					"name": "Complete Order (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/{{orderId}}/complete?adminUserId={{adminUserId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "{{orderId}}", "complete"],
+							"query": [
+								{
+									"key": "adminUserId",
+									"value": "{{adminUserId}}"
+								}
+							]
+						},
+						"description": "Admin hoàn tất đơn hàng"
+					}
+				},
+				{
+					"name": "Refund Order (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/{{orderId}}/refund?adminUserId={{adminUserId}}&note=Hoàn trả do khách hàng yêu cầu",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "{{orderId}}", "refund"],
+							"query": [
+								{
+									"key": "adminUserId",
+									"value": "{{adminUserId}}"
+								},
+								{
+									"key": "note",
+									"value": "Hoàn trả do khách hàng yêu cầu"
+								}
+							]
+						},
+						"description": "Admin hoàn/đổi trả đơn hàng"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "customerId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "sessionId",
+			"value": "test-session-123",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cartItemId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "paymentId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminUserId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ECommerceAI.Models.Pet;
+using ECommerceAI.Models.Common;
 using ECommerceAI.Repositories.Interfaces;
 
 namespace ECommerceAI.Controllers
@@ -49,7 +50,7 @@ namespace ECommerceAI.Controllers
         /// Lấy cat theo ID
         /// </summary>
         [HttpPost("get_by_id")]
-        public async Task<IActionResult> get_by_id([FromForm] string? id)
+        public async Task<IActionResult> get_by_id([FromBody] string? id)
         {
             try
             {
@@ -97,7 +98,7 @@ namespace ECommerceAI.Controllers
         /// Lấy cat theo CatId (abys, aege, ...)
         /// </summary>
         [HttpPost("get_by_cat_id")]
-        public async Task<IActionResult> get_by_cat_id([FromForm] string? cat_id)
+        public async Task<IActionResult> get_by_cat_id([FromBody] string? cat_id)
         {
             try
             {
@@ -145,14 +146,14 @@ namespace ECommerceAI.Controllers
         /// Lấy cats với phân trang
         /// </summary>
         [HttpPost("get_paged")]
-        public async Task<IActionResult> get_paged([FromForm] int page = 1, [FromForm] int page_size = 9)
+        public async Task<IActionResult> get_paged([FromBody] PagingRequest request)
         {
             try
             {
-                if (page < 1) page = 1;
-                if (page_size < 1) page_size = 9;
+                if (request.page < 1) request.page = 1;
+                if (request.page_size < 1) request.page_size = 9;
 
-                var result = await _catRepo.GetPagedAsync(page, page_size);
+                var result = await _catRepo.GetPagedAsync(request.page, request.page_size);
                 return Ok(new
                 {
                     status = 200,
@@ -176,7 +177,7 @@ namespace ECommerceAI.Controllers
         /// Tìm kiếm cats
         /// </summary>
         [HttpPost("search")]
-        public async Task<IActionResult> search([FromForm] string? q)
+        public async Task<IActionResult> search([FromBody] string? q)
         {
             try
             {
@@ -253,49 +254,44 @@ public async Task<IActionResult> Create([FromBody] cat_model cat)
         /// Cập nhật cat
         /// </summary>
         [HttpPost("update")]
-public async Task<IActionResult> Update(
-    [FromForm] string id,
-    [FromForm] string? name,
-    [FromForm] string? origin,
-    [FromForm] IFormFile? image,
-    [FromForm] string? image_data)
-{
-    try
-    {
-        if (string.IsNullOrWhiteSpace(id))
+        public async Task<IActionResult> Update([FromForm] string id, [FromForm] string? name = null, [FromForm] string? origin = null, [FromForm] IFormFile? image = null, [FromForm] string? image_data = null)
         {
-            return BadRequest(new
+            try
             {
-                status = 400,
-                message = "ID is required",
-                data = (object?)null
-            });
-        }
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    return BadRequest(new
+                    {
+                        status = 400,
+                        message = "ID is required",
+                        data = (object?)null
+                    });
+                }
 
-        var existingCat = await _catRepo.GetByIdAsync(id);
-        if (existingCat == null)
-        {
-            return NotFound(new
-            {
-                status = 404,
-                message = "Cat not found",
-                data = (object?)null
-            });
-        }
+                var existingCat = await _catRepo.GetByIdAsync(id);
+                if (existingCat == null)
+                {
+                    return NotFound(new
+                    {
+                        status = 404,
+                        message = "Cat not found",
+                        data = (object?)null
+                    });
+                }
 
-        // Cập nhật field nếu có giá trị mới
-        if (!string.IsNullOrEmpty(name))
-            existingCat.Name = name;
+                // Cập nhật field nếu có giá trị mới
+                if (!string.IsNullOrEmpty(name))
+                    existingCat.Name = name;
 
-        if (!string.IsNullOrEmpty(origin))
-            existingCat.Origin = origin;
+                if (!string.IsNullOrEmpty(origin))
+                    existingCat.Origin = origin;
 
-        // Nếu người dùng gửi ảnh base64
-        if (!string.IsNullOrEmpty(image_data))
-        {
-            if (!image_data.StartsWith("data:"))
-                image_data = $"data:image/jpeg;base64,{image_data}";
-            existingCat.ImageData = image_data;
+                // Nếu người dùng gửi ảnh base64
+                if (!string.IsNullOrEmpty(image_data))
+                {
+                    if (!image_data.StartsWith("data:"))
+                        image_data = $"data:image/jpeg;base64,{image_data}";
+                    existingCat.ImageData = image_data;
         }
 
         // Nếu người dùng gửi ảnh file
@@ -335,7 +331,7 @@ public async Task<IActionResult> Update(
         /// Xóa cat
         /// </summary>
 [HttpPost("delete")]
-public async Task<IActionResult> delete([FromForm] string? id)
+public async Task<IActionResult> delete([FromBody] string? id)
 {
     try
     {

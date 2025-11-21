@@ -18,7 +18,28 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<IEnumerable<product_model>> GetAllAsync()
         {
-            return await _products.Find(p => true).ToListAsync();
+            // Tối ưu: Loại bỏ image base64 để giảm kích thước response và tăng tốc độ
+            // Sử dụng projection với BsonElement names
+            var projection = Builders<product_model>.Projection
+                .Include("_id")
+                .Include("name")
+                .Include("sku")
+                .Include("description")
+                .Include("base_price")
+                .Include("price")
+                .Include("quantity")
+                .Include("status")
+                .Include("createdAt")
+                .Include("updatedAt")
+                .Exclude("image"); // Loại bỏ image base64 để tăng tốc độ
+
+            return await _products
+                .Find(p => true)
+                .Project(projection)
+                .As<product_model>()
+                .SortByDescending(p => p.CreatedAt)
+                .Limit(1000) // Giới hạn tối đa 1000 sản phẩm để tránh load quá nhiều
+                .ToListAsync();
         }
 
         public async Task<product_model?> GetByIdAsync(string id)
@@ -38,6 +59,52 @@ namespace ECommerceAI.Repositories.Implementations
                 var filter = Builders<product_model>.Filter.Eq("_id", id);
                 return await _products.Find(filter).FirstOrDefaultAsync();
             }
+        }
+
+        public async Task<Dictionary<string, product_model>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            var result = new Dictionary<string, product_model>();
+            if (ids == null || !ids.Any()) return result;
+
+            // Tách thành ObjectId và string thường
+            var objectIds = new List<ObjectId>();
+            var stringIds = new List<string>();
+
+            foreach (var id in ids.Distinct())
+            {
+                if (ObjectId.TryParse(id, out var parsedObjectId))
+                {
+                    objectIds.Add(parsedObjectId);
+                }
+                else
+                {
+                    stringIds.Add(id);
+                }
+            }
+
+            // Build filter cho cả 2 loại
+            var filters = new List<FilterDefinition<product_model>>();
+            if (objectIds.Any())
+            {
+                filters.Add(Builders<product_model>.Filter.In("_id", objectIds));
+            }
+            if (stringIds.Any())
+            {
+                filters.Add(Builders<product_model>.Filter.In("_id", stringIds));
+            }
+
+            if (filters.Any())
+            {
+                var combinedFilter = filters.Count == 1 ? filters[0] : Builders<product_model>.Filter.Or(filters);
+                var products = await _products.Find(combinedFilter).ToListAsync();
+                
+                foreach (var product in products)
+                {
+                    result[product.Id] = product;
+                }
+            }
+
+            return result;
         }
 
         public async Task<PaginationResponse<product_model>> GetPagedAsync(int page, int pageSize)

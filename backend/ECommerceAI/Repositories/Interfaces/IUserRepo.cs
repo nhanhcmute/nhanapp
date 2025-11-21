@@ -14,6 +14,12 @@ namespace ECommerceAI.Repositories.Interfaces
         Task<bool> IsUsernameExistsAsync(string username);
         Task<bool> IsEmailExistsAsync(string email);
         Task<bool> UpdateLastLoginAsync(string id);
+
+
+        Task<user_model?> FindByIdAsync(string id, CancellationToken ct);
+        Task<user_model?> FindByUsernameAsync(string username, CancellationToken ct);
+
+
     }
 }
 

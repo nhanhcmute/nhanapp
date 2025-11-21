@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using ECommerceAI.Models.User;
 using ECommerceAI.Models.Auth;
+using ECommerceAI.Models.Address;
 using ECommerceAI.Repositories.Interfaces;
 using ECommerceAI.Services.Interfaces;
+using System.Text.Json;
 
 namespace ECommerceAI.Controllers
 {
@@ -15,15 +17,20 @@ namespace ECommerceAI.Controllers
         private readonly IEmailService _emailService;
         private readonly ILogger<user_controller> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IAddressRepo _addressRepo;
+
+
 
         public user_controller(
-            IUserRepo userRepo, 
+            IUserRepo userRepo,
             IOTPCacheService otpCache,
+            IAddressRepo addressRepo,
             IEmailService emailService,
-            ILogger<user_controller> logger, 
+            ILogger<user_controller> logger,
             IConfiguration configuration)
         {
             _userRepo = userRepo;
+            _addressRepo = addressRepo;
             _otpCache = otpCache;
             _emailService = emailService;
             _logger = logger;
@@ -94,6 +101,84 @@ namespace ECommerceAI.Controllers
                 });
             }
         }
+
+        [HttpPost("getUserLogin")]
+        public async Task<IActionResult> getUserLogin([FromBody] JsonElement body, CancellationToken ct)
+        {
+            try
+            {
+                string? id = body.TryGetProperty("id", out var idProp) ? idProp.GetString() : null;
+                string? username = body.TryGetProperty("username", out var userProp) ? userProp.GetString() : null;
+
+                if (string.IsNullOrWhiteSpace(id) && string.IsNullOrWhiteSpace(username))
+                {
+                    return BadRequest(new
+                    {
+                        status = 400,
+                        message = "Vui lòng truyền id hoặc username!",
+                        data = (object?)null
+                    });
+                }
+
+                // 1) Tìm user theo id/username
+                var user = !string.IsNullOrWhiteSpace(id)
+                    ? await _userRepo.FindByIdAsync(id!, ct)
+                    : await _userRepo.FindByUsernameAsync(username!, ct);
+
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        status = 404,
+                        message = "Không tìm thấy người dùng!",
+                        data = (object?)null
+                    });
+                }
+
+                // 2) Lấy danh sách địa chỉ theo user.Id
+                var addressList = await _addressRepo.FindByUserIdAsync(user.Id!, ct)
+                                  ?? new List<address_model>();
+
+                // 3) Map ra NEW user_model để trả về (ẩn password)
+                var res = new user_model
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Username = user.Username,
+                    Password = string.Empty,       // NOTE: không trả password
+                    Phone = user.Phone,
+                    Birthday = user.Birthday,
+                    Role = user.Role,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt,
+                    LastLogin = user.LastLogin,
+                    address = addressList
+                };
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Lấy thông tin đăng nhập thành công!",
+                    data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getUserLogin body={@Body}", body.ToString());
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Đã xảy ra lỗi khi lấy thông tin người dùng!",
+                    data = (object?)null
+                });
+            }
+        }
+
+
+
+
+
 
         /// <summary>
         /// Đăng ký tài khoản mới (yêu cầu đã verify OTP)
@@ -319,7 +404,7 @@ namespace ECommerceAI.Controllers
         /// Body: { "username": "..." }
         /// </summary>
         [HttpPost("check_username")]
-        public async Task<IActionResult> check_username([FromForm] string username)
+        public async Task<IActionResult> check_username([FromBody] string username)
         {
             try
             {
@@ -360,7 +445,7 @@ namespace ECommerceAI.Controllers
         /// Body: { "email": "..." }
         /// </summary>
         [HttpPost("check_email")]
-        public async Task<IActionResult> check_email([FromForm] string email)
+        public async Task<IActionResult> check_email([FromBody] string email)
         {
             try
             {
@@ -507,8 +592,8 @@ namespace ECommerceAI.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.email) || 
-                    string.IsNullOrWhiteSpace(request.otpCode) || 
+                if (string.IsNullOrWhiteSpace(request.email) ||
+                    string.IsNullOrWhiteSpace(request.otpCode) ||
                     string.IsNullOrWhiteSpace(request.type))
                 {
                     return BadRequest(new
@@ -590,14 +675,15 @@ namespace ECommerceAI.Controllers
                     Password = "Xenlulozo1@",
                     Role = 1 // Admin role
                 };
-                
+
                 var created = await _userRepo.CreateAsync(admin);
-                
+
                 return Ok(new
                 {
                     status = 200,
                     message = "Admin created successfully!",
-                    data = new { 
+                    data = new
+                    {
                         id = created.Id,
                         username = created.Username,
                         role = created.Role

@@ -28,12 +28,28 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { database, ref, get, set, update } from '../firebaseConfig';
 import SelectVoucher from '../components/common/SelectVoucher';
 import axios from 'axios';
+import { orderService } from '../services/orderService';
+import { checkoutService } from '../services/checkoutService';
+import { cartService } from '../services/cartService';
 import { FaPaw } from 'react-icons/fa';
 import HomeIcon from '@mui/icons-material/Home';
 import EditIcon from '@mui/icons-material/Edit';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
+
+// Import ảnh từ thư mục
+const importImages = () => {
+  const context = require.context("../assets/images/products", false, /\.(png|jpe?g|svg)$/);
+  const images = {};
+  context.keys().forEach((key) => {
+    const imageName = key.replace("./", "");
+    images[imageName] = context(key);
+  });
+  return images;
+};
+
+const images = importImages();
 
 
 const CheckoutPage = () => {
@@ -305,51 +321,59 @@ const CheckoutPage = () => {
         const shippingFeeValue = Number(shippingFee) || 0;
         const discountValue = Number(discount) || 0;
 
-        const newOrder = {
-            id: String(Date.now()), // Lấy ID đơn hàng từ timestamp
-            customer: {
-                name: defaultAddress.fullName,
-                phone: defaultAddress.phone,
-                address: `${defaultAddress.street}, ${defaultAddress.provinceName}, ${defaultAddress.districtName}, ${defaultAddress.wardName}`,
-                addressType: defaultAddress.addressType,
-            },
-            products: selectedProducts.map((product) => ({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                quantity: product.quantity,
-                image: product.image,
-                total: product.price * product.quantity,
-            })),
-            status: 'Chờ xác nhận',
-            totalAmount: selectedProducts.reduce(
-                (total, product) => total + product.price * product.quantity,
-                0
-            ) + shippingFeeValue - discountValue,
-            createdAt: new Date().toISOString(),
-        };
-
         try {
-            // Gửi đơn hàng vào Firebase (thêm đơn hàng vào node orders/{orderId})
-            const orderRef = ref(database, 'orders/' + newOrder.id);
-            await set(orderRef, newOrder);
+            // Map payment method từ frontend sang backend
+            const paymentMethodMap = {
+                'cash': 'COD',
+                'wallet': 'MOMO',
+                'bank': 'VNPAY',
+                'credit-card': 'VNPAY',
+            };
+            const backendPaymentMethod = paymentMethodMap[paymentMethod] || 'COD';
 
-            alert('Mua hàng thành công!');
+            // Map shipping method
+            const shippingMethodMap = {
+                'standard': 'standard',
+                'express': 'express',
+            };
+            const backendShippingMethod = shippingMethodMap[shippingMethod] || 'standard';
 
-            // Cập nhật giỏ hàng sau khi thanh toán
-            const updatedCart = cart.filter((product) => !selectedItems[product.id]);
+            // Tạo đơn hàng qua API
+            const orderData = {
+                paymentMethod: backendPaymentMethod,
+                shippingMethodId: backendShippingMethod, // TODO: Cần lấy shipping method ID thực tế
+                couponCode: voucher || null,
+                shippingAddress: {
+                    fullName: defaultAddress.fullName,
+                    phone: defaultAddress.phone,
+                    addressLine: defaultAddress.street || '',
+                    ward: defaultAddress.wardName || '',
+                    district: defaultAddress.districtName || '',
+                    city: defaultAddress.provinceName || '',
+                    country: 'Vietnam',
+                },
+                note: note || null,
+            };
 
-            // Cập nhật giỏ hàng trong Firebase sử dụng product.id làm ID
-            const cartRef = ref(database, 'cart/' + selectedProducts[0].id); // Sử dụng id sản phẩm đầu tiên trong giỏ hàng
-            await update(cartRef, { items: updatedCart });
+            const result = await orderService.createOrder(orderData);
 
-            // Cập nhật lại giỏ hàng cục bộ
-            setCart(updatedCart);
+            if (result.status === 200) {
+                alert('Mua hàng thành công!');
 
-            // Chuyển hướng đến trang danh sách đơn hàng
-            navigate('/orders');
+                // Xóa các sản phẩm đã chọn khỏi giỏ hàng
+                for (const product of selectedProducts) {
+                    if (product.cartItemId) {
+                        await cartService.removeItem(product.cartItemId);
+                    }
+                }
+
+                // Chuyển hướng đến trang danh sách đơn hàng
+                navigate('/orders');
+            } else {
+                alert(result.message || 'Có lỗi xảy ra khi tạo đơn hàng.');
+            }
         } catch (error) {
-            console.error('Lỗi khi xử lý thanh toán:', error.response?.data || error.message);
+            console.error('Lỗi khi xử lý thanh toán:', error);
             alert('Có lỗi xảy ra, vui lòng thử lại.');
         }
     };
@@ -520,7 +544,7 @@ const CheckoutPage = () => {
                                     transition: 'all 0.3s ease',
                                 }}
                             >
-                                ✏️ Thay đổi địa chỉ
+                                Thay đổi địa chỉ
                             </Button>
                         </Paper>
                     ) : (
@@ -598,8 +622,11 @@ const CheckoutPage = () => {
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                 <Box
                                                     component="img"
-                                                    src={product.image}
+                                                    src={product.image ? (images[product.image] || product.image) : '/default-product.jpg'}
                                                     alt={product.name}
+                                                    onError={(e) => {
+                                                        e.target.src = '/default-product.jpg';
+                                                    }}
                                                     sx={{
                                                         width: 80,
                                                         height: 80,

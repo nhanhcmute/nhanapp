@@ -8,6 +8,19 @@ import { useCart } from '../store/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
 
+// Import ảnh từ thư mục
+const importImages = () => {
+  const context = require.context("../assets/images/products", false, /\.(png|jpe?g|svg)$/);
+  const images = {};
+  context.keys().forEach((key) => {
+    const imageName = key.replace("./", "");
+    images[imageName] = context(key);
+  });
+  return images;
+};
+
+const images = importImages();
+
 const CartPage = () => {
   const { cart, updateCartQuantity, removeFromCart, clearCart } = useCart();
   const [selectAll, setSelectAll] = useState(false);
@@ -260,8 +273,11 @@ const CartPage = () => {
                     />
                     <Box
                       component="img"
-                      src={product.image}
+                      src={product.image ? (images[product.image] || product.image) : '/default-product.jpg'}
                       alt={product.name}
+                      onError={(e) => {
+                        e.target.src = '/default-product.jpg';
+                      }}
                       sx={{
                         width: 120,
                         height: 120,

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using ECommerceAI.Models.Address;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -5,6 +8,14 @@ namespace ECommerceAI.Models.User
 {
     public class user_model
     {
+
+        public user_model()
+        {
+            address = new List<address_model>();
+        }
+
+        public  List<address_model> address { get; set; }
+
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
@@ -20,6 +31,12 @@ namespace ECommerceAI.Models.User
 
         [BsonElement("password")]
         public string Password { get; set; } = string.Empty;
+
+        [BsonElement("phone")]
+        public string Phone { get; set; } = string.Empty;
+
+        [BsonElement("birthday")]
+        public DateTime Birthday { get; set; } = DateTime.UtcNow;
 
         // 1 = Admin, 2 = User
         [BsonElement("role")]

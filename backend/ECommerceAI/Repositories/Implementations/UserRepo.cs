@@ -88,6 +88,18 @@ namespace ECommerceAI.Repositories.Implementations
 
             return result.ModifiedCount > 0;
         }
+
+        public async Task<user_model?> FindByIdAsync(string id, CancellationToken ct)
+        {
+            return await _users.Find(u => u.Id == id).FirstOrDefaultAsync(ct);
+        }
+
+        public async Task<user_model?> FindByUsernameAsync(string username, CancellationToken ct)
+        {
+            return await _users.Find(u => u.Username == username).FirstOrDefaultAsync(ct);
+        }
+
+
     }
 }
 
