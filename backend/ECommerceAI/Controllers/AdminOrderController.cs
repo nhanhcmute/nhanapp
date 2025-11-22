@@ -4,6 +4,7 @@ using ECommerceAI.DTOs.Admin;
 using ECommerceAI.Models.Order;
 using ECommerceAI.Models.Payment;
 using ECommerceAI.Models.Product;
+using ECommerceAI.Services.Interfaces;
 
 namespace ECommerceAI.Controllers
 {
@@ -15,6 +16,7 @@ namespace ECommerceAI.Controllers
         private readonly IPaymentRepo _paymentRepo;
         private readonly IInventoryRepo _inventoryRepo;
         private readonly IProductRepo _productRepo;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<AdminOrderController> _logger;
 
         public AdminOrderController(
@@ -22,13 +24,34 @@ namespace ECommerceAI.Controllers
             IPaymentRepo paymentRepo,
             IInventoryRepo inventoryRepo,
             IProductRepo productRepo,
+            INotificationService notificationService,
             ILogger<AdminOrderController> logger)
         {
             _orderRepo = orderRepo;
             _paymentRepo = paymentRepo;
             _inventoryRepo = inventoryRepo;
             _productRepo = productRepo;
+            _notificationService = notificationService;
             _logger = logger;
+        }
+
+        /// <summary>
+        /// Helper method để convert OrderStatus enum sang tiếng Việt
+        /// </summary>
+        private string GetStatusVietnameseName(OrderStatus status)
+        {
+            return status switch
+            {
+                OrderStatus.PENDING_PAYMENT => "Chờ thanh toán",
+                OrderStatus.PENDING_CONFIRM => "Chờ xác nhận",
+                OrderStatus.PAID => "Đã thanh toán",
+                OrderStatus.PROCESSING => "Chờ lấy hàng",
+                OrderStatus.SHIPPING => "Chờ giao hàng",
+                OrderStatus.COMPLETED => "Hoàn thành",
+                OrderStatus.CANCELLED => "Đã hủy",
+                OrderStatus.PAYMENT_FAILED => "Thanh toán thất bại",
+                _ => status.ToString()
+            };
         }
 
         /// <summary>
@@ -206,6 +229,16 @@ namespace ECommerceAI.Controllers
                         Note = request.AdminNote
                     };
                     await _orderRepo.AddStatusLogAsync(statusLog);
+
+                    // Create Notification
+                    var statusVietnamese = GetStatusVietnameseName(order.Status);
+                    await _notificationService.CreateNotificationAsync(
+                        order.CustomerId,
+                        "Cập nhật đơn hàng",
+                        $"Đơn hàng #{order.OrderCode} đã được cập nhật trạng thái thành: {statusVietnamese}.",
+                        "ORDER_STATUS",
+                        $"/orders/{orderId}"
+                    );
                 }
 
                 return Ok(new
@@ -313,6 +346,15 @@ namespace ECommerceAI.Controllers
                 };
                 await _orderRepo.AddStatusLogAsync(statusLog);
 
+                // Create Notification
+                await _notificationService.CreateNotificationAsync(
+                    order.CustomerId,
+                    "Đơn hàng đã xác nhận",
+                    $"Đơn hàng #{order.OrderCode} đã được xác nhận và đang được xử lý.",
+                    "ORDER_STATUS",
+                    $"/orders/{orderId}"
+                );
+
                 return Ok(new
                 {
                     status = 200,
@@ -361,8 +403,15 @@ namespace ECommerceAI.Controllers
                     });
                 }
 
+                // Chỉ set SHIPPING nếu đã có shipper, nếu không thì giữ nguyên PROCESSING
+                // Endpoint này chủ yếu để admin đánh dấu đơn đã được giao cho shipper
                 var oldStatus = order.Status;
-                order.Status = OrderStatus.SHIPPING;
+                // Chỉ set SHIPPING nếu đã có shipperId, nếu không thì giữ PROCESSING
+                if (!string.IsNullOrEmpty(order.ShipperId))
+                {
+                    order.Status = OrderStatus.SHIPPING;
+                }
+                // Nếu chưa có shipper thì giữ nguyên PROCESSING để shipper có thể nhận
                 order.UpdatedAt = DateTime.UtcNow;
                 await _orderRepo.UpdateAsync(orderId, order);
 
@@ -376,6 +425,15 @@ namespace ECommerceAI.Controllers
                     Note = "Đơn hàng đã được giao cho đơn vị vận chuyển"
                 };
                 await _orderRepo.AddStatusLogAsync(statusLog);
+
+                // Create Notification
+                await _notificationService.CreateNotificationAsync(
+                    order.CustomerId,
+                    "Đơn hàng đang giao",
+                    $"Đơn hàng #{order.OrderCode} đã được bàn giao cho đơn vị vận chuyển.",
+                    "ORDER_STATUS",
+                    $"/orders/{orderId}"
+                );
 
                 return Ok(new
                 {
@@ -456,6 +514,15 @@ namespace ECommerceAI.Controllers
                     Note = "Đơn hàng đã hoàn tất"
                 };
                 await _orderRepo.AddStatusLogAsync(statusLog);
+
+                // Create Notification
+                await _notificationService.CreateNotificationAsync(
+                    order.CustomerId,
+                    "Đơn hàng hoàn tất",
+                    $"Đơn hàng #{order.OrderCode} đã hoàn tất. Cảm ơn bạn đã mua sắm!",
+                    "ORDER_STATUS",
+                    $"/orders/{orderId}"
+                );
 
                 return Ok(new
                 {
@@ -563,6 +630,15 @@ namespace ECommerceAI.Controllers
                     Note = $"Hoàn trả đơn hàng: {note ?? ""}"
                 };
                 await _orderRepo.AddStatusLogAsync(statusLog);
+
+                // Create Notification
+                await _notificationService.CreateNotificationAsync(
+                    order.CustomerId,
+                    "Đơn hàng đã hoàn trả",
+                    $"Đơn hàng #{order.OrderCode} đã được hoàn trả. {note}",
+                    "ORDER_STATUS",
+                    $"/orders/{orderId}"
+                );
 
                 return Ok(new
                 {

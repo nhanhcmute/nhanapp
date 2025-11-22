@@ -6,6 +6,7 @@ using ECommerceAI.Models.Order;
 using ECommerceAI.Models.Coupon;
 using ECommerceAI.Models.Product;
 using ECommerceAI.Models.Common;
+using ECommerceAI.Services.Interfaces;
 
 namespace ECommerceAI.Controllers
 {
@@ -19,6 +20,7 @@ namespace ECommerceAI.Controllers
         private readonly IInventoryRepo _inventoryRepo;
         private readonly IShippingRepo _shippingRepo;
         private readonly ICouponRepo _couponRepo;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<OrderController> _logger;
 
         public OrderController(
@@ -28,6 +30,7 @@ namespace ECommerceAI.Controllers
             IInventoryRepo inventoryRepo,
             IShippingRepo shippingRepo,
             ICouponRepo couponRepo,
+            INotificationService notificationService,
             ILogger<OrderController> logger)
         {
             _orderRepo = orderRepo;
@@ -36,6 +39,7 @@ namespace ECommerceAI.Controllers
             _inventoryRepo = inventoryRepo;
             _shippingRepo = shippingRepo;
             _couponRepo = couponRepo;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -205,6 +209,15 @@ namespace ECommerceAI.Controllers
                     ChangedByUserId = customerId
                 };
                 await _orderRepo.AddStatusLogAsync(statusLog);
+
+                // Create Notification
+                await _notificationService.CreateNotificationAsync(
+                    customerId,
+                    "Đặt hàng thành công",
+                    $"Đơn hàng #{order.OrderCode} đã được tạo thành công.",
+                    "ORDER_STATUS",
+                    $"/orders/{order.Id}"
+                );
 
                 // Đánh dấu cart đã chuyển thành order
                 cart.Status = "converted_to_order";
@@ -404,6 +417,15 @@ namespace ECommerceAI.Controllers
                     Note = "Khách hàng yêu cầu hủy"
                 };
                 await _orderRepo.AddStatusLogAsync(statusLog);
+
+                // Create Notification
+                await _notificationService.CreateNotificationAsync(
+                    order.CustomerId,
+                    "Đơn hàng đã hủy",
+                    $"Đơn hàng #{order.OrderCode} đã được hủy thành công.",
+                    "ORDER_STATUS",
+                    $"/orders/{orderId}"
+                );
 
                 // Nếu đã trừ tồn kho thì cộng lại
                 if (oldStatus == OrderStatus.PAID || oldStatus == OrderStatus.PROCESSING)

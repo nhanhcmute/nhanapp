@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Grid, Card, CardContent, CardMedia, CircularProgress, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Thêm hook điều hướng
 import LoadMore from '../components/common/LoadMore';
+import { API_URL } from '../config/api';
 
 const Cats = () => {
     const [catsData, setCatsData] = useState([]);
@@ -17,25 +18,33 @@ const Cats = () => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
-    // Lấy dữ liệu từ file cats.json trong thư mục public
+    // Lấy dữ liệu từ API backend
     useEffect(() => {
         const loadCats = async () => {
             setLoading(true);
 
             try {
-                // Lấy dữ liệu từ file cats.json
-                const response = await fetch("/cats.json");
-                const data = await response.json();
+                // Gọi API backend
+                const response = await fetch(`${API_URL}/cat.ctr/get_all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const result = await response.json();
+                
+                if (result.status === 200) {
+                    const data = result.data;
 
-                // Thêm giá ngẫu nhiên cho mỗi con mèo
-                const updatedCats = data.map((cat) => ({
-                    ...cat,
-                    price: generateRandomPrice(), // Thêm giá ngẫu nhiên
-                }));
+                    const updatedCats = data.map((cat) => ({
+                        ...cat,
+                        price: cat.price || generateRandomPrice(), 
+                        image: cat.imageData || cat.image_data || cat.image,
+                        cfa_url: cat.cfaUrl || cat.cfa_url
+                    }));
 
-                setCatsData((prev) => [...prev, ...updatedCats]);
-
-                if (data.length < 9) {
+                    setCatsData(updatedCats);
+                    
                     setHasMore(false);
                 }
             } catch (error) {
@@ -46,7 +55,7 @@ const Cats = () => {
         };
 
         loadCats();
-    }, [page]);
+    }, []); // Chạy 1 lần khi mount
 
     const loadMoreHandler = () => {
         if (hasMore) {
@@ -76,12 +85,8 @@ const Cats = () => {
                             <CardMedia
                                 component="img"
                                 height="200"
-                                image={`https://cdn2.thecatapi.com/images/${cat.reference_image_id}.jpg`}
+                                image={cat.image || '/placeholder-cat.jpg'}
                                 alt={cat.name}
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = `https://cdn2.thecatapi.com/images/${cat.reference_image_id}.png`;
-                                }}
                                 sx={{ objectFit: "cover" }}
                             />
 

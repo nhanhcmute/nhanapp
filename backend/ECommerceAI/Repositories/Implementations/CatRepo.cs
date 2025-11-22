@@ -107,6 +107,19 @@ namespace ECommerceAI.Repositories.Implementations
                 return false;
             }
         }
+
+        public async Task<bool> DeleteAllAsync()
+        {
+            try
+            {
+                await _cats.DeleteManyAsync(_ => true);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
 

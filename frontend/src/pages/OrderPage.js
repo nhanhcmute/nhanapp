@@ -7,6 +7,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FaPaw } from 'react-icons/fa';
 import useOrders from '../hooks/useOrder';
 import { orderService } from '../services/orderService';
+import { getProductImageSrc } from '../utils/imageUtils';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -279,27 +280,9 @@ const OrderPage = () => {
                         >
                           <Box
                             component="img"
-                            src={(() => {
-                              const imageName = product.image || product.Image;
-                              if (!imageName) {
-                                console.log('No image for product:', product.productName || product.name);
-                                return '/default-product.jpg';
-                              }
-                              // Nếu là base64, dùng trực tiếp
-                              if (imageName.startsWith('data:image') || imageName.startsWith('http')) {
-                                return imageName;
-                              }
-                              // Nếu là tên file, tìm trong images object
-                              const imagePath = images[imageName];
-                              if (imagePath) {
-                                return imagePath;
-                              }
-                              // Fallback: thử dùng trực tiếp nếu là relative path
-                              return imageName.startsWith('/') ? imageName : `/assets/images/products/${imageName}`;
-                            })()}
+                            src={getProductImageSrc(product, images)}
                             alt={product.productName || product.name}
                             onError={(e) => {
-                              console.log('Image load error for:', product.productName || product.name, 'src:', e.target.src);
                               e.target.src = '/default-product.jpg';
                             }}
                             sx={{

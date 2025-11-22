@@ -145,6 +145,77 @@ namespace ECommerceAI.Repositories.Implementations
             };
         }
 
+        public async Task<PaginationResponse<order_model>> GetAvailableForShipperAsync(int page, int pageSize)
+        {
+            var filterBuilder = Builders<order_model>.Filter;
+            // Lấy đơn hàng có thể giao: PROCESSING, PAID, hoặc SHIPPING (nếu admin set nhầm) và chưa có Shipper
+            // Bao gồm cả SHIPPING với shipperId null để xử lý trường hợp admin set nhầm status
+            var statusFilter = filterBuilder.In(o => o.Status, new[] 
+            { 
+                OrderStatus.PROCESSING, 
+                OrderStatus.PAID,
+                OrderStatus.SHIPPING // Bao gồm cả SHIPPING nếu chưa có shipper (admin có thể set nhầm)
+            });
+            
+            // Filter: ShipperId phải là null hoặc không tồn tại
+            // Dùng BsonDocument filter để tránh ObjectId parsing khi field là null/empty
+            var shipperFilter = Builders<order_model>.Filter.Or(
+                Builders<order_model>.Filter.Eq("shipper_id", BsonNull.Value),
+                Builders<order_model>.Filter.Exists("shipper_id", false)
+            );
+            
+            var filter = statusFilter & shipperFilter;
+
+            var totalCount = await _orders.CountDocumentsAsync(filter);
+            var skip = (page - 1) * pageSize;
+
+            var orders = await _orders
+                .Find(filter)
+                .SortBy(o => o.CreatedAt) // Đơn cũ nhất lên đầu để giao trước
+                .Skip(skip)
+                .Limit(pageSize)
+                .ToListAsync();
+
+            return new PaginationResponse<order_model>
+            {
+                Data = orders,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = (int)totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+        }
+
+        public async Task<PaginationResponse<order_model>> GetByShipperIdAsync(string shipperId, int page, int pageSize, OrderStatus? status = null)
+        {
+            var filterBuilder = Builders<order_model>.Filter;
+            var filter = filterBuilder.Eq(o => o.ShipperId, shipperId);
+
+            if (status.HasValue)
+            {
+                filter &= filterBuilder.Eq(o => o.Status, status.Value);
+            }
+
+            var totalCount = await _orders.CountDocumentsAsync(filter);
+            var skip = (page - 1) * pageSize;
+
+            var orders = await _orders
+                .Find(filter)
+                .SortByDescending(o => o.UpdatedAt)
+                .Skip(skip)
+                .Limit(pageSize)
+                .ToListAsync();
+
+            return new PaginationResponse<order_model>
+            {
+                Data = orders,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = (int)totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+        }
+
         public async Task<IEnumerable<order_item_model>> GetOrderItemsAsync(string orderId)
         {
             var filter = Builders<order_item_model>.Filter.Eq(i => i.OrderId, orderId);

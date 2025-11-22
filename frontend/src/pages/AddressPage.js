@@ -32,12 +32,13 @@ import { database } from '../firebaseConfig';
 import { toast } from 'react-toastify'; 
 import { FaPaw } from 'react-icons/fa';
 import MapComponent from '../components/common/MapComponent';
+import { getCoordinatesFromAddress } from '../utils/shippingUtils';
 
 const AddressPage = () => {
   const [userInfo, setUserInfo] = useState(null);
-  const latitude = userInfo?.latitude ? userInfo.latitude : 21.0285;
-  const longitude = userInfo?.longitude ? userInfo.longitude : 105.8542;
   const [addresses, setAddresses] = useState([]);
+  const [addressCoordinates, setAddressCoordinates] = useState({});
+  const [geocodingStatus, setGeocodingStatus] = useState({}); // Track geocoding status for each address
   const [openDialog, setOpenDialog] = useState(false);
   const [newAddress, setNewAddress] = useState({
     id: '',
@@ -136,12 +137,18 @@ const AddressPage = () => {
   }, [newAddress.district]);
 
   // Xử lý đặt địa chỉ mặc định
-  const handleSetDefaultAddress = (id) => {
+  const handleSetDefaultAddress = async (id) => {
     const updatedAddresses = addresses.map((address) => ({
       ...address,
       isDefault: address.id === id
     }));
     setAddresses(updatedAddresses);
+    
+    // Geocode địa chỉ mới được đặt làm mặc định
+    const newDefaultAddress = updatedAddresses.find(addr => addr.id === id);
+    if (newDefaultAddress && !addressCoordinates[newDefaultAddress.id]) {
+      await geocodeAddress(newDefaultAddress);
+    }
   };
 
   // Mở dialog chỉnh sửa địa chỉ
@@ -170,6 +177,73 @@ const AddressPage = () => {
       addressType: '',
     });
   };
+  // Hàm geocode một địa chỉ
+  const geocodeAddress = async (address) => {
+    if (!address.street || !address.wardName || !address.districtName || !address.provinceName) {
+      setGeocodingStatus(prev => ({ ...prev, [address.id]: 'failed' }));
+      return null;
+    }
+
+    // Tạo địa chỉ đầy đủ với nhiều format khác nhau để tăng khả năng tìm thấy
+    // Ưu tiên format có đầy đủ thông tin nhất trước
+    const addressFormats = [
+      `${address.street}, ${address.wardName}, ${address.districtName}, ${address.provinceName}, Vietnam`,
+      `${address.street}, ${address.wardName}, ${address.districtName}, ${address.provinceName}`,
+      `${address.wardName}, ${address.districtName}, ${address.provinceName}, Vietnam`,
+    ];
+    
+    try {
+      setGeocodingStatus(prev => ({ ...prev, [address.id]: 'loading' }));
+      
+      // Thử với nhiều format địa chỉ
+      for (const fullAddress of addressFormats) {
+        try {
+          // Thêm timeout để tránh chờ quá lâu (tăng lên 15 giây)
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Geocoding timeout')), 15000)
+          );
+          
+          const coordsPromise = getCoordinatesFromAddress(fullAddress, 2); // Retry 2 lần
+          const coords = await Promise.race([coordsPromise, timeoutPromise]);
+          
+          if (coords) {
+            // Lưu thông tin về độ chính xác
+            const isHouseOrBuilding = coords.type?.includes('house') || coords.type?.includes('building');
+            const isApproximate = coords.importance < 0.7 || !isHouseOrBuilding; // Nếu importance thấp hoặc không phải house/building thì là approximate
+            
+            const coordsWithInfo = {
+              lat: coords.lat,
+              lon: coords.lon,
+              displayName: coords.displayName,
+              type: coords.type,
+              importance: coords.importance,
+              isApproximate: isApproximate,
+            };
+            
+            setAddressCoordinates(prev => ({ ...prev, [address.id]: coordsWithInfo }));
+            setGeocodingStatus(prev => ({ ...prev, [address.id]: 'success' }));
+            console.log(`Successfully geocoded address ${address.id} with format: ${fullAddress}`);
+            console.log(`Geocoding result: ${coords.displayName} (type: ${coords.type}, importance: ${coords.importance})`);
+            return coordsWithInfo;
+          }
+        } catch (error) {
+          console.warn(`Failed to geocode with format "${fullAddress}":`, error.message);
+          // Tiếp tục thử format tiếp theo
+          continue;
+        }
+      }
+      
+      // Nếu tất cả format đều thất bại
+      console.error(`Failed to geocode address ${address.id} with all formats`);
+      setGeocodingStatus(prev => ({ ...prev, [address.id]: 'failed' }));
+      return null;
+    } catch (error) {
+      console.error(`Error geocoding address ${address.id}:`, error);
+      setGeocodingStatus(prev => ({ ...prev, [address.id]: 'failed' }));
+      return null;
+    }
+  };
+
   // Lấy danh sách địa chỉ từ Firebase
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -181,6 +255,12 @@ const AddressPage = () => {
           const data = snapshot.val();
           const addressList = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
           setAddresses(addressList);
+          
+          // Chỉ geocode địa chỉ mặc định trước (lazy loading cho các địa chỉ khác)
+          const defaultAddress = addressList.find(addr => addr.isDefault);
+          if (defaultAddress) {
+            await geocodeAddress(defaultAddress);
+          }
         } else {
           setAddresses([]);
         }
@@ -194,6 +274,15 @@ const AddressPage = () => {
 
     fetchAddresses();
   }, []);
+
+  // Geocode địa chỉ khi nó trở thành mặc định
+  useEffect(() => {
+    const defaultAddress = addresses.find(addr => addr.isDefault);
+    if (defaultAddress && !addressCoordinates[defaultAddress.id] && geocodingStatus[defaultAddress.id] !== 'loading') {
+      geocodeAddress(defaultAddress);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addresses]);
   // Thêm địa chỉ mới vào Firebase
   const handleAddAddress = async () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.province || !newAddress.district || !newAddress.ward || !newAddress.addressType) {
@@ -402,7 +491,61 @@ const AddressPage = () => {
                         <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>📍 Vị trí:</Typography>
                       </Box>
                       <Box sx={{ borderRadius: '16px', overflow: 'hidden', border: '2px solid rgba(255, 107, 129, 0.2)' }}>
-                        <MapComponent latitude={latitude} longitude={longitude} />
+                        {addressCoordinates[address.id] ? (
+                          <>
+                            <MapComponent 
+                              latitude={addressCoordinates[address.id].lat} 
+                              longitude={addressCoordinates[address.id].lon}
+                              addressLabel={`${address.street}, ${address.wardName}, ${address.districtName}, ${address.provinceName}`}
+                            />
+                            {/* Hiển thị cảnh báo nếu vị trí không chính xác 100% */}
+                            {addressCoordinates[address.id].isApproximate && (
+                              <Box sx={{ p: 1.5, backgroundColor: '#fff3cd', borderTop: '1px solid rgba(255, 107, 129, 0.2)' }}>
+                                <Typography variant="caption" sx={{ color: '#856404', fontSize: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
+                                  <span>⚠️</span>
+                                  <span>
+                                    Vị trí hiển thị là gần đúng (trung tâm {address.wardName || 'khu vực'}). 
+                                    {address.street?.match(/\d+/) ? ' Có thể do địa chỉ sau sáp nhập chưa được cập nhật trong hệ thống bản đồ.' : ' Vui lòng thêm số nhà cụ thể để tăng độ chính xác.'}
+                                  </span>
+                                </Typography>
+                              </Box>
+                            )}
+                          </>
+                        ) : geocodingStatus[address.id] === 'failed' ? (
+                          <Box sx={{ p: 3, textAlign: 'center', backgroundColor: '#fff3cd' }}>
+                            <Typography variant="body2" sx={{ color: '#856404', mb: 1 }}>
+                              ⚠️ Không thể tải vị trí
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#856404', display: 'block', mb: 2 }}>
+                              Có thể do địa chỉ sau sáp nhập chưa được cập nhật trong hệ thống bản đồ.
+                            </Typography>
+                            <Button
+                              size="small"
+                              onClick={() => geocodeAddress(address)}
+                              sx={{
+                                mt: 1,
+                                color: '#ff6b81',
+                                borderColor: '#ff6b81',
+                                '&:hover': {
+                                  borderColor: '#ff4757',
+                                  backgroundColor: 'rgba(255, 107, 129, 0.1)',
+                                },
+                              }}
+                              variant="outlined"
+                            >
+                              Thử lại
+                            </Button>
+                          </Box>
+                        ) : (
+                          <Box sx={{ p: 3, textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+                            <Typography variant="body2" sx={{ color: '#666' }}>
+                              Đang tải vị trí...
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#999', display: 'block', mt: 1 }}>
+                              Vui lòng đợi trong giây lát
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
                     </Box>
                   )}

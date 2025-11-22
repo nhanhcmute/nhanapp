@@ -3,6 +3,7 @@ using ECommerceAI.Repositories.Interfaces;
 using ECommerceAI.Repositories.Implementations;
 using ECommerceAI.Services.Interfaces;
 using ECommerceAI.Services.Implementations;
+using ECommerceAI.Services;
 using ECommerceAI.Repositories; 
 
 
@@ -26,6 +27,7 @@ builder.Services.AddSingleton<MongoContext>();
 
 // Add Repositories
 builder.Services.AddScoped<ICatRepo, CatRepo>();
+builder.Services.AddScoped<IDogRepo, DogRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
 builder.Services.AddScoped<IOTPRepo, OTPRepo>();
@@ -36,10 +38,13 @@ builder.Services.AddScoped<IPaymentRepo, PaymentRepo>();
 builder.Services.AddScoped<IShippingRepo, ShippingRepo>();
 builder.Services.AddScoped<ICouponRepo, CouponRepo>();
 builder.Services.AddScoped<IInventoryRepo, InventoryRepo>();
+builder.Services.AddScoped<INotificationRepo, NotificationRepo>();
 
 // Add Services
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IOTPCacheService, OTPCacheService>();
+builder.Services.AddScoped<ImportPetsDataService>();
 
 // Configure CORS
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
@@ -68,6 +73,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Import pets data if needed
+using (var scope = app.Services.CreateScope())
+{
+    var importService = scope.ServiceProvider.GetRequiredService<ImportPetsDataService>();
+    await importService.ImportDataIfNeededAsync();
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

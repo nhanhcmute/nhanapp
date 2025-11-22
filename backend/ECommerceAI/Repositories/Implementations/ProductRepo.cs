@@ -18,27 +18,14 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<IEnumerable<product_model>> GetAllAsync()
         {
-            // Tối ưu: Loại bỏ image base64 để giảm kích thước response và tăng tốc độ
-            // Sử dụng projection với BsonElement names
-            var projection = Builders<product_model>.Projection
-                .Include("_id")
-                .Include("name")
-                .Include("sku")
-                .Include("description")
-                .Include("base_price")
-                .Include("price")
-                .Include("quantity")
-                .Include("status")
-                .Include("createdAt")
-                .Include("updatedAt")
-                .Exclude("image"); // Loại bỏ image base64 để tăng tốc độ
-
+            // Tối ưu: Chỉ lấy sản phẩm còn hàng, giới hạn số lượng, và sort theo index
+            // Sử dụng index trên Status và CreatedAt để tăng tốc độ query
+            var filter = Builders<product_model>.Filter.Eq(p => p.Status, "Còn hàng");
+            
             return await _products
-                .Find(p => true)
-                .Project(projection)
-                .As<product_model>()
-                .SortByDescending(p => p.CreatedAt)
-                .Limit(1000) // Giới hạn tối đa 1000 sản phẩm để tránh load quá nhiều
+                .Find(filter)
+                .SortByDescending(p => p.CreatedAt) // Sử dụng index trên CreatedAt
+                .Limit(500) // Giảm limit xuống 500 để tăng tốc độ
                 .ToListAsync();
         }
 
@@ -196,6 +183,58 @@ namespace ECommerceAI.Repositories.Implementations
                 "price" => await _products.Find(_ => true).SortBy(p => p.Price).ToListAsync(),
                 "quantity" => await _products.Find(_ => true).SortBy(p => p.Quantity).ToListAsync(),
                 _ => await _products.Find(_ => true).SortByDescending(p => p.CreatedAt).ToListAsync()
+            };
+        }
+
+        public async Task<PaginationResponse<product_model>> SearchPagedAsync(string searchTerm, int page, int pageSize)
+        {
+            var filter = Builders<product_model>.Filter.Or(
+                Builders<product_model>.Filter.Regex(p => p.Name, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<product_model>.Filter.Regex(p => p.Description, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            );
+
+            var totalCount = await _products.CountDocumentsAsync(filter);
+            var skip = (page - 1) * pageSize;
+
+            var products = await _products
+                .Find(filter)
+                .Skip(skip)
+                .Limit(pageSize)
+                .SortByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            return new PaginationResponse<product_model>
+            {
+                Data = products,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = (int)totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+        }
+
+        public async Task<PaginationResponse<product_model>> GetSortedPagedAsync(string sortBy, int page, int pageSize)
+        {
+            var totalCount = await _products.CountDocumentsAsync(_ => true);
+            var skip = (page - 1) * pageSize;
+
+            var query = _products.Find(_ => true).Skip(skip).Limit(pageSize);
+
+            var products = sortBy.ToLower() switch
+            {
+                "name" => await query.SortBy(p => p.Name).ToListAsync(),
+                "price" => await query.SortBy(p => p.Price).ToListAsync(),
+                "quantity" => await query.SortBy(p => p.Quantity).ToListAsync(),
+                _ => await query.SortByDescending(p => p.CreatedAt).ToListAsync()
+            };
+
+            return new PaginationResponse<product_model>
+            {
+                Data = products,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = (int)totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
             };
         }
     }

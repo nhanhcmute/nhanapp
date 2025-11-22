@@ -7,6 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import { useCart } from '../../store/CartContext';
+import { getProductImageSrc } from '../../utils/imageUtils';
 
 // API URL
 const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
@@ -38,12 +39,13 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const formData = new FormData();
-        formData.append('id', id);
 
         const response = await fetch(`${API_URL}/product.ctr/get_by_id`, {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: id })
         });
 
         const result = await response.json();
@@ -133,8 +135,8 @@ const ProductDetail = () => {
     );
   }
 
-  // Tìm hình ảnh tương ứng với sản phẩm
-  const productImage = product.image ? images[product.image] : null;
+  // Lấy hình ảnh sản phẩm (hỗ trợ base64, URL, và file path)
+  const productImage = getProductImageSrc(product, images);
 
   // Hàm xử lý thêm vào giỏ hàng
   const handleAddToCart = async () => {
@@ -146,7 +148,7 @@ const ProductDetail = () => {
       price: typeof product.price === 'string' 
         ? parseFloat(product.price.replace(/[^\d.]/g, '')) || 0 
         : product.price || product.Price || 0,
-      image: productImage || product.image || product.Image || '',
+      image: getProductImageSrc(product, images),
       description: product.description || product.Description || '',
       quantity: 1,
     };
@@ -166,7 +168,7 @@ const ProductDetail = () => {
       price: typeof product.price === 'string' 
         ? parseFloat(product.price.replace(/[^\d.]/g, '')) || 0 
         : product.price || product.Price || 0,
-      image: productImage || product.image || product.Image || '',
+      image: getProductImageSrc(product, images),
       description: product.description || product.Description || '',
       quantity: 1,
     };
@@ -256,33 +258,20 @@ const ProductDetail = () => {
               },
             }}
           >
-            {productImage ? (
-              <CardMedia
-                component="img"
-                alt={product.name}
-                image={productImage}
-                title={product.name}
-                sx={{ 
-                  width: '100%',
-                  height: 'auto',
-                  objectFit: 'cover',
-                }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  minHeight: '400px',
-                  backgroundColor: 'rgba(255, 107, 129, 0.1)',
-                }}
-              >
-                <Typography variant="body1" sx={{ color: '#ff6b81', fontWeight: 600 }}>
-                  📷 Không tìm thấy hình ảnh
-                </Typography>
-              </Box>
-            )}
+            <CardMedia
+              component="img"
+              alt={product.name}
+              image={productImage}
+              title={product.name}
+              sx={{ 
+                width: '100%',
+                height: 'auto',
+                objectFit: 'cover',
+              }}
+              onError={(e) => {
+                e.target.src = '/default-product.jpg';
+              }}
+            />
           </Box>
         </Grid>
 

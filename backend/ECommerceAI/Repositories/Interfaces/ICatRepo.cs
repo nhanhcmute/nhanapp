@@ -15,6 +15,7 @@ namespace ECommerceAI.Repositories.Interfaces
         Task<bool> DeleteAsync(string id);
         Task<long> CountAsync();
         Task<bool> BulkInsertAsync(IEnumerable<cat_model> cats);
+        Task<bool> DeleteAllAsync();
     }
 }
 

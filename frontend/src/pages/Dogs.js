@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Grid, Card, CardContent, CardMedia, CircularProgress, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom"; 
 
+import { API_URL } from '../config/api';
+
 const Dogs = () => {
   const [dogBreeds, setDogBreeds] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,43 +16,46 @@ const Dogs = () => {
       setLoading(true);
 
       try {
-        const response = await fetch("/dogs.json"); 
-        const data = await response.json();
+        // Gọi API backend
+        const response = await fetch(`${API_URL}/dog.ctr/get_all`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const result = await response.json();
 
-        if (data.length === 0) {
-          setHasMore(false);
-        } else {
-          // Chỉ lấy dữ liệu cho trang hiện tại
-          const newBreeds = data.slice((page - 1) * 12, page * 12);
+        if (result.status === 200) {
+          const data = result.data;
+          
+          if (data.length === 0) {
+            setHasMore(false);
+          } else {
+            // Thêm giá ngẫu nhiên và map fields
+            const breedsWithPrice = data.map((dog) => ({
+              ...dog,
+              price: dog.price || Math.floor(Math.random() * (10000000 - 1000000 + 1)) + 1000000,
+              breed_group: dog.breedGroup || dog.breed_group,
+              origin: dog.origin,
+              image: dog.image || dog.Image || '/placeholder-dog.jpg'
+            }));
 
-          // Thêm giá ngẫu nhiên và loại bỏ trùng lặp
-          const breedsWithPrice = newBreeds.map((dog) => ({
-            ...dog,
-            price: Math.floor(Math.random() * (10000000 - 1000000 + 1)) + 1000000,
-          }));
-
-          setDogBreeds((prevBreeds) => {
-            // Loại bỏ các mục trùng lặp dựa trên `id`
-            const uniqueBreeds = breedsWithPrice.filter(
-              (dog) => !prevBreeds.some((prevDog) => prevDog.id === dog.id)
-            );
-            return [...prevBreeds, ...uniqueBreeds];
-          });
-
-          if (breedsWithPrice.length === 0) {
+            setDogBreeds(breedsWithPrice);
+            
+            // Backend trả về hết data, nên disable load more
             setHasMore(false);
           }
         }
 
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching dog breeds from JSON:", error);
+        console.error("Error fetching dog breeds from API:", error);
         setLoading(false);
       }
     };
 
     fetchDogBreeds();
-  }, [page]);
+  }, []); // Chạy 1 lần khi mount
 
   const loadMoreDogs = () => {
     if (hasMore) {
@@ -85,7 +90,7 @@ const Dogs = () => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={dog.image}
+                  image={dog.image || '/placeholder-dog.jpg'}
                   alt={dog.name}
                   style={{ objectFit: "cover" }}
                 />

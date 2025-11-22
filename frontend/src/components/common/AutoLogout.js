@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const AUTO_LOGOUT_TIME = 10 * 60 * 1000; 
+const AUTO_LOGOUT_TIME = 10 * 60 * 10000; 
 
 const AutoLogout = () => {
   const navigate = useNavigate();
@@ -17,10 +17,10 @@ const AutoLogout = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user'); // Xóa thông tin người dùng
-    localStorage.removeItem('lastActivity'); // Xóa thông tin hoạt động
+    localStorage.removeItem('user'); 
+    localStorage.removeItem('lastActivity'); //
     alert('Bạn đã bị đăng xuất do không hoạt động.');
-    navigate('/login'); // Chuyển hướng về trang đăng nhập
+    navigate('/login'); 
   };
 
   useEffect(() => {

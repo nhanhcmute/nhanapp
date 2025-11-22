@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using ECommerceAI.Models.Product;
 using ECommerceAI.Models.Common;
 using ECommerceAI.Repositories.Interfaces;
@@ -11,11 +12,13 @@ namespace ECommerceAI.Controllers
     {
         private readonly IProductRepo _productRepo;
         private readonly ILogger<product_controller> _logger;
+        private readonly IMemoryCache _cache;
 
-        public product_controller(IProductRepo productRepo, ILogger<product_controller> logger)
+        public product_controller(IProductRepo productRepo, ILogger<product_controller> logger, IMemoryCache cache)
         {
             _productRepo = productRepo;
             _logger = logger;
+            _cache = cache;
         }
 
         /// <summary>
@@ -23,15 +26,35 @@ namespace ECommerceAI.Controllers
         /// POST /product.ctr/get_all
         /// </summary>
         [HttpPost("get_all")]
-        [ResponseCache(Duration = 60, VaryByQueryKeys = new[] { "*" })] // Cache 60 giây
         public async Task<IActionResult> get_all()
         {
             try
             {
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var products = await _productRepo.GetAllAsync();
-                stopwatch.Stop();
                 
+                // Sử dụng memory cache để tăng tốc độ
+                const string cacheKey = "products_all";
+                if (!_cache.TryGetValue(cacheKey, out IEnumerable<product_model>? products))
+                {
+                    products = await _productRepo.GetAllAsync();
+                    
+                    // Cache trong 5 phút
+                    var cacheOptions = new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+                        SlidingExpiration = TimeSpan.FromMinutes(2),
+                        Priority = CacheItemPriority.Normal
+                    };
+                    
+                    _cache.Set(cacheKey, products, cacheOptions);
+                    _logger.LogInformation($"Products loaded from database and cached");
+                }
+                else
+                {
+                    _logger.LogInformation($"Products loaded from cache");
+                }
+                
+                stopwatch.Stop();
                 _logger.LogInformation($"GetAllAsync took {stopwatch.ElapsedMilliseconds}ms");
                 
                 return Ok(new
@@ -58,11 +81,12 @@ namespace ECommerceAI.Controllers
         /// POST /product.ctr/get_by_id
         /// </summary>
         [HttpPost("get_by_id")]
-public async Task<IActionResult> get_by_id([FromBody] string id)
+        [ResponseCache(Duration = 60, VaryByQueryKeys = new[] { "*" })]
+public async Task<IActionResult> get_by_id([FromBody] GetProductByIdRequest request)
 {
     try
     {
-        if (string.IsNullOrWhiteSpace(id))
+        if (string.IsNullOrWhiteSpace(request.id))
         {
             return BadRequest(new
             {
@@ -73,14 +97,14 @@ public async Task<IActionResult> get_by_id([FromBody] string id)
         }
 
         // --- Xử lý linh hoạt cho cả ObjectId và string thường ---
-        var product = await _productRepo.GetByIdAsync(id);
+        var product = await _productRepo.GetByIdAsync(request.id);
 
         if (product == null)
         {
             return NotFound(new
             {
                 status = 404,
-                message = $"Không tìm thấy sản phẩm với ID: {id}",
+                message = $"Không tìm thấy sản phẩm với ID: {request.id}",
                 data = (object?)null
             });
         }
@@ -94,17 +118,17 @@ public async Task<IActionResult> get_by_id([FromBody] string id)
     }
     catch (FormatException ex)
     {
-        _logger.LogError(ex, "ID không hợp lệ: {Id}", id);
+        _logger.LogError(ex, "ID không hợp lệ: {Id}", request.id);
         return BadRequest(new
         {
             status = 400,
-            message = $"ID '{id}' không hợp lệ",
+            message = $"ID '{request.id}' không hợp lệ",
             data = (object?)null
         });
     }
     catch (Exception ex)
     {
-        _logger.LogError(ex, "Error getting product by id: {Id}", id);
+        _logger.LogError(ex, "Error getting product by id: {Id}", request.id);
         return StatusCode(500, new
         {
             status = 500,
@@ -209,6 +233,10 @@ public async Task<IActionResult> get_by_id([FromBody] string id)
                 }
 
                 var createdProduct = await _productRepo.CreateAsync(product);
+                
+                // Invalidate cache khi có sản phẩm mới
+                _cache.Remove("products_all");
+                
                 return Ok(new
                 {
                     status = 200,
@@ -269,6 +297,10 @@ public async Task<IActionResult> get_by_id([FromBody] string id)
                 }
 
                 var updatedProduct = await _productRepo.UpdateAsync(product.Id, product);
+                
+                // Invalidate cache khi có cập nhật
+                _cache.Remove("products_all");
+                
                 return Ok(new
                 {
                     status = 200,
@@ -317,6 +349,9 @@ public async Task<IActionResult> get_by_id([FromBody] string id)
                         data = (object?)null
                     });
                 }
+
+                // Invalidate cache khi có xóa
+                _cache.Remove("products_all");
 
                 return Ok(new
                 {

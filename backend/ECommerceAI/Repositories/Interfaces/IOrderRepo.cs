@@ -11,6 +11,8 @@ namespace ECommerceAI.Repositories.Interfaces
         Task<order_model> UpdateAsync(string id, order_model order);
         Task<PaginationResponse<order_model>> GetByCustomerIdAsync(string customerId, int page, int pageSize);
         Task<PaginationResponse<order_model>> GetOrdersAsync(int page, int pageSize, OrderStatus? status = null, PaymentStatus? paymentStatus = null, DateTime? dateFrom = null, DateTime? dateTo = null, string? keyword = null);
+        Task<PaginationResponse<order_model>> GetAvailableForShipperAsync(int page, int pageSize);
+        Task<PaginationResponse<order_model>> GetByShipperIdAsync(string shipperId, int page, int pageSize, OrderStatus? status = null);
         Task<IEnumerable<order_item_model>> GetOrderItemsAsync(string orderId);
         Task<order_item_model> AddOrderItemAsync(order_item_model item);
         Task<order_status_log_model> AddStatusLogAsync(order_status_log_model log);

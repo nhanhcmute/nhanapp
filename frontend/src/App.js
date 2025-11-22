@@ -52,7 +52,7 @@ import Promotions from './pages/admin/Promotions';
 import Inventory from './pages/admin/Inventory';
 import Reports from './pages/admin/ReportsPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
-import NotificationsPage from './pages/admin/NotificationsPage';
+import AdminNotificationsPage from './pages/admin/NotificationsPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import Reviews from './pages/admin/Reviews';
 import Payments from './pages/admin/Payments';
@@ -259,7 +259,7 @@ function App() {
                 path="/admin/notifications"
                 element={
                   <AdminRoute
-                    element={<NotificationsPage />}
+                    element={<AdminNotificationsPage />}
                   />
                 }
               />

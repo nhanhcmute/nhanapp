@@ -38,12 +38,12 @@ const ProductPage = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const formData = new FormData();
-        formData.append('id', id);
-
         const response = await fetch(`${API_URL}/product.ctr/get_by_id`, {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: id })
         });
 
         const result = await response.json();

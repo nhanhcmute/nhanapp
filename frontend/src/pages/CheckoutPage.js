@@ -31,6 +31,7 @@ import axios from 'axios';
 import { orderService } from '../services/orderService';
 import { checkoutService } from '../services/checkoutService';
 import { cartService } from '../services/cartService';
+import { calculateShippingFee, calculateShippingFeeWithAddress } from '../utils/shippingUtils';
 import { FaPaw } from 'react-icons/fa';
 import HomeIcon from '@mui/icons-material/Home';
 import EditIcon from '@mui/icons-material/Edit';
@@ -147,6 +148,58 @@ const CheckoutPage = () => {
             setDiscount(0); // Nếu không tìm thấy voucher, đặt discount về 0
         }
     };
+
+    // Tính phí vận chuyển khi có thay đổi về phương thức vận chuyển hoặc địa chỉ
+    useEffect(() => {
+        const updateShippingFee = async () => {
+            const totalAmount = calculateTotalAmount();
+            
+            if (defaultAddress) {
+                // Tính phí ship với địa chỉ đầy đủ
+                const addressString = `${defaultAddress.street || ''}, ${defaultAddress.wardName || ''}, ${defaultAddress.districtName || ''}, ${defaultAddress.provinceName || ''}`;
+                
+                // Tính tổng trọng lượng (giả sử mỗi sản phẩm có weight, nếu không thì dùng giá trị mặc định)
+                const totalWeight = cart.reduce((sum, product) => {
+                    if (selectedItems[product.id]) {
+                        const weight = product.weight || 0.5; // Mặc định 0.5kg/sản phẩm nếu không có
+                        return sum + (weight * product.quantity);
+                    }
+                    return sum;
+                }, 0);
+
+                const fee = await calculateShippingFeeWithAddress(
+                    shippingMethod,
+                    addressString,
+                    {
+                        weight: totalWeight,
+                        totalAmount: totalAmount,
+                        freeShippingThreshold: 500000, // Miễn phí ship nếu đơn >= 500,000 VND
+                    }
+                );
+                
+                setShippingFee(fee);
+            } else {
+                // Nếu chưa có địa chỉ, dùng phí cơ bản
+                const totalWeight = cart.reduce((sum, product) => {
+                    if (selectedItems[product.id]) {
+                        const weight = product.weight || 0.5;
+                        return sum + (weight * product.quantity);
+                    }
+                    return sum;
+                }, 0);
+
+                const fee = calculateShippingFee(shippingMethod, {
+                    weight: totalWeight,
+                    totalAmount: totalAmount,
+                    freeShippingThreshold: 500000,
+                });
+                
+                setShippingFee(fee);
+            }
+        };
+
+        updateShippingFee();
+    }, [cart, shippingMethod, defaultAddress, selectedItems]);
 
     // Cập nhật finalAmount mỗi khi có sự thay đổi trong giỏ hàng, giảm giá, phí vận chuyển
     useEffect(() => {
@@ -735,11 +788,7 @@ const CheckoutPage = () => {
                                 value={shippingMethod}
                                 onChange={(e) => {
                                     setShippingMethod(e.target.value);
-                                    if (e.target.value === "express") {
-                                        setShippingFee(50000);
-                                    } else {
-                                        setShippingFee(20000);
-                                    }
+                                    // Phí ship sẽ được tính tự động trong useEffect
                                 }}
                                 label="Phương thức vận chuyển"
                                 sx={{
@@ -841,10 +890,25 @@ const CheckoutPage = () => {
                                 <Typography variant="body1" sx={{ color: '#666' }}>
                                     Phí vận chuyển:
                                 </Typography>
-                                <Typography variant="body1" sx={{ fontWeight: 600, color: '#666' }}>
-                                    💰 {shippingFee.toLocaleString()} VND
+                                <Typography 
+                                    variant="body1" 
+                                    sx={{ 
+                                        fontWeight: 600, 
+                                        color: shippingFee === 0 ? '#4caf50' : '#666' 
+                                    }}
+                                >
+                                    {shippingFee === 0 ? (
+                                        <span style={{ color: '#4caf50' }}>✅ Miễn phí</span>
+                                    ) : (
+                                        `💰 ${shippingFee.toLocaleString()} VND`
+                                    )}
                                 </Typography>
                             </Box>
+                            {calculateTotalAmount() < 500000 && (
+                                <Typography variant="caption" sx={{ color: '#999', fontStyle: 'italic' }}>
+                                    💡 Mua thêm {(500000 - calculateTotalAmount()).toLocaleString()} VND để được miễn phí ship!
+                                </Typography>
+                            )}
                             {discount > 0 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     <Typography variant="body1" sx={{ color: '#4caf50' }}>

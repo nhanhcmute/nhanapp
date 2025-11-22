@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CircularProgress, Box, Grid, Card, CardContent, Typography, Button, CardMedia, Pagination, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
+import { getProductImageSrc } from '../utils/imageUtils';
 
 // API URL
 const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
@@ -164,7 +165,7 @@ const ProductList = () => {
               <CardMedia
                 component="img"
                 height="280"
-                image={product.image ? images[product.image] : '/default-product.jpg'}
+                image={getProductImageSrc(product, images)}
                 alt={product.name}
                 onClick={() => handleClick(product._id || product.id)}
                 sx={{
@@ -175,6 +176,9 @@ const ProductList = () => {
                   '&:hover': {
                     opacity: 0.9,
                   },
+                }}
+                onError={(e) => {
+                  e.target.src = '/default-product.jpg';
                 }}
               />
               <CardContent sx={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
