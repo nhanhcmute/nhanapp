@@ -47,6 +47,62 @@ namespace ECommerceAI.Controllers
         }
 
         /// <summary>
+        /// Lấy THÊM giống mèo/chó mới từ TheCatAPI/TheDogAPI (không xóa dữ liệu hiện có)
+        /// </summary>
+        [HttpPost("import_from_api")]
+        public async Task<IActionResult> ImportFromApi()
+        {
+            try
+            {
+                var (catsAdded, dogsAdded) = await _importService.ImportAdditionalPetsFromApiAsync();
+                return Ok(new
+                {
+                    status = 200,
+                    message = $"Added {catsAdded} new cat breeds and {dogsAdded} new dog breeds",
+                    data = new { catsAdded, dogsAdded }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing additional pets from API");
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "An error occurred while importing from API",
+                    data = (object?)null
+                });
+            }
+        }
+
+        /// <summary>
+        /// Lấy THÊM sản phẩm thức ăn cho mèo/chó từ Open Pet Food Facts (không xóa dữ liệu hiện có)
+        /// </summary>
+        [HttpPost("import_products_from_api")]
+        public async Task<IActionResult> ImportProductsFromApi()
+        {
+            try
+            {
+                var added = await _importService.ImportProductsFromOpenPetFoodFactsAsync();
+                return Ok(new
+                {
+                    status = 200,
+                    message = $"Added {added} new products",
+                    data = new { added }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing products from Open Pet Food Facts");
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "An error occurred while importing products from API",
+                    data = (object?)null
+                });
+            }
+        }
+
+        /// <summary>
         /// Force import: Xóa dữ liệu cũ và import lại từ JSON files
         /// </summary>
         [HttpPost("force_import_all")]

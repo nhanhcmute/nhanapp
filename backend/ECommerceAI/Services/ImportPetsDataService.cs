@@ -1,6 +1,8 @@
 using System.Text.Json;
 using ECommerceAI.Models.Pet;
+using ECommerceAI.Models.Product;
 using ECommerceAI.Repositories.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ECommerceAI.Services
 {
@@ -8,14 +10,261 @@ namespace ECommerceAI.Services
     {
         private readonly ICatRepo _catRepo;
         private readonly IDogRepo _dogRepo;
+        private readonly IProductRepo _productRepo;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMemoryCache _cache;
         private readonly ILogger<ImportPetsDataService> _logger;
+        private static readonly Random _priceRandom = new Random();
 
-        public ImportPetsDataService(ICatRepo catRepo, IDogRepo dogRepo, ILogger<ImportPetsDataService> logger)
+        public ImportPetsDataService(
+            ICatRepo catRepo,
+            IDogRepo dogRepo,
+            IProductRepo productRepo,
+            IHttpClientFactory httpClientFactory,
+            IMemoryCache cache,
+            ILogger<ImportPetsDataService> logger)
         {
             _catRepo = catRepo;
             _dogRepo = dogRepo;
+            _productRepo = productRepo;
+            _httpClientFactory = httpClientFactory;
+            _cache = cache;
             _logger = logger;
         }
+
+        // Lấy thêm sản phẩm thức ăn cho mèo/chó từ Open Pet Food Facts (nguồn mở, miễn phí,
+        // không cần API key - world.openpetfoodfacts.org) để làm phong phú catalog sản phẩm.
+        // Chỉ thêm sản phẩm MỚI (dựa theo mã vạch "code" làm SKU để tránh trùng), không xóa
+        // hay sửa sản phẩm đã có. Nguồn này không có giá bán nên giá được đặt ngẫu nhiên
+        // trong khoảng hợp lý cho từng loại, bạn nên rà soát/chỉnh lại giá thật sau khi import.
+        public async Task<int> ImportProductsFromOpenPetFoodFactsAsync()
+        {
+            var added = 0;
+            added += await ImportProductsByCategoryAsync("dog-food", "Chó");
+            added += await ImportProductsByCategoryAsync("cat-food", "Mèo");
+            if (added > 0)
+            {
+                _cache.Remove("products_all"); // Giống product_controller.cs làm khi tạo/sửa/xóa sản phẩm
+            }
+            return added;
+        }
+
+        private async Task<int> ImportProductsByCategoryAsync(string categoryTag, string petLabel)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(30);
+                client.DefaultRequestHeaders.Add("User-Agent", "NhanPetHaven - Pet Shop (nhankd182@gmail.com)");
+
+                var url = $"https://world.openpetfoodfacts.org/api/v2/search?categories_tags={categoryTag}&page_size=100&fields=product_name,brands,image_url,quantity,code";
+                var json = await client.GetStringAsync(url);
+                var result = JsonSerializer.Deserialize<OpenPetFoodFactsResponse>(json);
+
+                if (result?.products == null || !result.products.Any())
+                {
+                    _logger.LogWarning($"Open Pet Food Facts returned no products for category {categoryTag}");
+                    return 0;
+                }
+
+                var existing = await _productRepo.GetAllAsync();
+                var existingSkus = existing.Select(p => p.Sku).Where(s => !string.IsNullOrEmpty(s)).ToHashSet();
+
+                var added = 0;
+                foreach (var item in result.products)
+                {
+                    if (string.IsNullOrWhiteSpace(item.product_name) || string.IsNullOrWhiteSpace(item.code))
+                    {
+                        continue; // Bỏ qua sản phẩm thiếu tên hoặc mã vạch (không đủ để hiển thị/khử trùng)
+                    }
+                    if (existingSkus.Contains(item.code))
+                    {
+                        continue; // Đã có sản phẩm này rồi (theo mã vạch)
+                    }
+
+                    var basePrice = _priceRandom.Next(40, 301) * 1000m; // 40.000đ - 300.000đ, làm tròn nghìn
+                    var descriptionParts = new List<string> { $"Thức ăn cho {petLabel}" };
+                    if (!string.IsNullOrWhiteSpace(item.brands)) descriptionParts.Add($"Thương hiệu: {item.brands}");
+                    if (!string.IsNullOrWhiteSpace(item.quantity)) descriptionParts.Add($"Khối lượng: {item.quantity}");
+
+                    var product = new product_model
+                    {
+                        Name = item.product_name,
+                        Sku = item.code,
+                        Description = string.Join(" · ", descriptionParts),
+                        BasePrice = basePrice,
+                        Price = basePrice.ToString("0"),
+                        Quantity = _priceRandom.Next(10, 101),
+                        Image = item.image_url,
+                        Status = "Còn hàng",
+                    };
+
+                    await _productRepo.CreateAsync(product);
+                    existingSkus.Add(item.code); // tránh trùng trong cùng 1 lượt import nếu API trả lặp
+                    added++;
+                }
+
+                _logger.LogInformation($"Imported {added} new products for category {categoryTag} from Open Pet Food Facts");
+                return added;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error importing products for category {categoryTag} from Open Pet Food Facts");
+                return 0;
+            }
+        }
+
+        // Lấy thêm giống mèo/chó MỚI (chưa có trong DB) từ TheCatAPI/TheDogAPI - CHỈ thêm,
+        // không xóa hay ghi đè dữ liệu đã có (khác với ForceImportAllAsync).
+        public async Task<(int catsAdded, int dogsAdded)> ImportAdditionalPetsFromApiAsync()
+        {
+            var catsAdded = await ImportAdditionalCatsFromApiAsync();
+            var dogsAdded = await ImportAdditionalDogsFromApiAsync();
+            return (catsAdded, dogsAdded);
+        }
+
+        private async Task<int> ImportAdditionalCatsFromApiAsync()
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(30);
+                client.DefaultRequestHeaders.Add("User-Agent", "NhanPetHaven/1.0");
+
+                var json = await client.GetStringAsync("https://api.thecatapi.com/v1/breeds");
+                var catsData = JsonSerializer.Deserialize<List<CatJsonModel>>(json);
+                if (catsData == null || !catsData.Any())
+                {
+                    _logger.LogWarning("TheCatAPI returned no breed data");
+                    return 0;
+                }
+
+                var existing = await _catRepo.GetAllAsync();
+                var existingIds = existing.Select(c => c.CatId).ToHashSet();
+
+                var newCats = catsData
+                    .Where(c => !existingIds.Contains(c.id))
+                    .Select(MapCatJsonToModel)
+                    .ToList();
+
+                if (newCats.Count == 0)
+                {
+                    _logger.LogInformation("No new cat breeds to import from TheCatAPI");
+                    return 0;
+                }
+
+                await _catRepo.BulkInsertAsync(newCats);
+                _logger.LogInformation($"Imported {newCats.Count} new cat breeds from TheCatAPI");
+                return newCats.Count;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing additional cats from TheCatAPI");
+                return 0;
+            }
+        }
+
+        private async Task<int> ImportAdditionalDogsFromApiAsync()
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(30);
+                client.DefaultRequestHeaders.Add("User-Agent", "NhanPetHaven/1.0");
+
+                var json = await client.GetStringAsync("https://api.thedogapi.com/v1/breeds");
+                var dogsData = JsonSerializer.Deserialize<List<DogJsonModel>>(json);
+                if (dogsData == null || !dogsData.Any())
+                {
+                    _logger.LogWarning("TheDogAPI returned no breed data");
+                    return 0;
+                }
+
+                var existing = await _dogRepo.GetAllAsync();
+                var existingIds = existing.Select(d => d.DogId).ToHashSet();
+
+                var newDogs = dogsData
+                    .Where(d => !existingIds.Contains(d.id))
+                    .Select(MapDogJsonToModel)
+                    .ToList();
+
+                if (newDogs.Count == 0)
+                {
+                    _logger.LogInformation("No new dog breeds to import from TheDogAPI");
+                    return 0;
+                }
+
+                await _dogRepo.BulkInsertAsync(newDogs);
+                _logger.LogInformation($"Imported {newDogs.Count} new dog breeds from TheDogAPI");
+                return newDogs.Count;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing additional dogs from TheDogAPI");
+                return 0;
+            }
+        }
+
+        private static cat_model MapCatJsonToModel(CatJsonModel c) => new cat_model
+        {
+            CatId = c.id,
+            Name = c.name,
+            Weight = c.weight != null ? new cat_weight { Imperial = c.weight.imperial, Metric = c.weight.metric } : null,
+            CfaUrl = c.cfa_url,
+            VetstreetUrl = c.vetstreet_url,
+            VcahospitalsUrl = c.vcahospitals_url,
+            Temperament = c.temperament,
+            Origin = c.origin,
+            CountryCodes = c.country_codes,
+            CountryCode = c.country_code,
+            Description = c.description,
+            LifeSpan = c.life_span,
+            Indoor = c.indoor,
+            Lap = c.lap ?? 0,
+            AltNames = c.alt_names,
+            Adaptability = c.adaptability,
+            AffectionLevel = c.affection_level,
+            ChildFriendly = c.child_friendly,
+            DogFriendly = c.dog_friendly,
+            EnergyLevel = c.energy_level,
+            Grooming = c.grooming,
+            HealthIssues = c.health_issues,
+            Intelligence = c.intelligence,
+            SheddingLevel = c.shedding_level,
+            SocialNeeds = c.social_needs,
+            StrangerFriendly = c.stranger_friendly,
+            Vocalisation = c.vocalisation,
+            Experimental = c.experimental,
+            Hairless = c.hairless,
+            Natural = c.natural,
+            Rare = c.rare,
+            Rex = c.rex,
+            SuppressedTail = c.suppressed_tail,
+            ShortLegs = c.short_legs,
+            WikipediaUrl = c.wikipedia_url,
+            Hypoallergenic = c.hypoallergenic,
+            ReferenceImageId = c.reference_image_id,
+            ImageData = c.image?.url,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        private static dog_model MapDogJsonToModel(DogJsonModel d) => new dog_model
+        {
+            DogId = d.id,
+            Name = d.name,
+            Weight = d.weight != null ? new dog_weight { Imperial = d.weight.imperial, Metric = d.weight.metric } : null,
+            Height = d.height != null ? new dog_height { Imperial = d.height.imperial, Metric = d.height.metric } : null,
+            BredFor = d.bred_for,
+            BreedGroup = d.breed_group,
+            LifeSpan = d.life_span,
+            Temperament = d.temperament,
+            Origin = d.origin,
+            ReferenceImageId = d.reference_image_id,
+            Image = d.GetImageUrl(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
 
         public async Task ImportDataIfNeededAsync()
         {
@@ -266,6 +515,7 @@ namespace ECommerceAI.Services
         public string? wikipedia_url { get; set; }
         public int hypoallergenic { get; set; }
         public string? reference_image_id { get; set; }
+        public ImageJson? image { get; set; } // TheCatAPI /v1/breeds trả kèm ảnh đại diện mỗi giống
     }
 
     public class WeightJson
@@ -322,5 +572,20 @@ namespace ECommerceAI.Services
         public int width { get; set; }
         public int height { get; set; }
         public string? url { get; set; }
+    }
+
+    // Shape của world.openpetfoodfacts.org/api/v2/search response
+    public class OpenPetFoodFactsResponse
+    {
+        public List<OpenPetFoodFactsProduct>? products { get; set; }
+    }
+
+    public class OpenPetFoodFactsProduct
+    {
+        public string? product_name { get; set; }
+        public string? brands { get; set; }
+        public string? image_url { get; set; }
+        public string? quantity { get; set; }
+        public string? code { get; set; }
     }
 }

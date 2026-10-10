@@ -19,6 +19,9 @@ builder.Services.AddSwaggerGen();
 // Add Memory Cache cho OTP và caching
 builder.Services.AddMemoryCache();
 
+// Add HttpClient (dùng để gọi TheCatAPI/TheDogAPI khi import thêm giống loài)
+builder.Services.AddHttpClient();
+
 // Add Response Caching
 builder.Services.AddResponseCaching();
 
