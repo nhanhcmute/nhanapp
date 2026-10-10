@@ -43,15 +43,7 @@ namespace ECommerceAI.Controllers
             try
             {
                 // Lấy cart
-                cart_model? cart = null;
-                if (!string.IsNullOrEmpty(customerId))
-                {
-                    cart = await _cartRepo.GetByCustomerIdAsync(customerId);
-                }
-                else if (!string.IsNullOrEmpty(sessionId))
-                {
-                    cart = await _cartRepo.GetBySessionIdAsync(sessionId);
-                }
+                var cart = await _cartRepo.FindActiveCartAsync(customerId, sessionId);
 
                 if (cart == null)
                 {

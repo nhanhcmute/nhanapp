@@ -4,6 +4,7 @@ using ECommerceAI.Models.Order;
 using ECommerceAI.Models.Common;
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
+using ECommerceAI.Repositories;
 
 namespace ECommerceAI.Repositories.Implementations
 {
@@ -34,15 +35,7 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<order_model?> GetByIdAsync(string id)
         {
-            FilterDefinition<order_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<order_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<order_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<order_model>(id);
             return await _orders.Find(filter).FirstOrDefaultAsync();
         }
 
@@ -55,15 +48,7 @@ namespace ECommerceAI.Repositories.Implementations
         public async Task<order_model> UpdateAsync(string id, order_model order)
         {
             order.UpdatedAt = DateTime.UtcNow;
-            FilterDefinition<order_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<order_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<order_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<order_model>(id);
             await _orders.ReplaceOneAsync(filter, order);
             return order;
         }

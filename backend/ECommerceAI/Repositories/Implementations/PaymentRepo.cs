@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using ECommerceAI.Models.Payment;
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
+using ECommerceAI.Repositories;
 
 namespace ECommerceAI.Repositories.Implementations
 {
@@ -27,15 +28,7 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<payment_model?> GetByIdAsync(string id)
         {
-            FilterDefinition<payment_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<payment_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<payment_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<payment_model>(id);
             return await _payments.Find(filter).FirstOrDefaultAsync();
         }
 
@@ -48,15 +41,7 @@ namespace ECommerceAI.Repositories.Implementations
         public async Task<payment_model> UpdateAsync(string id, payment_model payment)
         {
             payment.UpdatedAt = DateTime.UtcNow;
-            FilterDefinition<payment_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<payment_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<payment_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<payment_model>(id);
             await _payments.ReplaceOneAsync(filter, payment);
             return payment;
         }

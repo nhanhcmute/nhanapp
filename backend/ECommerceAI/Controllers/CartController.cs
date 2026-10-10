@@ -35,16 +35,7 @@ namespace ECommerceAI.Controllers
         {
             try
             {
-                cart_model? cart = null;
-
-                if (!string.IsNullOrEmpty(customerId))
-                {
-                    cart = await _cartRepo.GetByCustomerIdAsync(customerId);
-                }
-                else if (!string.IsNullOrEmpty(sessionId))
-                {
-                    cart = await _cartRepo.GetBySessionIdAsync(sessionId);
-                }
+                var cart = await _cartRepo.FindActiveCartAsync(customerId, sessionId);
 
                 if (cart == null)
                 {
@@ -71,21 +62,17 @@ namespace ECommerceAI.Controllers
                     .Select(i => i.ProductVariantId!)
                     .Distinct()
                     .ToList();
+                // Tối ưu: Batch load variants để tránh N+1 query (tương tự products ở trên)
                 var variantsDict = new Dictionary<string, product_variant_model>();
-                
-                foreach (var variantId in variantIds)
+                if (variantIds.Count > 0)
                 {
                     try
                     {
-                        var variant = await _inventoryRepo.GetProductVariantByIdAsync(variantId);
-                        if (variant != null)
-                        {
-                            variantsDict[variantId] = variant;
-                        }
+                        variantsDict = await _inventoryRepo.GetVariantsByIdsAsync(variantIds);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, $"Failed to load variant {variantId}");
+                        _logger.LogWarning(ex, $"Failed to load variants: {string.Join(",", variantIds)}");
                     }
                 }
 
@@ -178,26 +165,7 @@ namespace ECommerceAI.Controllers
                 }
 
                 // Lấy hoặc tạo cart
-                cart_model? cart = null;
-                if (!string.IsNullOrEmpty(customerId))
-                {
-                    cart = await _cartRepo.GetByCustomerIdAsync(customerId);
-                }
-                else if (!string.IsNullOrEmpty(sessionId))
-                {
-                    cart = await _cartRepo.GetBySessionIdAsync(sessionId);
-                }
-
-                if (cart == null)
-                {
-                    cart = new cart_model
-                    {
-                        CustomerId = customerId,
-                        SessionId = sessionId,
-                        Status = "active"
-                    };
-                    cart = await _cartRepo.CreateAsync(cart);
-                }
+                var cart = await _cartRepo.GetOrCreateActiveCartAsync(customerId, sessionId);
 
                 // Lấy giá sản phẩm
                 var product = await _productRepo.GetByIdAsync(request.ProductId);
@@ -443,16 +411,7 @@ namespace ECommerceAI.Controllers
         {
             try
             {
-                cart_model? cart = null;
-
-                if (!string.IsNullOrEmpty(customerId))
-                {
-                    cart = await _cartRepo.GetByCustomerIdAsync(customerId);
-                }
-                else if (!string.IsNullOrEmpty(sessionId))
-                {
-                    cart = await _cartRepo.GetBySessionIdAsync(sessionId);
-                }
+                var cart = await _cartRepo.FindActiveCartAsync(customerId, sessionId);
 
                 if (cart == null)
                 {

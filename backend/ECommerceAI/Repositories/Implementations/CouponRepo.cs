@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using ECommerceAI.Models.Coupon;
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
+using ECommerceAI.Repositories;
 
 namespace ECommerceAI.Repositories.Implementations
 {
@@ -26,15 +27,7 @@ namespace ECommerceAI.Repositories.Implementations
         public async Task<coupon_model> UpdateAsync(string id, coupon_model coupon)
         {
             coupon.UpdatedAt = DateTime.UtcNow;
-            FilterDefinition<coupon_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<coupon_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<coupon_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<coupon_model>(id);
             await _coupons.ReplaceOneAsync(filter, coupon);
             return coupon;
         }

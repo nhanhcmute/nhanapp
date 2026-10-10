@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using ECommerceAI.Models.Product;
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
+using ECommerceAI.Repositories;
 
 namespace ECommerceAI.Repositories.Implementations
 {
@@ -26,30 +27,59 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<product_variant_model?> GetProductVariantByIdAsync(string id)
         {
-            FilterDefinition<product_variant_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<product_variant_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<product_variant_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<product_variant_model>(id);
             return await _variants.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task<Dictionary<string, product_variant_model>> GetVariantsByIdsAsync(IEnumerable<string> ids)
+        {
+            var result = new Dictionary<string, product_variant_model>();
+            if (ids == null || !ids.Any()) return result;
+
+            // Tách thành ObjectId và string thường, giống ProductRepo.GetByIdsAsync
+            var objectIds = new List<ObjectId>();
+            var stringIds = new List<string>();
+
+            foreach (var id in ids.Distinct())
+            {
+                if (ObjectId.TryParse(id, out var parsedObjectId))
+                {
+                    objectIds.Add(parsedObjectId);
+                }
+                else
+                {
+                    stringIds.Add(id);
+                }
+            }
+
+            var filters = new List<FilterDefinition<product_variant_model>>();
+            if (objectIds.Any())
+            {
+                filters.Add(Builders<product_variant_model>.Filter.In("_id", objectIds));
+            }
+            if (stringIds.Any())
+            {
+                filters.Add(Builders<product_variant_model>.Filter.In("_id", stringIds));
+            }
+
+            if (filters.Any())
+            {
+                var combinedFilter = filters.Count == 1 ? filters[0] : Builders<product_variant_model>.Filter.Or(filters);
+                var variants = await _variants.Find(combinedFilter).ToListAsync();
+
+                foreach (var variant in variants)
+                {
+                    result[variant.Id] = variant;
+                }
+            }
+
+            return result;
         }
 
         public async Task<product_variant_model> UpdateProductVariantAsync(string id, product_variant_model variant)
         {
             variant.UpdatedAt = DateTime.UtcNow;
-            FilterDefinition<product_variant_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<product_variant_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<product_variant_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<product_variant_model>(id);
             await _variants.ReplaceOneAsync(filter, variant);
             return variant;
         }

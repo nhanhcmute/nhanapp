@@ -6,6 +6,8 @@ namespace ECommerceAI.Repositories.Interfaces
     {
         Task<cart_model?> GetByCustomerIdAsync(string customerId);
         Task<cart_model?> GetBySessionIdAsync(string sessionId);
+        Task<cart_model?> FindActiveCartAsync(string? customerId, string? sessionId);
+        Task<cart_model> GetOrCreateActiveCartAsync(string? customerId, string? sessionId);
         Task<cart_model> CreateAsync(cart_model cart);
         Task<cart_model> UpdateAsync(string id, cart_model cart);
         Task<bool> DeleteAsync(string id);

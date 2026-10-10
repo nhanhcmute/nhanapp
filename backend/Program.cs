@@ -30,7 +30,6 @@ builder.Services.AddScoped<ICatRepo, CatRepo>();
 builder.Services.AddScoped<IDogRepo, DogRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
-builder.Services.AddScoped<IOTPRepo, OTPRepo>();
 builder.Services.AddScoped<IAddressRepo, AddressRepo>();
 builder.Services.AddScoped<ICartRepo, CartRepo>();
 builder.Services.AddScoped<IOrderRepo, OrderRepo>();
@@ -41,6 +40,7 @@ builder.Services.AddScoped<IInventoryRepo, InventoryRepo>();
 builder.Services.AddScoped<INotificationRepo, NotificationRepo>();
 
 // Add Services
+builder.Services.AddSingleton<IImageCompressionService, ImageCompressionService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IOTPCacheService, OTPCacheService>();
@@ -79,6 +79,13 @@ using (var scope = app.Services.CreateScope())
 {
     var importService = scope.ServiceProvider.GetRequiredService<ImportPetsDataService>();
     await importService.ImportDataIfNeededAsync();
+}
+
+// Tạo thumbnail cho sản phẩm cũ chưa có (idempotent - không làm gì nếu đã đủ)
+using (var scope = app.Services.CreateScope())
+{
+    var productRepo = scope.ServiceProvider.GetRequiredService<IProductRepo>();
+    await productRepo.BackfillThumbnailsAsync();
 }
 
 // Configure the HTTP request pipeline

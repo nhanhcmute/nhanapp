@@ -17,6 +17,11 @@ namespace ECommerceAI.Repositories.Interfaces
         Task<long> CountAsync();
         Task<IEnumerable<product_model>> GetSortedAsync(string sortBy);
         Task<PaginationResponse<product_model>> GetSortedPagedAsync(string sortBy, int page, int pageSize);
+
+        // Tạo thumbnail cho các sản phẩm cũ (tạo trước khi có cơ chế nén ảnh) chưa có
+        // thumbnail_image. Gọi 1 lần lúc khởi động app; idempotent - nếu không còn sản
+        // phẩm nào thiếu thumbnail thì không làm gì.
+        Task BackfillThumbnailsAsync();
     }
 }
 

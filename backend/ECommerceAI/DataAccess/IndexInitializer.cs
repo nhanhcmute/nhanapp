@@ -4,6 +4,10 @@ using ECommerceAI.Models.Order;
 using ECommerceAI.Models.Cart;
 using ECommerceAI.Models.User;
 using ECommerceAI.Models.Payment;
+using ECommerceAI.Models.Coupon;
+using ECommerceAI.Models.Notification;
+using ECommerceAI.Models.Address;
+using ECommerceAI.Models.Pet;
 
 namespace ECommerceAI.DataAccess
 {
@@ -85,6 +89,57 @@ namespace ECommerceAI.DataAccess
                 new CreateIndexModel<user_model>(Builders<user_model>.IndexKeys.Ascending(u => u.Email)),
             };
             await usersCollection.Indexes.CreateManyAsync(usersIndexes);
+
+            // Coupons indexes - CouponRepo.GetByCodeAsync chạy trên mọi lần checkout/áp mã
+            var couponsCollection = _database.GetCollection<coupon_model>("coupons");
+            var couponsIndexes = new List<CreateIndexModel<coupon_model>>
+            {
+                new CreateIndexModel<coupon_model>(Builders<coupon_model>.IndexKeys.Ascending(c => c.Code)),
+            };
+            await couponsCollection.Indexes.CreateManyAsync(couponsIndexes);
+
+            // Notifications indexes - NotificationRepo query theo UserId, sort theo CreatedAt, filter theo IsRead
+            var notificationsCollection = _database.GetCollection<notification_model>("notifications");
+            var notificationsIndexes = new List<CreateIndexModel<notification_model>>
+            {
+                new CreateIndexModel<notification_model>(
+                    Builders<notification_model>.IndexKeys.Ascending(n => n.UserId).Descending(n => n.CreatedAt)),
+                new CreateIndexModel<notification_model>(
+                    Builders<notification_model>.IndexKeys.Ascending(n => n.UserId).Ascending(n => n.IsRead)),
+            };
+            await notificationsCollection.Indexes.CreateManyAsync(notificationsIndexes);
+
+            // Addresses indexes - AddressRepo query theo user_id trên mọi lần load danh sách địa chỉ
+            var addressesCollection = _database.GetCollection<address_model>("addresses");
+            var addressesIndexes = new List<CreateIndexModel<address_model>>
+            {
+                new CreateIndexModel<address_model>(Builders<address_model>.IndexKeys.Ascending(a => a.user_id)),
+            };
+            await addressesCollection.Indexes.CreateManyAsync(addressesIndexes);
+
+            // Order status logs indexes - OrderRepo.GetStatusLogsAsync query theo OrderId
+            var orderStatusLogsCollection = _database.GetCollection<order_status_log_model>("order_status_logs");
+            var orderStatusLogsIndexes = new List<CreateIndexModel<order_status_log_model>>
+            {
+                new CreateIndexModel<order_status_log_model>(Builders<order_status_log_model>.IndexKeys.Ascending(l => l.OrderId)),
+            };
+            await orderStatusLogsCollection.Indexes.CreateManyAsync(orderStatusLogsIndexes);
+
+            // Dogs indexes - DogRepo query theo DogId
+            var dogsCollection = _database.GetCollection<dog_model>("dogs");
+            var dogsIndexes = new List<CreateIndexModel<dog_model>>
+            {
+                new CreateIndexModel<dog_model>(Builders<dog_model>.IndexKeys.Ascending(d => d.DogId)),
+            };
+            await dogsCollection.Indexes.CreateManyAsync(dogsIndexes);
+
+            // Payment methods indexes - PaymentRepo.GetPaymentMethodByCodeAsync query theo Code
+            var paymentMethodsCollection = _database.GetCollection<payment_method_model>("payment_methods");
+            var paymentMethodsIndexes = new List<CreateIndexModel<payment_method_model>>
+            {
+                new CreateIndexModel<payment_method_model>(Builders<payment_method_model>.IndexKeys.Ascending(m => m.Code)),
+            };
+            await paymentMethodsCollection.Indexes.CreateManyAsync(paymentMethodsIndexes);
         }
     }
 }

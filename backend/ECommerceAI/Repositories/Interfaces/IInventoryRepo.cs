@@ -6,6 +6,7 @@ namespace ECommerceAI.Repositories.Interfaces
     {
         Task<inventory_movement_model> CreateMovementAsync(inventory_movement_model movement);
         Task<product_variant_model?> GetProductVariantByIdAsync(string id);
+        Task<Dictionary<string, product_variant_model>> GetVariantsByIdsAsync(IEnumerable<string> ids);
         Task<product_variant_model> UpdateProductVariantAsync(string id, product_variant_model variant);
     }
 }

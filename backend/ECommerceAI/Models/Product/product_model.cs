@@ -57,7 +57,13 @@ namespace ECommerceAI.Models.Product
 
         [BsonElement("image")]
 
-        public string? Image { get; set; } // Base64 image data
+        public string? Image { get; set; } // Base64 image data (bản gốc, dùng cho trang chi tiết)
+
+
+
+        [BsonElement("thumbnail_image")]
+
+        public string? ThumbnailImage { get; set; } // Base64 image đã resize/nén, dùng cho các API trả danh sách
 
 
 

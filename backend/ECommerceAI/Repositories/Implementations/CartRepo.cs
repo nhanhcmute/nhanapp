@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using ECommerceAI.Models.Cart;
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
+using ECommerceAI.Repositories;
 
 namespace ECommerceAI.Repositories.Implementations
 {
@@ -31,6 +32,35 @@ namespace ECommerceAI.Repositories.Implementations
             return await _carts.Find(filter).FirstOrDefaultAsync();
         }
 
+        public async Task<cart_model?> FindActiveCartAsync(string? customerId, string? sessionId)
+        {
+            if (!string.IsNullOrEmpty(customerId))
+            {
+                return await GetByCustomerIdAsync(customerId);
+            }
+            else if (!string.IsNullOrEmpty(sessionId))
+            {
+                return await GetBySessionIdAsync(sessionId);
+            }
+            return null;
+        }
+
+        public async Task<cart_model> GetOrCreateActiveCartAsync(string? customerId, string? sessionId)
+        {
+            var cart = await FindActiveCartAsync(customerId, sessionId);
+            if (cart == null)
+            {
+                cart = new cart_model
+                {
+                    CustomerId = customerId,
+                    SessionId = sessionId,
+                    Status = "active"
+                };
+                cart = await CreateAsync(cart);
+            }
+            return cart;
+        }
+
         public async Task<cart_model> CreateAsync(cart_model cart)
         {
             cart.CreatedAt = DateTime.UtcNow;
@@ -42,30 +72,14 @@ namespace ECommerceAI.Repositories.Implementations
         public async Task<cart_model> UpdateAsync(string id, cart_model cart)
         {
             cart.UpdatedAt = DateTime.UtcNow;
-            FilterDefinition<cart_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<cart_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<cart_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<cart_model>(id);
             await _carts.ReplaceOneAsync(filter, cart);
             return cart;
         }
 
         public async Task<bool> DeleteAsync(string id)
         {
-            FilterDefinition<cart_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<cart_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<cart_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<cart_model>(id);
             var result = await _carts.DeleteOneAsync(filter);
             return result.DeletedCount > 0;
         }
@@ -86,45 +100,21 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<cart_item_model?> GetCartItemByIdAsync(string itemId)
         {
-            FilterDefinition<cart_item_model> filter;
-            if (ObjectId.TryParse(itemId, out var parsedObjectId))
-            {
-                filter = Builders<cart_item_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<cart_item_model>.Filter.Eq("_id", itemId);
-            }
+            var filter = MongoFilterHelpers.ById<cart_item_model>(itemId);
             return await _cartItems.Find(filter).FirstOrDefaultAsync();
         }
 
         public async Task<cart_item_model> UpdateCartItemAsync(string itemId, cart_item_model item)
         {
             item.UpdatedAt = DateTime.UtcNow;
-            FilterDefinition<cart_item_model> filter;
-            if (ObjectId.TryParse(itemId, out var parsedObjectId))
-            {
-                filter = Builders<cart_item_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<cart_item_model>.Filter.Eq("_id", itemId);
-            }
+            var filter = MongoFilterHelpers.ById<cart_item_model>(itemId);
             await _cartItems.ReplaceOneAsync(filter, item);
             return item;
         }
 
         public async Task<bool> DeleteCartItemAsync(string itemId)
         {
-            FilterDefinition<cart_item_model> filter;
-            if (ObjectId.TryParse(itemId, out var parsedObjectId))
-            {
-                filter = Builders<cart_item_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<cart_item_model>.Filter.Eq("_id", itemId);
-            }
+            var filter = MongoFilterHelpers.ById<cart_item_model>(itemId);
             var result = await _cartItems.DeleteOneAsync(filter);
             return result.DeletedCount > 0;
         }

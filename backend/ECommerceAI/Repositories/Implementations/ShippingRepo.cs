@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using ECommerceAI.Models.Shipping;
 using ECommerceAI.DataAccess;
 using ECommerceAI.Repositories.Interfaces;
+using ECommerceAI.Repositories;
 
 namespace ECommerceAI.Repositories.Implementations
 {
@@ -23,15 +24,7 @@ namespace ECommerceAI.Repositories.Implementations
 
         public async Task<shipping_method_model?> GetByIdAsync(string id)
         {
-            FilterDefinition<shipping_method_model> filter;
-            if (ObjectId.TryParse(id, out var parsedObjectId))
-            {
-                filter = Builders<shipping_method_model>.Filter.Eq("_id", parsedObjectId);
-            }
-            else
-            {
-                filter = Builders<shipping_method_model>.Filter.Eq("_id", id);
-            }
+            var filter = MongoFilterHelpers.ById<shipping_method_model>(id);
             return await _shippingMethods.Find(filter).FirstOrDefaultAsync();
         }
     }
