@@ -260,33 +260,36 @@ const CartPage = () => {
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Checkbox
-                      checked={selectedItems[productId] || false}
-                      onChange={(event) => handleSelectItemChange(product, event)}
-                      sx={{
-                        color: '#ff6b81',
-                        '&.Mui-checked': {
+                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Checkbox
+                        checked={selectedItems[productId] || false}
+                        onChange={(event) => handleSelectItemChange(product, event)}
+                        sx={{
                           color: '#ff6b81',
-                        },
-                      }}
-                    />
-                    <Box
-                      component="img"
-                      src={product.image ? (images[product.image] || product.image) : '/default-product.jpg'}
-                      alt={product.name}
-                      onError={(e) => {
-                        e.target.src = '/default-product.jpg';
-                      }}
-                      sx={{
-                        width: 120,
-                        height: 120,
-                        objectFit: 'cover',
-                        borderRadius: '16px',
-                        border: '2px solid rgba(255, 107, 129, 0.2)',
-                      }}
-                    />
-                    <Box sx={{ flex: 1 }}>
+                          '&.Mui-checked': {
+                            color: '#ff6b81',
+                          },
+                        }}
+                      />
+                      <Box
+                        component="img"
+                        src={product.image ? (images[product.image] || product.image) : '/default-product.jpg'}
+                        alt={product.name}
+                        onError={(e) => {
+                          e.target.src = '/default-product.jpg';
+                        }}
+                        sx={{
+                          width: { xs: 80, sm: 120 },
+                          height: { xs: 80, sm: 120 },
+                          objectFit: 'cover',
+                          borderRadius: '16px',
+                          border: '2px solid rgba(255, 107, 129, 0.2)',
+                          flexShrink: 0,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81', marginBottom: 1 }}>
                         {product.name}
                       </Typography>
@@ -308,7 +311,7 @@ const CartPage = () => {
                         💰 {price.toLocaleString()} VNĐ / sản phẩm
                       </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: { xs: 'space-between', sm: 'flex-end' }, gap: { xs: 1.5, sm: 3 } }}>
                       {/* Quantity Controls */}
                       <Box sx={{ 
                         display: 'flex', 
@@ -355,11 +358,11 @@ const CartPage = () => {
                       </Box>
                       
                       {/* Total Price */}
-                      <Typography sx={{ 
-                        fontWeight: 700, 
+                      <Typography sx={{
+                        fontWeight: 700,
                         color: '#ff4757',
                         fontSize: '18px',
-                        minWidth: '150px',
+                        minWidth: { xs: 0, sm: '150px' },
                         textAlign: 'right',
                       }}>
                         {totalPrice.toLocaleString()} VNĐ

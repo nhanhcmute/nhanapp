@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
     TextField, InputAdornment, Menu, IconButton, Divider, MenuItem, Avatar,
     AppBar, Toolbar, Button, Box, Badge, ListItemText, Typography,
+    Drawer, List, ListItem, ListItemButton,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
 import { FaPaw } from 'react-icons/fa';
 import { useCart } from '../../store/CartContext';
 import { API_URL } from '../../config/api';
@@ -25,9 +27,18 @@ function Header() {
     const [filteredPets, setFilteredPets] = useState([]); // Kết quả lọc
     const [loading, setLoading] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false); // Drawer điều hướng trên mobile
 
 
     const openUserMenu = Boolean(anchorElUser);
+
+    // Các mục điều hướng chính - dùng chung cho thanh nav desktop và drawer mobile
+    const navLinks = [
+        { label: '🏠 Home', path: '/homepage' },
+        { label: '🛍️ Products', path: '/productlist' },
+        { label: 'ℹ️ About Us', path: '/aboutus' },
+        { label: '📞 Contact', path: '/contact' },
+    ];
 
     useEffect(() => {
         const handleScroll = () => {
@@ -90,7 +101,7 @@ function Header() {
                 const dogsResult = await dogsResponse.json();
 
                 // Xử lý dữ liệu cats
-                const cats = catsResult.status === 200 && catsResult.data 
+                const cats = catsResult.status === 200 && catsResult.data
                     ? catsResult.data.map((cat) => ({
                         ...cat,
                         type: "cat",
@@ -164,6 +175,12 @@ function Header() {
         navigate('/login');
     };
 
+    // Điều hướng từ drawer mobile rồi đóng drawer lại
+    const handleMobileNavClick = (path) => {
+        setMobileNavOpen(false);
+        navigate(path);
+    };
+
 
 
     return (
@@ -171,43 +188,43 @@ function Header() {
           position="sticky"
           sx={{
             // Theme thú cưng: trong suốt mờ mờ giống form đăng nhập
-            backgroundColor: scrolled 
-              ? 'rgba(255, 255, 255, 0.95)' 
+            backgroundColor: scrolled
+              ? 'rgba(255, 255, 255, 0.95)'
               : 'rgba(255, 255, 255, 0.25)',
-            
+
             // Backdrop blur mạnh để làm mờ nền phía sau (giống form đăng nhập)
             backdropFilter: 'blur(12px) saturate(180%)',
             WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-            
+
             // Màu chữ: hồng cam dễ thương (#ff6b81)
             color: '#ff6b81',
-            
+
             // Text shadow mềm mại
             textShadow: '0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(255, 107, 129, 0.15)',
-            
+
             // Border hồng cam nhẹ (giống form)
             borderBottom: '2px solid rgba(255, 107, 129, 0.2)',
-            
+
             // Shadow dễ thương với màu hồng (giống form)
-            boxShadow: scrolled 
-              ? '0 4px 16px rgba(255, 107, 129, 0.2)' 
+            boxShadow: scrolled
+              ? '0 4px 16px rgba(255, 107, 129, 0.2)'
               : '0 8px 32px rgba(255, 107, 129, 0.15)',
-            
+
             // Transition mượt mà
             transition: 'all 0.3s ease',
           }}
         >
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1, gap: { xs: 1, md: 2 } }}>
             {/* Logo với Paw Icons */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
               <FaPaw size={20} color="#ff6b81" style={{ opacity: 0.7 }} />
               <Avatar
                 onClick={() => navigate('/homepage')}
                 src={logo}
                 alt="Nhân's Pet Haven logo"
-                sx={{ 
-                  width: 50, 
-                  height: 50, 
+                sx={{
+                  width: 50,
+                  height: 50,
                   cursor: 'pointer',
                   border: '2px solid rgba(255, 107, 129, 0.3)',
                   boxShadow: '0 2px 8px rgba(255, 107, 129, 0.2)',
@@ -217,24 +234,26 @@ function Header() {
                   }
                 }}
               />
-              <FaPaw size={20} color="#ff6b81" style={{ opacity: 0.7 }} />
+              <FaPaw size={20} color="#ff6b81" style={{ opacity: 0.7, display: { xs: 'none', sm: 'inline-flex' } }} />
             </Box>
-      
-            {/* Search Bar */}
+
+            {/* Search Bar - luôn hiển thị, co giãn theo không gian còn lại */}
             <TextField
               variant="outlined"
               size="small"
               value={searchQuery}
-              onChange={handleSearch} 
+              onChange={handleSearch}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearchSubmit(); 
+                if (e.key === "Enter") handleSearchSubmit();
               }}
               placeholder="Tìm kiếm thú cưng yêu..."
               sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.7)', 
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
                 backdropFilter: 'blur(8px)',
-                width: "100%",
-                maxWidth: "500px",
+                flex: { xs: '1 1 auto', md: '0 1 auto' },
+                minWidth: 0,
+                width: { xs: 'auto', md: '100%' },
+                maxWidth: { xs: 'none', md: '500px' },
                 borderRadius: '24px',
                 "& .MuiOutlinedInput-root": {
                   borderRadius: '24px',
@@ -243,10 +262,10 @@ function Header() {
                     borderWidth: '2px',
                   },
                   "&:hover fieldset": {
-                    borderColor: "#ff6b81", 
+                    borderColor: "#ff6b81",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#ff4757", 
+                    borderColor: "#ff4757",
                   },
                   color: '#ff6b81',
                   fontWeight: '500',
@@ -258,33 +277,33 @@ function Header() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon 
-                      sx={{ 
+                    <SearchIcon
+                      sx={{
                         color: scrolled ? '#757575' : '#ff6b81',
-                      }} 
+                      }}
                     />
                   </InputAdornment>
                 ),
               }}
             />
-      
+
             {/* Right-side buttons */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
               {/* Cart */}
-              <IconButton 
-                sx={{ 
-                  marginRight: '10px',
+              <IconButton
+                sx={{
+                  marginRight: { xs: '4px', md: '10px' },
                   color: '#ff6b81',
-                  '&:hover': { 
+                  '&:hover': {
                     backgroundColor: 'rgba(255, 107, 129, 0.15)',
                     transform: 'scale(1.1)',
                   },
                   transition: 'all 0.3s ease',
-                }} 
+                }}
                 onClick={() => navigate('/cart')}
               >
-                <Badge 
-                  badgeContent={totalQuantity} 
+                <Badge
+                  badgeContent={totalQuantity}
                   sx={{
                     '& .MuiBadge-badge': {
                       backgroundColor: '#ff6b81',
@@ -296,15 +315,15 @@ function Header() {
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
-      
+
               {/* Notifications */}
-              <Box sx={{ mr: 2 }}>
+              <Box sx={{ mr: { xs: 0.5, md: 2 } }}>
                 <NotificationBell />
               </Box>
 
-      
+
               {/* User Profile Icon */}
-              <IconButton onClick={handleUserClick} sx={{ marginRight: '10px', color: '#ff6b81', '&:hover': { backgroundColor: 'rgba(255, 107, 129, 0.15)', transform: 'scale(1.1)', }, transition: 'all 0.3s ease', }} > <AccountCircleIcon /> </IconButton>
+              <IconButton onClick={handleUserClick} sx={{ marginRight: { xs: '4px', md: '10px' }, color: '#ff6b81', '&:hover': { backgroundColor: 'rgba(255, 107, 129, 0.15)', transform: 'scale(1.1)', }, transition: 'all 0.3s ease', }} > <AccountCircleIcon /> </IconButton>
 
 {/* Custom Styled Menu */}
 <Menu
@@ -393,130 +412,200 @@ function Header() {
   )}
 </Menu>
 
-      
-              {/* Navigation Buttons */}
-              <Button 
-                onClick={() => navigate('/homepage')} 
-                sx={{ 
-                  marginRight: '10px',
+
+              {/* Navigation Buttons - Desktop (ẩn trên mobile/tablet, thay bằng Drawer) */}
+              <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+                <Button
+                  onClick={() => navigate('/homepage')}
+                  sx={{
+                    marginRight: '10px',
+                    color: '#ff6b81',
+                    fontWeight: '600',
+                    textTransform: 'none',
+                    borderRadius: '12px',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                      transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  🏠 Home
+                </Button>
+                <Button
+                  onClick={() => navigate('/productlist')}
+                  sx={{
+                    marginRight: '10px',
+                    color: '#ff6b81',
+                    fontWeight: '600',
+                    textTransform: 'none',
+                    borderRadius: '12px',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                      transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  🛍️ Products
+                </Button>
+                <Button
+                  onClick={() => navigate('/aboutus')}
+                  sx={{
+                    marginRight: '10px',
+                    color: '#ff6b81',
+                    fontWeight: '600',
+                    textTransform: 'none',
+                    borderRadius: '12px',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                      transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  ℹ️ About Us
+                </Button>
+                <Button
+                  onClick={() => navigate('/contact')}
+                  sx={{
+                    marginRight: '10px',
+                    color: '#ff6b81',
+                    fontWeight: '600',
+                    textTransform: 'none',
+                    borderRadius: '12px',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                      transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  📞 Contact
+                </Button>
+
+                {!user && (
+                  <>
+                    <Button
+                      onClick={() => navigate('/login')}
+                      variant="outlined"
+                      sx={{
+                        marginRight: '8px',
+                        color: '#ff6b81',
+                        borderColor: 'rgba(255, 107, 129, 0.5)',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        borderRadius: '12px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        backdropFilter: 'blur(8px)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 107, 129, 0.15)',
+                          borderColor: '#ff6b81',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      🐾 Đăng Nhập
+                    </Button>
+                    <Button
+                      onClick={() => navigate('/signup')}
+                      variant="contained"
+                      sx={{
+                        backgroundColor: '#ff6b81',
+                        color: 'white',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
+                        backdropFilter: 'blur(8px)',
+                        '&:hover': {
+                          backgroundColor: '#ff4757',
+                          boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      🐶 Đăng Ký
+                    </Button>
+                  </>
+                )}
+              </Box>
+
+              {/* Hamburger - chỉ hiện trên mobile/tablet, mở Drawer điều hướng */}
+              <IconButton
+                onClick={() => setMobileNavOpen(true)}
+                aria-label="Mở menu điều hướng"
+                sx={{
+                  display: { xs: 'flex', md: 'none' },
                   color: '#ff6b81',
-                  fontWeight: '600',
-                  textTransform: 'none',
-                  borderRadius: '12px',
-                  '&:hover': { 
+                  '&:hover': {
                     backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                    transform: 'translateY(-2px)',
                   },
-                  transition: 'all 0.3s ease',
                 }}
               >
-                🏠 Home
-              </Button>
-              <Button 
-                onClick={() => navigate('/productlist')} 
-                sx={{ 
-                  marginRight: '10px',
-                  color: '#ff6b81',
-                  fontWeight: '600',
-                  textTransform: 'none',
-                  borderRadius: '12px',
-                  '&:hover': { 
-                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                    transform: 'translateY(-2px)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                🛍️ Products
-              </Button>
-              <Button 
-                onClick={() => navigate('/aboutus')} 
-                sx={{ 
-                  marginRight: '10px',
-                  color: '#ff6b81',
-                  fontWeight: '600',
-                  textTransform: 'none',
-                  borderRadius: '12px',
-                  '&:hover': { 
-                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                    transform: 'translateY(-2px)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                ℹ️ About Us
-              </Button>
-              <Button 
-                onClick={() => navigate('/contact')} 
-                sx={{ 
-                  marginRight: '10px',
-                  color: '#ff6b81',
-                  fontWeight: '600',
-                  textTransform: 'none',
-                  borderRadius: '12px',
-                  '&:hover': { 
-                    backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                    transform: 'translateY(-2px)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                📞 Contact
-              </Button>
-      
-              {!user && (
-                <>
-                  <Button 
-                    onClick={() => navigate('/login')} 
-                    variant="outlined"
-                    sx={{ 
-                      marginRight: '8px',
-                      color: '#ff6b81',
-                      borderColor: 'rgba(255, 107, 129, 0.5)',
-                      fontWeight: '600',
-                      textTransform: 'none',
-                      borderRadius: '12px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                      backdropFilter: 'blur(8px)',
-                      '&:hover': { 
-                        backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                        borderColor: '#ff6b81',
-                        transform: 'translateY(-2px)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    🐾 Đăng Nhập
-                  </Button>
-                  <Button 
-                    onClick={() => navigate('/signup')} 
-                    variant="contained"
-                    sx={{ 
-                      backgroundColor: '#ff6b81',
-                      color: 'white',
-                      fontWeight: '600',
-                      textTransform: 'none',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(255, 107, 129, 0.3)',
-                      backdropFilter: 'blur(8px)',
-                      '&:hover': { 
-                        backgroundColor: '#ff4757',
-                        boxShadow: '0 6px 16px rgba(255, 107, 129, 0.4)',
-                        transform: 'translateY(-2px)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    🐶 Đăng Ký
-                  </Button>
-                </>
-              )}
+                <MenuIcon />
+              </IconButton>
             </Box>
           </Toolbar>
+
+          {/* Drawer điều hướng cho mobile/tablet - chứa các link mà desktop nav đang ẩn */}
+          <Drawer
+            anchor="right"
+            open={mobileNavOpen}
+            onClose={() => setMobileNavOpen(false)}
+            PaperProps={{
+              sx: {
+                width: 260,
+                background: 'linear-gradient(135deg, #fff5f7 0%, #ffe8ec 50%, #ffd3d9 100%)',
+              },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, p: 2 }}>
+              <FaPaw size={18} color="#ff6b81" />
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ff6b81' }}>
+                🐾 Menu
+              </Typography>
+              <FaPaw size={18} color="#ff6b81" />
+            </Box>
+            <Divider sx={{ borderColor: 'rgba(255, 107, 129, 0.2)' }} />
+            <List>
+              {navLinks.map((link) => (
+                <ListItem key={link.path} disablePadding>
+                  <ListItemButton onClick={() => handleMobileNavClick(link.path)}>
+                    <ListItemText
+                      primary={link.label}
+                      primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: 600 } }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+              {!user && (
+                <>
+                  <Divider sx={{ my: 1, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
+                  <ListItem disablePadding>
+                    <ListItemButton onClick={() => handleMobileNavClick('/login')}>
+                      <ListItemText
+                        primary="🐾 Đăng Nhập"
+                        primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: 600 } }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding>
+                    <ListItemButton onClick={() => handleMobileNavClick('/signup')}>
+                      <ListItemText
+                        primary="🐶 Đăng Ký"
+                        primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: 600 } }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                </>
+              )}
+            </List>
+          </Drawer>
         </AppBar>
-      );      
+      );
 }
 
 export default Header;
-
-

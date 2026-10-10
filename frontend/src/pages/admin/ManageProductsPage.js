@@ -24,9 +24,7 @@ import {
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { FaPaw } from 'react-icons/fa';
-
-// API URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+import { API_URL } from '../../config/api';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -280,14 +278,16 @@ const Products = () => {
 
   return (
     <Container>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
         <FaPaw size={32} color="#ff6b81" />
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            fontWeight: 700, 
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
             color: '#ff6b81',
             textShadow: '0 2px 4px rgba(255, 107, 129, 0.2)',
+            fontSize: { xs: '1.5rem', sm: '2.125rem' },
+            textAlign: 'center',
           }}
         >
           🐾 Quản lý sản phẩm
@@ -578,7 +578,8 @@ const Products = () => {
       />
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12}>
-          <Button 
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+          <Button
             variant={sortBy === 'name' ? 'contained' : 'outlined'}
             onClick={() => setSortBy('name')}
             sx={{
@@ -595,11 +596,10 @@ const Products = () => {
           >
             Sắp xếp theo tên
           </Button>
-          <Button 
+          <Button
             variant={sortBy === 'quantity' ? 'contained' : 'outlined'}
-            onClick={() => setSortBy('quantity')} 
-            sx={{ 
-              ml: 2,
+            onClick={() => setSortBy('quantity')}
+            sx={{
               borderColor: '#ff6b81',
               color: sortBy === 'quantity' ? 'white' : '#ff6b81',
               backgroundColor: sortBy === 'quantity' ? '#ff6b81' : 'transparent',
@@ -613,11 +613,10 @@ const Products = () => {
           >
             Sắp xếp theo số lượng
           </Button>
-          <Button 
+          <Button
             variant={sortBy === 'price' ? 'contained' : 'outlined'}
-            onClick={() => setSortBy('price')} 
-            sx={{ 
-              ml: 2,
+            onClick={() => setSortBy('price')}
+            sx={{
               borderColor: '#ff6b81',
               color: sortBy === 'price' ? 'white' : '#ff6b81',
               backgroundColor: sortBy === 'price' ? '#ff6b81' : 'transparent',
@@ -631,10 +630,11 @@ const Products = () => {
           >
             Sắp xếp theo giá
           </Button>
+          </Box>
         </Grid>
       </Grid>
 
-      <TableContainer 
+      <TableContainer
         component={Paper}
         sx={{
           borderRadius: '24px',
@@ -642,10 +642,11 @@ const Products = () => {
           backdropFilter: 'blur(10px)',
           border: '2px solid rgba(255, 107, 129, 0.2)',
           boxShadow: '0 8px 24px rgba(255, 107, 129, 0.15)',
-          overflow: 'hidden',
+          overflowX: 'auto',
+          overflowY: 'hidden',
         }}
       >
-        <Table sx={{ tableLayout: 'fixed', borderCollapse: 'collapse' }}>
+        <Table sx={{ tableLayout: 'fixed', borderCollapse: 'collapse', minWidth: 700 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: 'rgba(255, 107, 129, 0.1)' }}>
               <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '10%', fontWeight: 700, color: '#ff6b81' }}>Ảnh</TableCell>
@@ -749,9 +750,11 @@ const Products = () => {
       />
 
       {/* Dialog chỉnh sửa sản phẩm */}
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={() => setOpenDialog(false)}
+        fullWidth
+        maxWidth="sm"
         PaperProps={{
           sx: {
             borderRadius: '24px',

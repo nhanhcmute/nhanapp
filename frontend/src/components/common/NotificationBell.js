@@ -141,7 +141,8 @@ const NotificationBell = () => {
         onClose={handleClose}
         PaperProps={{
           sx: {
-            width: 360,
+            width: { xs: 'calc(100vw - 32px)', sm: 360 },
+            maxWidth: 360,
             maxHeight: 500,
             mt: 1.5,
             "& .MuiList-root": {

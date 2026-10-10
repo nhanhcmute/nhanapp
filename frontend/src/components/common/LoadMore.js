@@ -9,17 +9,17 @@ const LoadMore = ({ isLoading, onClick }) => {
       variant="contained"
       onClick={onClick}
       size="small"
-      style={{
+      sx={{
         marginTop: "20px",
         padding: "10px 16px",
         fontSize: "16px",
-        minWidth: "300px",
+        minWidth: { xs: 'auto', sm: '300px' },
         fontWeight: "bold",
-        background: "linear-gradient(45deg, #2196F3, #21CBF3)", 
+        background: "linear-gradient(45deg, #2196F3, #21CBF3)",
         color: "#fff",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         textTransform: "none",
-        borderRadius: "2px", 
+        borderRadius: "2px",
       }}
       startIcon={!isLoading && <ExpandMoreIcon />} 
       disabled={isLoading} 

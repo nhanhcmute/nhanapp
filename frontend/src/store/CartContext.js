@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { cartService } from '../services/cartService';
 
 // Tạo context cho giỏ hàng
@@ -15,13 +15,13 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Hàm xử lý lỗi chung
-  const handleError = (error, message) => {
+  const handleError = useCallback((error, message) => {
     console.error(message, error);
     setLoading(false);
-  };
+  }, []);
 
   // Lấy giỏ hàng từ API
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       const result = await cartService.getCart();
@@ -48,9 +48,9 @@ export const CartProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [handleError]);
 
-  const addToCart = async (product) => {
+  const addToCart = useCallback(async (product) => {
     try {
       if (!product || !product.id) {
         alert('Thông tin sản phẩm không hợp lệ');
@@ -70,10 +70,29 @@ export const CartProvider = ({ children }) => {
       console.error('Add to cart exception:', error);
       alert('Lỗi khi thêm sản phẩm vào giỏ hàng: ' + (error.message || 'Không thể kết nối đến server'));
     }
-  };
+  }, [fetchCart, handleError]);
+
+  // Xóa sản phẩm khỏi giỏ hàng
+  const removeFromCart = useCallback(async (productId) => {
+    try {
+      // Tìm cart item ID từ cart hiện tại
+      const cartItem = cart.find(item => (item.id || item._id) === productId);
+      if (cartItem && cartItem.cartItemId) {
+        const result = await cartService.removeItem(cartItem.cartItemId);
+        if (result.status === 200) {
+          await fetchCart(); // Refresh cart
+        }
+      } else {
+        // Fallback: remove từ local state
+        setCart(cart.filter(item => (item.id || item._id) !== productId));
+      }
+    } catch (error) {
+      handleError(error, 'Lỗi khi xóa sản phẩm khỏi giỏ hàng');
+    }
+  }, [cart, fetchCart, handleError]);
 
   // Cập nhật số lượng sản phẩm trong giỏ hàng
-  const updateCartQuantity = async (product, quantity) => {
+  const updateCartQuantity = useCallback(async (product, quantity) => {
     if (quantity < 1) {
       // Nếu số lượng nhỏ hơn 1, xóa sản phẩm
       await removeFromCart(product.id || product._id);
@@ -91,9 +110,9 @@ export const CartProvider = ({ children }) => {
       } else {
         // Fallback: refresh cart để lấy cartItemId
         await fetchCart();
-        const updatedCart = cart.map(item => 
-          (item.id || item._id) === (product.id || product._id) 
-            ? { ...item, quantity } 
+        const updatedCart = cart.map(item =>
+          (item.id || item._id) === (product.id || product._id)
+            ? { ...item, quantity }
             : item
         );
         setCart(updatedCart);
@@ -101,29 +120,10 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       handleError(error, 'Lỗi khi cập nhật số lượng sản phẩm');
     }
-  };
-
-  // Xóa sản phẩm khỏi giỏ hàng
-  const removeFromCart = async (productId) => {
-    try {
-      // Tìm cart item ID từ cart hiện tại
-      const cartItem = cart.find(item => (item.id || item._id) === productId);
-      if (cartItem && cartItem.cartItemId) {
-        const result = await cartService.removeItem(cartItem.cartItemId);
-        if (result.status === 200) {
-          await fetchCart(); // Refresh cart
-        }
-      } else {
-        // Fallback: remove từ local state
-        setCart(cart.filter(item => (item.id || item._id) !== productId));
-      }
-    } catch (error) {
-      handleError(error, 'Lỗi khi xóa sản phẩm khỏi giỏ hàng');
-    }
-  };
+  }, [cart, fetchCart, handleError, removeFromCart]);
 
   // Xóa tất cả sản phẩm khỏi giỏ hàng
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     try {
       const result = await cartService.clearCart();
       if (result.status === 200) {
@@ -132,41 +132,42 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       handleError(error, 'Lỗi khi xóa tất cả sản phẩm khỏi giỏ hàng');
     }
-  };
+  }, [handleError]);
 
   // Tính tổng số lượng sản phẩm trong giỏ hàng
-  const getTotalQuantity = () => {
+  const getTotalQuantity = useCallback(() => {
     return cart.reduce((total, product) => total + (product.quantity || 0), 0);
-  };
+  }, [cart]);
 
   // Tính tổng tiền của giỏ hàng
-  const getTotalPrice = () => {
+  const getTotalPrice = useCallback(() => {
     return cart.reduce((total, product) => {
-      const price = typeof product.price === 'string' 
-        ? parseFloat(product.price.replace(/[^\d.]/g, '')) || 0 
+      const price = typeof product.price === 'string'
+        ? parseFloat(product.price.replace(/[^\d.]/g, '')) || 0
         : product.price || 0;
       return total + price * (product.quantity || 0);
     }, 0);
-  };
+  }, [cart]);
 
   // Lấy giỏ hàng từ API khi component được load
   useEffect(() => {
     fetchCart();
-  }, []); // Sẽ chạy 1 lần khi component được load
+  }, [fetchCart]); // fetchCart có identity ổn định (memoized) nên effect này vẫn chỉ chạy 1 lần khi mount
+
+  // Memo hóa value để tránh tạo object/consumer re-render mới mỗi lần CartProvider render
+  const value = useMemo(() => ({
+    cart,
+    loading,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    clearCart,
+    getTotalQuantity,
+    getTotalPrice,
+  }), [cart, loading, addToCart, updateCartQuantity, removeFromCart, clearCart, getTotalQuantity, getTotalPrice]);
 
   return (
-    <CartContext.Provider
-      value={{
-        cart,
-        loading,
-        addToCart,
-        updateCartQuantity,
-        removeFromCart,
-        clearCart,
-        getTotalQuantity,
-        getTotalPrice,
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

@@ -51,17 +51,16 @@ const NotificationSetting = () => {
   };
 
   return (
-    <Box 
+    <Box
       display="flex"
       sx={{
+        flexDirection: { xs: 'column', md: 'row' },
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
       }}
     >
-      <Box sx={{ width: '250px', backgroundColor: '#fff' }}>
-        <Sidebar />
-      </Box>
-      <Box sx={{ padding: 4, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+      <Sidebar />
+      <Box sx={{ padding: { xs: 2, sm: 3, md: 4 }, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
           <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>

@@ -8,9 +8,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import { useCart } from '../../store/CartContext';
 import { getProductImageSrc } from '../../utils/imageUtils';
-
-// API URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+import { API_URL } from '../../config/api';
 
 // Tự động import tất cả ảnh từ thư mục
 const importImages = () => {

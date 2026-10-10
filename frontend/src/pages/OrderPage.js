@@ -8,6 +8,7 @@ import { FaPaw } from 'react-icons/fa';
 import useOrders from '../hooks/useOrder';
 import { orderService } from '../services/orderService';
 import { getProductImageSrc } from '../utils/imageUtils';
+import { ORDER_STATUS_FILTERS } from '../utils/orderStatus';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -23,15 +24,7 @@ const importImages = () => {
 const images = importImages(); 
 
 const OrderPage = () => {
-  const orderStatuses = [
-    { id: 1, status: 'Tất Cả' },
-    { id: 2, status: 'Chờ xác nhận' },
-    { id: 3, status: 'Chờ lấy hàng' },
-    { id: 4, status: 'Chờ giao hàng' },
-    { id: 5, status: 'Hoàn thành' },
-    { id: 6, status: 'Đã Hủy' },
-    { id: 7, status: 'Trả hàng/Hoàn tiền' },
-  ];
+  const orderStatuses = ORDER_STATUS_FILTERS;
 
   const { orders, loading } = useOrders(); 
   const [selectedStatus, setSelectedStatus] = useState('Tất Cả');
@@ -43,34 +36,33 @@ const OrderPage = () => {
   // Load order details với items khi cần
   useEffect(() => {
     const loadOrderDetails = async () => {
-      for (const order of orders) {
-        if (!orderDetails[order.id]) {
-          try {
-            const result = await orderService.getOrderDetail(order.id);
-            if (result.status === 200 && result.data) {
-              // API trả về Items (chữ hoa) hoặc items (chữ thường)
-              const items = result.data.Items || result.data.items || [];
-              // Debug: log để kiểm tra image
-              if (items.length > 0) {
-                console.log('Order items with images:', items.map(item => ({
-                  productName: item.productName || item.ProductName,
-                  image: item.image || item.Image,
-                  productId: item.productId || item.ProductId
-                })));
-              }
-              setOrderDetails(prev => ({
-                ...prev,
-                [order.id]: {
-                  ...order,
-                  products: items,
-                }
-              }));
+      const ordersToLoad = orders.filter(order => !orderDetails[order.id]);
+      await Promise.all(ordersToLoad.map(async (order) => {
+        try {
+          const result = await orderService.getOrderDetail(order.id);
+          if (result.status === 200 && result.data) {
+            // API trả về Items (chữ hoa) hoặc items (chữ thường)
+            const items = result.data.Items || result.data.items || [];
+            // Debug: log để kiểm tra image
+            if (items.length > 0) {
+              console.log('Order items with images:', items.map(item => ({
+                productName: item.productName || item.ProductName,
+                image: item.image || item.Image,
+                productId: item.productId || item.ProductId
+              })));
             }
-          } catch (error) {
-            console.error(`Error loading order ${order.id}:`, error);
+            setOrderDetails(prev => ({
+              ...prev,
+              [order.id]: {
+                ...order,
+                products: items,
+              }
+            }));
           }
+        } catch (error) {
+          console.error(`Error loading order ${order.id}:`, error);
         }
-      }
+      }));
     };
 
     if (orders.length > 0) {
@@ -132,6 +124,7 @@ const OrderPage = () => {
     <Box
       display="flex"
       sx={{
+        flexDirection: { xs: 'column', md: 'row' },
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
       }}

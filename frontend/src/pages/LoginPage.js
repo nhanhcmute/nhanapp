@@ -2,9 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert, Modal, Fade, Backdrop } from '@mui/material';
 import { FaGoogle, FaFacebook, FaGithub, FaPaw } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
-// API URL - Change this for production
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+// Chrome tự tô nền vàng/trắng cho input khi autofill hoặc khi chọn gợi ý đã lưu,
+// đè lên theme nền tối trong suốt của form. Dùng "mẹo" box-shadow inset để che nền
+// đó bằng màu trong suốt, và transition dài để Chrome không kịp chuyển màu nền gốc.
+const autofillFixSx = {
+  "& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active": {
+    WebkitTextFillColor: "white",
+    WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+    boxShadow: "0 0 0px 1000px transparent inset",
+    caretColor: "white",
+    transition: "background-color 5000s ease-in-out 0s",
+  },
+};
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -147,8 +158,10 @@ const LoginPage = () => {
     <Box
       sx={{
         width: '100%',
-        height: '100vh',
+        height: { xs: 'auto', md: '100vh' },
+        minHeight: '100vh',
         display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
         justifyContent: 'center',
         alignItems: 'center',
         background: 'url(/bao.jpg) no-repeat center center',
@@ -158,13 +171,15 @@ const LoginPage = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        overflow: 'hidden',
+        overflow: { xs: 'auto', md: 'hidden' },
+        py: { xs: 4, md: 0 },
       }}
     >
+      {/* Lời chào trang trí - chỉ hiện từ md trở lên để nhường chỗ cho form đăng nhập trên mobile/tablet */}
       <Container
         maxWidth="lg"
         sx={{
-          display: 'flex',
+          display: { xs: 'none', md: 'flex' },
           justifyContent: 'center',
           alignItems: 'center',
           position: 'absolute',
@@ -220,11 +235,12 @@ const LoginPage = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          position: 'absolute',
-          right: '0',
-          width: '50%',
-          height: '100vh',
-          paddingLeft: '10%',
+          position: { xs: 'relative', md: 'absolute' },
+          right: { xs: 'auto', md: '40px' },
+          width: { xs: '100%', md: '50%' },
+          height: { xs: 'auto', md: '100vh' },
+          pl: { xs: 2, md: '10%' },
+          pr: { xs: 2, md: 2 },
           zIndex: 0,
         }}
       >
@@ -309,18 +325,7 @@ const LoginPage = () => {
                         borderBottom: "2px solid #ffffff",
                       },
 
-                  // Autofill fix
-                  "& input:-webkit-autofill": {
-                    backgroundColor: "transparent !important", 
-                    color: "white !important", 
-                    boxShadow: "0 0 0px 1000px transparent inset !important", 
-                  },
-                  "& input:-webkit-autofill:focus": {
-                    backgroundColor: "transparent !important", 
-                  },
-                  "& input:-webkit-autofill::first-line": {
-                    backgroundColor: "transparent !important", 
-                  },
+                  ...autofillFixSx,
                 }}
               />
             </form>
@@ -354,6 +359,7 @@ const LoginPage = () => {
               "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
                         borderBottom: "2px solid #ffffff",
                       },
+              ...autofillFixSx,
             }}
           />
 
@@ -467,7 +473,7 @@ const LoginPage = () => {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: 350,
+                width: { xs: '90%', sm: 350 },
                 bgcolor: 'background.paper',
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)',

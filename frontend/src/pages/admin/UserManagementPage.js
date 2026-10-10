@@ -169,8 +169,8 @@ const UserManagement = () => {
           </Select>
         </DialogContent>
         <DialogActions sx={{ paddingX: 3 }}>
-          <Button onClick={handleCloseDialog} sx={{ width: '100%' }}>Hủy</Button>
-          <Button onClick={handleSaveUser} sx={{ width: '100%' }}>
+          <Button onClick={handleCloseDialog} sx={{ flex: 1 }}>Hủy</Button>
+          <Button onClick={handleSaveUser} sx={{ flex: 1 }}>
             {selectedUser ? 'Cập nhật' : 'Thêm'}
           </Button>
         </DialogActions>

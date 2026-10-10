@@ -86,7 +86,7 @@ const ChangePassword = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#fafafa' }}>
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: '100vh', backgroundColor: '#fafafa' }}>
       <Sidebar />
       <Container maxWidth="xs" sx={{ mt: 8 }}>
         <Box

@@ -359,6 +359,15 @@ $xl: 1536px;
   padding-right: env(safe-area-inset-right);
 }
 
+/* Responsive Map (Leaflet) */
+.leaflet-map-responsive {
+  height: 250px;
+
+  @media (min-width: $md) {
+    height: 400px;
+  }
+}
+
 /* Responsive Aspect Ratios */
 .aspect-square {
   aspect-ratio: 1 / 1;

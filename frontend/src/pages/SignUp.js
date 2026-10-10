@@ -2,9 +2,20 @@ import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
 import { FaPaw } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
-// API URL - Change this for production
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+// Chrome tự tô nền vàng/trắng cho input khi autofill hoặc khi chọn gợi ý đã lưu,
+// đè lên theme nền tối trong suốt của form. Dùng "mẹo" box-shadow inset để che nền
+// đó bằng màu trong suốt, và transition dài để Chrome không kịp chuyển màu nền gốc.
+const autofillFixSx = {
+  "& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active": {
+    WebkitTextFillColor: "white",
+    WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+    boxShadow: "0 0 0px 1000px transparent inset",
+    caretColor: "white",
+    transition: "background-color 5000s ease-in-out 0s",
+  },
+};
 
 const SignupPage = () => {
   const [name, setName] = useState('');
@@ -169,8 +180,8 @@ const SignupPage = () => {
             padding: 4,
             borderRadius: '24px',
             boxShadow: '0 8px 32px rgba(255, 107, 129, 0.3)',
-            backgroundColor: 'rgba(255, 255, 255, 0.25)',
-            backdropFilter: 'blur(10px)',
+            backgroundColor: 'rgba(20, 15, 20, 0.55)',
+            backdropFilter: 'blur(16px)',
             border: '2px solid rgba(255, 255, 255, 0.3)',
             color: 'white',
           }}
@@ -227,15 +238,7 @@ const SignupPage = () => {
                 borderBottom: "1px solid #ffffff",
               },
 
-              "& input:-webkit-autofill": {
-                backgroundColor: "transparent !important",
-                color: "white !important",
-                boxShadow: "0 0 0px 1000px transparent inset !important",
-              },
-
-              "& input:-webkit-autofill:focus": {
-                backgroundColor: "transparent !important",
-              },
+              ...autofillFixSx,
               "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
                         borderBottom: "2px solid #ffffff",
                       },
@@ -270,15 +273,7 @@ const SignupPage = () => {
                 borderBottom: "1px solid #ffffff",
               },
 
-              "& input:-webkit-autofill": {
-                backgroundColor: "transparent !important",
-                color: "white !important",
-                boxShadow: "0 0 0px 1000px transparent inset !important",
-              },
-
-              "& input:-webkit-autofill:focus": {
-                backgroundColor: "transparent !important",
-              },
+              ...autofillFixSx,
               "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
                         borderBottom: "2px solid #ffffff",
                       },
@@ -312,15 +307,7 @@ const SignupPage = () => {
                 borderBottom: "1px solid #ffffff",
               },
 
-              "& input:-webkit-autofill": {
-                backgroundColor: "transparent !important",
-                color: "white !important",
-                boxShadow: "0 0 0px 1000px transparent inset !important",
-              },
-
-              "& input:-webkit-autofill:focus": {
-                backgroundColor: "transparent !important",
-              },
+              ...autofillFixSx,
               "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
                         borderBottom: "2px solid #ffffff",
                       },
@@ -358,15 +345,7 @@ const SignupPage = () => {
                 borderBottom: "1px solid #ffffff",
               },
 
-              "& input:-webkit-autofill": {
-                backgroundColor: "transparent !important",
-                color: "white !important",
-                boxShadow: "0 0 0px 1000px transparent inset !important",
-              },
-
-              "& input:-webkit-autofill:focus": {
-                backgroundColor: "transparent !important",
-              },
+              ...autofillFixSx,
               "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
                         borderBottom: "2px solid #ffffff",
                       },
@@ -404,15 +383,7 @@ const SignupPage = () => {
                 borderBottom: "1px solid #ffffff",
               },
 
-              "& input:-webkit-autofill": {
-                backgroundColor: "transparent !important",
-                color: "white !important",
-                boxShadow: "0 0 0px 1000px transparent inset !important",
-              },
-
-              "& input:-webkit-autofill:focus": {
-                backgroundColor: "transparent !important",
-              },
+              ...autofillFixSx,
               "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
                         borderBottom: "2px solid #ffffff",
                       },

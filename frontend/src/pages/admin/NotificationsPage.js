@@ -176,8 +176,8 @@ const NotificationsPage = () => {
           <TableBody>
             {notifications.map((notification) => (
               <TableRow key={notification.id}>
-                <TableCell>{notification.title}</TableCell>
-                <TableCell>{notification.message}</TableCell>
+                <TableCell sx={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{notification.title}</TableCell>
+                <TableCell sx={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{notification.message}</TableCell>
                 <TableCell>{notification.role}</TableCell>
                 <TableCell>
                   {notification.timestamp
@@ -216,12 +216,10 @@ const NotificationsPage = () => {
       {/* Modal for adding/editing notification */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box
+          className="responsive-modal"
           sx={{
             padding: 3,
-            margin: "auto",
-            maxWidth: 500,
             backgroundColor: "white",
-            marginTop: 5,
             boxShadow: 5,
             borderRadius: 2,
           }}

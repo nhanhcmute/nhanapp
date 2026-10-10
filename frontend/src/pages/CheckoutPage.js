@@ -414,11 +414,11 @@ const CheckoutPage = () => {
                 alert('Mua hàng thành công!');
 
                 // Xóa các sản phẩm đã chọn khỏi giỏ hàng
-                for (const product of selectedProducts) {
-                    if (product.cartItemId) {
-                        await cartService.removeItem(product.cartItemId);
-                    }
-                }
+                await Promise.all(
+                    selectedProducts
+                        .filter(product => product.cartItemId)
+                        .map(product => cartService.removeItem(product.cartItemId))
+                );
 
                 // Chuyển hướng đến trang danh sách đơn hàng
                 navigate('/orders');

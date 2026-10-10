@@ -126,7 +126,9 @@ const Dashboard = () => {
             <Typography variant="h6" gutterBottom>
               Revenue Overview
             </Typography>
-            <Line data={revenueData} />
+            <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
+              <Line data={revenueData} options={{ responsive: true, maintainAspectRatio: false }} />
+            </Box>
           </Paper>
         </Grid>
 
@@ -136,7 +138,9 @@ const Dashboard = () => {
             <Typography variant="h6" gutterBottom>
               Orders Breakdown
             </Typography>
-            <Bar data={orderData} />
+            <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
+              <Bar data={orderData} options={{ responsive: true, maintainAspectRatio: false }} />
+            </Box>
           </Paper>
         </Grid>
 
@@ -146,7 +150,9 @@ const Dashboard = () => {
             <Typography variant="h6" gutterBottom>
               Top Products
             </Typography>
-            <Pie data={productData} />
+            <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
+              <Pie data={productData} options={{ responsive: true, maintainAspectRatio: false }} />
+            </Box>
           </Paper>
         </Grid>
 
@@ -156,7 +162,9 @@ const Dashboard = () => {
             <Typography variant="h6" gutterBottom>
               New Customers Overview
             </Typography>
-            <Pie data={customersData} />
+            <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
+              <Pie data={customersData} options={{ responsive: true, maintainAspectRatio: false }} />
+            </Box>
           </Paper>
         </Grid>
       </Grid>

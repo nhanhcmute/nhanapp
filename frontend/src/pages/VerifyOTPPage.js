@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
 import { FaPaw } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-// API URL - Change this for production
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+import { API_URL } from '../config/api';
 
 const VerifyOTPPage = () => {
   const location = useLocation();

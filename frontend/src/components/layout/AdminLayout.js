@@ -181,8 +181,8 @@ const AdminLayout = () => {
           flexGrow: 1,
           background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
           p: 3,
-          marginTop: '64px', // Make room for the AppBar
-          minHeight: 'calc(100vh - 64px)',
+          marginTop: { xs: '56px', sm: '64px' }, // Make room for the AppBar (mobile Toolbar is 56px)
+          minHeight: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
         }}
       >
         <Outlet /> {/* Các trang con sẽ được render ở đây */}

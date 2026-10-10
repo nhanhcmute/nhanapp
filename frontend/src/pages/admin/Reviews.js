@@ -100,7 +100,7 @@ const Reviews = ({ productId }) => {
 
       <Grid container spacing={2} style={{ marginBottom: '20px' }}>
         {[1, 2, 3, 4, 5].map((rating) => (
-          <Grid item xs={12} sm={2} key={rating}>
+          <Grid item xs={6} sm={4} md={2} key={rating}>
             <Paper elevation={3} style={{ padding: '10px', textAlign: 'center' }}>
               <Typography variant="h6">{rating} Star</Typography>
               <Typography variant="body1">{ratingCounts[rating]} Reviews</Typography>

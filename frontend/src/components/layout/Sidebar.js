@@ -57,9 +57,9 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
-        width: '250px',
-        minWidth: '250px',
-        maxWidth: '250px',
+        width: { xs: '100%', md: '250px' },
+        minWidth: { xs: '100%', md: '250px' },
+        maxWidth: { xs: '100%', md: '250px' },
         flexShrink: 0,
         background: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(10px)',
@@ -68,7 +68,7 @@ const Sidebar = () => {
         boxShadow: '0 4px 12px rgba(255, 107, 129, 0.15)',
         padding: 2,
         height: 'fit-content',
-        position: 'sticky',
+        position: { xs: 'static', md: 'sticky' },
         top: '20px',
       }}
     >

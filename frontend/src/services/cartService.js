@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+import { API_URL } from '../config/api';
 
 // Lấy session ID từ localStorage hoặc tạo mới
 const getSessionId = () => {

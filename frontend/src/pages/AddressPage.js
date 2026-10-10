@@ -349,14 +349,15 @@ const AddressPage = () => {
   };
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      minHeight: '100vh', 
+    <Box sx={{
+      display: 'flex',
+      flexDirection: { xs: 'column', md: 'row' },
+      minHeight: '100vh',
       background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
-      marginBottom: "20px" 
+      marginBottom: "20px"
     }}>
       <Sidebar />
-      <Box sx={{ padding: 4, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+      <Box sx={{ padding: { xs: 2, sm: 3, md: 4 }, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <FaPaw size={32} color="#ff6b81" />
@@ -550,7 +551,7 @@ const AddressPage = () => {
                     </Box>
                   )}
 
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
                     <Button
                       variant="outlined"
                       startIcon={<EditIcon />}

@@ -3,9 +3,7 @@ import { CircularProgress, Box, Grid, Card, CardContent, Typography, Button, Car
 import { Link } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
 import { getProductImageSrc } from '../utils/imageUtils';
-
-// API URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+import { API_URL } from '../config/api';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -22,30 +20,31 @@ const images = importImages();
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1); 
+  const [page, setPage] = useState(1);
   const [productsPerPage] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch products từ API
+  // Fetch products từ API theo trang (tránh tải toàn bộ sản phẩm kèm ảnh gốc
+  // base64 cùng lúc - rất nặng, chỉ lấy đúng số sản phẩm của trang hiện tại)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/product.ctr/get_all`, {
+        const response = await fetch(`${API_URL}/product.ctr/get_paged`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ page, page_size: productsPerPage }),
         });
 
         const result = await response.json();
 
         if (result.status === 200 && result.data) {
-          setAllProducts(result.data);
-          setTotalPages(Math.ceil(result.data.length / productsPerPage));
+          setProducts(result.data.data || []);
+          setTotalPages(result.data.totalPages || 1);
         } else {
           setError('Không thể tải danh sách sản phẩm');
         }
@@ -58,14 +57,7 @@ const ProductList = () => {
     };
 
     fetchProducts();
-  }, [productsPerPage]);
-
-  // Update products when page changes
-  useEffect(() => {
-    const startIdx = (page - 1) * productsPerPage;
-    const endIdx = startIdx + productsPerPage;
-    setProducts(allProducts.slice(startIdx, endIdx));
-  }, [page, allProducts, productsPerPage]);
+  }, [page, productsPerPage]);
 
   const handlePageChange = (event, value) => {
     setPage(value);

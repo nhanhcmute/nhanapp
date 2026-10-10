@@ -60,7 +60,7 @@ const MapComponent = ({ latitude, longitude, addressLabel }) => {
     };
   }, []);
 
-  return <div id={mapIdRef.current} style={{ height: '400px' }}></div>;
+  return <div id={mapIdRef.current} className="leaflet-map-responsive"></div>;
 };
 
 export default MapComponent;

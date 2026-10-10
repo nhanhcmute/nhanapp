@@ -28,10 +28,8 @@ const ProfilePage = () => {
 
   if (!userInfo) {
     return (
-      <Box display="flex">
-        <Box sx={{ width: '250px', backgroundColor: '#fff' }}>
-          <Sidebar />
-        </Box>
+      <Box display="flex" sx={{ flexDirection: { xs: 'column', md: 'row' } }}>
+        <Sidebar />
         <Container maxWidth="sm" sx={{ marginTop: '50px', py: 4 }}>
           <Paper
             elevation={0}
@@ -87,13 +85,12 @@ const ProfilePage = () => {
     <Box
       display="flex"
       sx={{
+        flexDirection: { xs: 'column', md: 'row' },
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
       }}
     >
-      <Box sx={{ width: '250px', backgroundColor: '#fff' }}>
-        <Sidebar />
-      </Box>
+      <Sidebar />
 
       <Box
         sx={{

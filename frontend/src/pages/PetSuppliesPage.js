@@ -35,9 +35,9 @@ const PetSuppliesPage = () => {
     }}>
       <Container maxWidth="lg">
         {/* Title with Paw Icons */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 2 }}>
           <FaPaw size={36} color="#ff6b81" />
-          <Typography variant="h2" align="center" sx={{ color: '#ff6b81', fontWeight: 700 }}>
+          <Typography variant="h2" align="center" sx={{ color: '#ff6b81', fontWeight: 700, fontSize: { xs: '1.8rem', md: '3rem' } }}>
             Quality Pet Supplies
           </Typography>
           <FaPaw size={36} color="#ff6b81" />

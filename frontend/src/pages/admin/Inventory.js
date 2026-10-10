@@ -170,6 +170,7 @@ function Inventory() {
                   alt={product.name}
                   style={{
                     width: '150px',
+                    maxWidth: '100%',
                     height: '150px',
                     objectFit: 'cover',
                     borderRadius: '8px',
@@ -238,6 +239,7 @@ function Inventory() {
                     alt="Preview"
                     style={{
                       width: '150px',
+                      maxWidth: '100%',
                       height: '150px',
                       objectFit: 'cover',
                       borderRadius: '8px',

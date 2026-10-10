@@ -319,7 +319,7 @@ const Blog = () => {
                                         bottom: "0",
                                         left: "0",
                                         height: "2px",
-                                        width: "760px",
+                                        width: { xs: 'calc(100vw - 64px)', md: '760px' },
                                         backgroundColor: "#F05A28",
                                     }}
                                 />
@@ -417,7 +417,7 @@ const Blog = () => {
                                         bottom: "0",
                                         left: "0",
                                         height: "2px",
-                                        width: "368px",
+                                        width: { xs: 'calc(100vw - 64px)', sm: '368px' },
                                         backgroundColor: "#F05A28",
                                     }}
                                 />
@@ -613,7 +613,7 @@ const Blog = () => {
                                 bottom: "0",
                                 left: "0",
                                 height: "2px",
-                                width: "1152px",
+                                width: { xs: 'calc(100vw - 64px)', lg: '1152px' },
                                 backgroundColor: "#F05A28",
                             }}
                         />
@@ -621,16 +621,16 @@ const Blog = () => {
                     <Grid container spacing={4}>
                         {trends.map((trend, index) => (
                             <Grid item xs={12} key={index}>
-                                <Box sx={{ display: "flex", flexDirection: "row" }}>
+                                <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' } }}>
                                     {/* Hình ảnh */}
                                     <CardMedia
                                         component="img"
-                                        sx={{ width: "200px", height: "150px", objectFit: "cover" }}
+                                        sx={{ width: { xs: '100%', sm: '200px' }, height: { xs: '180px', sm: '150px' }, objectFit: "cover" }}
                                         image={trend.image}
                                         alt={trend.title}
                                     />
                                     {/* Nội dung */}
-                                    <CardContent>
+                                    <CardContent sx={{ minWidth: 0 }}>
                                         <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "8px" }}>
                                             {trend.title}
                                         </Typography>

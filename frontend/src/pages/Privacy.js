@@ -121,13 +121,14 @@ const Privacy = () => {
     <Box
       display="flex"
       sx={{
+        flexDirection: { xs: 'column', md: 'row' },
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #ffffff 0%, #fff5f7 50%, #ffe8ec 100%)',
         marginBottom: "20px"
       }}
     >
       <Sidebar />
-      <Box sx={{ padding: 4, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
+      <Box sx={{ padding: { xs: 2, sm: 3, md: 4 }, maxWidth: '1200px', margin: '0 auto', flexGrow: 1 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
           <FaPaw size={32} color="#ff6b81" />

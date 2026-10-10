@@ -50,7 +50,7 @@ const CustomerManagement = () => {
         sx={{ mb: 2 }}
       />
       <TableContainer component={Paper}>
-        <Table>
+        <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
               <TableCell>Tên</TableCell>

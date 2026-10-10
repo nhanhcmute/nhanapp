@@ -4,6 +4,7 @@ import { CSVLink } from 'react-csv';
 import { adminOrderService } from '../../services/adminOrderService';
 import { FaPaw } from 'react-icons/fa';
 import SearchIcon from '@mui/icons-material/Search';
+import { mapOrderStatus, ORDER_STATUS_FILTERS } from '../../utils/orderStatus';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -29,15 +30,7 @@ function Orders() {
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
 
-  const orderStatuses = [
-    { id: 1, status: 'Tất Cả' },
-    { id: 2, status: 'Chờ xác nhận' },
-    { id: 3, status: 'Chờ lấy hàng' },
-    { id: 4, status: 'Chờ giao hàng' },
-    { id: 5, status: 'Hoàn thành' },
-    { id: 6, status: 'Đã Hủy' },
-    { id: 7, status: 'Trả hàng/Hoàn tiền' },
-  ];
+  const orderStatuses = ORDER_STATUS_FILTERS;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -79,37 +72,6 @@ function Orders() {
 
     fetchOrders();
   }, []);
-
-  // Map order status từ enum (số hoặc string) sang tiếng Việt
-  const mapOrderStatus = (status) => {
-    // Nếu là số (enum value), map từ số sang enum string trước
-    let statusKey = status;
-    if (typeof status === 'number' || (typeof status === 'string' && /^\d+$/.test(status))) {
-      const enumMap = {
-        0: 'PENDING_PAYMENT',
-        1: 'PENDING_CONFIRM',
-        2: 'PAID',
-        3: 'PROCESSING',
-        4: 'SHIPPING',
-        5: 'COMPLETED',
-        6: 'CANCELLED',
-        7: 'PAYMENT_FAILED',
-      };
-      statusKey = enumMap[parseInt(status)] || status;
-    }
-    
-    const statusMap = {
-      'PENDING_PAYMENT': 'Chờ thanh toán',
-      'PENDING_CONFIRM': 'Chờ xác nhận',
-      'PAID': 'Chờ lấy hàng',
-      'PROCESSING': 'Chờ lấy hàng',
-      'SHIPPING': 'Chờ giao hàng',
-      'COMPLETED': 'Hoàn thành',
-      'CANCELLED': 'Đã Hủy',
-      'PAYMENT_FAILED': 'Thanh toán thất bại',
-    };
-    return statusMap[statusKey] || status;
-  };
 
   // Map status tiếng Việt về enum
   const mapStatusToEnum = (status) => {
@@ -522,9 +484,9 @@ function Orders() {
       }}
     >
       <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
-          <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center' }}>
+          <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
             📦 Quản lý Đơn Hàng
           </Typography>
           <FaPaw size={32} color="#ff6b81" />
@@ -690,7 +652,6 @@ function Orders() {
                             fontWeight: 600,
                             fontSize: '12px',
                             minHeight: '44px',
-                            height: '44px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -719,7 +680,6 @@ function Orders() {
                             fontWeight: 600,
                             fontSize: '12px',
                             minHeight: '44px',
-                            height: '44px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -748,7 +708,6 @@ function Orders() {
                             fontWeight: 600,
                             fontSize: '12px',
                             minHeight: '44px',
-                            height: '44px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',

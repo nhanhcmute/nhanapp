@@ -44,30 +44,29 @@ const AdminPage = () => {
             </Typography>
 
             {/* Quick Actions */}
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mx: 1 }}
-              onClick={() => handleNavigation("products")}
-            >
-              Manage Products
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              sx={{ mx: 1 }}
-              onClick={() => handleNavigation("ordermanagement")}
-            >
-              View Orders
-            </Button>
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ mx: 1 }}
-              onClick={() => handleNavigation("customers")}
-            >
-              Manage Customers
-            </Button>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleNavigation("products")}
+              >
+                Manage Products
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => handleNavigation("ordermanagement")}
+              >
+                View Orders
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => handleNavigation("customers")}
+              >
+                Manage Customers
+              </Button>
+            </Box>
           </Box>
 
           {/* Quick Stats Section */}

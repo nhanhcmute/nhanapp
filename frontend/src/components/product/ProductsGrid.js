@@ -3,9 +3,7 @@ import { Grid, Box, Typography, Card, CardContent, CardMedia, Button, CircularPr
 import { Link } from "react-router-dom";
 import { FaPaw } from 'react-icons/fa';
 import { getProductImageSrc } from '../../utils/imageUtils';
-
-// API URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://petshop-a2ry.onrender.com';
+import { API_URL } from '../../config/api';
 
 // Import ảnh từ thư mục
 const images = require
