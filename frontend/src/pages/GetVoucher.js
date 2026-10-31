@@ -61,8 +61,8 @@ const GetVoucher = () => {
                   {vouchers.map((voucher) => (
                     <TableRow key={voucher.id}>
                       <TableCell>{voucher.code}</TableCell>
-                      <TableCell>{voucher.discountType === 'percentage' ? `${voucher.discountValue}%` : `$${voucher.discountValue}`}</TableCell>
-                      <TableCell>{voucher.minOrderAmount}</TableCell>
+                      <TableCell>{voucher.discountType === 'percentage' ? `${voucher.discountValue}%` : `${voucher.discountValue.toLocaleString('vi-VN')} VNĐ`}</TableCell>
+                      <TableCell>{voucher.minOrderAmount.toLocaleString('vi-VN')} VNĐ</TableCell>
                       <TableCell>{voucher.productCondition}</TableCell>
                       <TableCell>{voucher.expirationDate}</TableCell>
                       <TableCell>

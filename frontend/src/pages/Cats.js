@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Grid, Card, CardContent, CardMedia, CircularProgress, Typography, Button } from "@mui/material";
+import { Grid, Card, CardContent, CardMedia, CircularProgress, Typography, Button, Box, Pagination, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Thêm hook điều hướng
-import LoadMore from '../components/common/LoadMore';
 import { API_URL } from '../config/api';
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 'all'];
+const ALL_PAGE_SIZE = 100000; // đủ lớn để chắc chắn lấy hết khi chọn "All"
 
 const Cats = () => {
     const [catsData, setCatsData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
     const navigate = useNavigate(); // Sử dụng hook điều hướng
 
     // Hàm tạo giá ngẫu nhiên
@@ -18,34 +22,37 @@ const Cats = () => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
-    // Lấy dữ liệu từ API backend
+    // Lấy dữ liệu từ API backend theo trang
     useEffect(() => {
         const loadCats = async () => {
             setLoading(true);
 
             try {
-                // Gọi API backend
-                const response = await fetch(`${API_URL}/cat.ctr/get_all`, {
+                const response = await fetch(`${API_URL}/cat.ctr/get_paged`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        page,
+                        page_size: pageSize === 'all' ? ALL_PAGE_SIZE : pageSize,
+                    }),
                 });
                 const result = await response.json();
-                
-                if (result.status === 200) {
-                    const data = result.data;
+
+                if (result.status === 200 && result.data) {
+                    const data = result.data.data || [];
 
                     const updatedCats = data.map((cat) => ({
                         ...cat,
-                        price: cat.price || generateRandomPrice(), 
+                        price: cat.price || generateRandomPrice(),
                         image: cat.imageData || cat.image_data || cat.image,
                         cfa_url: cat.cfaUrl || cat.cfa_url
                     }));
 
                     setCatsData(updatedCats);
-                    
-                    setHasMore(false);
+                    setTotalPages(result.data.totalPages || 1);
+                    setTotalCount(result.data.totalCount || 0);
                 }
             } catch (error) {
                 console.error("Error fetching cat data:", error);
@@ -55,18 +62,21 @@ const Cats = () => {
         };
 
         loadCats();
-    }, []); // Chạy 1 lần khi mount
+    }, [page, pageSize]);
 
-    const loadMoreHandler = () => {
-        if (hasMore) {
-            setPage((prev) => prev + 1);
-        }
+    const handlePageChange = (event, value) => {
+        setPage(value);
+    };
+
+    const handlePageSizeChange = (event) => {
+        setPageSize(event.target.value);
+        setPage(1);
     };
 
     // Xử lý khi click vào card
     const handleClick = (cat) => {
-        navigate(`/petdetails`, { 
-          state: { 
+        navigate(`/petdetails`, {
+          state: {
             petData: cat,
             petType: 'cat' // Thêm petType để xác định đó là mèo
           }
@@ -75,72 +85,88 @@ const Cats = () => {
 
     return (
         <div>
-            <Grid container spacing={2}>
-                {catsData.map((cat) => (
-                    <Grid item key={cat.id} xs={12} sm={6} md={4} lg={3}>
-                        <Card
-                            sx={{ display: "flex", flexDirection: "column", height: "100%", cursor: "pointer" }}
-                            onClick={() => handleClick(cat)} // Thêm sự kiện click
-                        >
-                            <CardMedia
-                                component="img"
-                                height="200"
-                                image={cat.image || '/placeholder-cat.jpg'}
-                                alt={cat.name}
-                                sx={{ objectFit: "cover" }}
-                            />
-
-                            <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography variant="h6" component="div">
-                                    {cat.name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    <strong>Origin:</strong> {cat.origin}
-                                </Typography>
-                                {/* Hiển thị giá ngẫu nhiên */}
-                                <Typography variant="body1" color="primary" sx={{ marginTop: "8px" }}>
-                                    {cat.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
-                                </Typography>
-                            </CardContent>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                href={cat.cfa_url}
-                                target="_blank"
-                                style={{
-                                    marginTop: "auto",
-                                    marginBottom: "10px",
-                                    maxWidth: "250px",
-                                    alignSelf: "center",
-                                }}
-                                onClick={(e) => e.stopPropagation()} // Ngăn xung đột với sự kiện click trên Card
-                            >
-                                More Info
-                            </Button>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-
-            {/* Loading indicator */}
-            {loading && (
+            {loading ? (
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
                     <CircularProgress />
                 </div>
+            ) : (
+                <Grid container spacing={2}>
+                    {catsData.map((cat) => (
+                        <Grid item key={cat.id} xs={12} sm={6} md={4} lg={3}>
+                            <Card
+                                sx={{ display: "flex", flexDirection: "column", height: "100%", cursor: "pointer" }}
+                                onClick={() => handleClick(cat)} // Thêm sự kiện click
+                            >
+                                <CardMedia
+                                    component="img"
+                                    height="200"
+                                    image={cat.image || '/logo.png'}
+                                    alt={cat.name}
+                                    sx={{ objectFit: "cover" }}
+                                    onError={(e) => { e.target.src = '/logo.png'; }}
+                                />
+
+                                <CardContent sx={{ flexGrow: 1 }}>
+                                    <Typography variant="h6" component="div">
+                                        {cat.name}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        <strong>Origin:</strong> {cat.origin}
+                                    </Typography>
+                                    {/* Hiển thị giá ngẫu nhiên */}
+                                    <Typography variant="body1" color="primary" sx={{ marginTop: "8px" }}>
+                                        {cat.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                                    </Typography>
+                                </CardContent>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    href={cat.cfa_url}
+                                    target="_blank"
+                                    style={{
+                                        marginTop: "auto",
+                                        marginBottom: "10px",
+                                        maxWidth: "250px",
+                                        alignSelf: "center",
+                                    }}
+                                    onClick={(e) => e.stopPropagation()} // Ngăn xung đột với sự kiện click trên Card
+                                >
+                                    More Info
+                                </Button>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
             )}
 
-            {/* Load More Button */}
-            {hasMore && !loading && (
-                <div style={{ textAlign: "center" }}>
-                    <LoadMore onClick={loadMoreHandler} />
-                </div>
-            )}
+            {/* Phân trang + chọn số lượng/trang */}
+            {!loading && (
+                <Box
+                    display="flex"
+                    flexDirection={{ xs: 'column', sm: 'row' }}
+                    justifyContent="center"
+                    alignItems="center"
+                    gap={2}
+                    sx={{ marginTop: 4, marginBottom: 2 }}
+                >
+                    <Pagination count={totalPages} page={page} onChange={handlePageChange} shape="rounded" />
 
-            {/* If no more data */}
-            {!hasMore && !loading && (
-                <Typography variant="h6" align="center" style={{ marginTop: "20px" }}>
-                    No more cats to load
-                </Typography>
+                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                        <InputLabel id="cats-page-size-label">Hiển thị</InputLabel>
+                        <Select
+                            labelId="cats-page-size-label"
+                            label="Hiển thị"
+                            value={pageSize}
+                            onChange={handlePageSizeChange}
+                        >
+                            {PAGE_SIZE_OPTIONS.map((opt) => (
+                                <MenuItem key={opt} value={opt}>
+                                    {opt === 'all' ? `Tất cả (${totalCount})` : `${opt} / trang`}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
             )}
         </div>
     );

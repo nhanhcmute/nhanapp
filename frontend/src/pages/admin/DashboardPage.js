@@ -85,10 +85,10 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Paper elevation={3} sx={{ padding: 2 }}>
             <Typography variant="h6">Total Revenue</Typography>
-            <Typography variant="h4">$50,000</Typography>
-            <Typography variant="body2">Daily: $1,200</Typography>
-            <Typography variant="body2">Monthly: $30,000</Typography>
-            <Typography variant="body2">Yearly: $120,000</Typography>
+            <Typography variant="h4">1.250.000.000 VNĐ</Typography>
+            <Typography variant="body2">Daily: 30.000.000 VNĐ</Typography>
+            <Typography variant="body2">Monthly: 750.000.000 VNĐ</Typography>
+            <Typography variant="body2">Yearly: 3.000.000.000 VNĐ</Typography>
           </Paper>
         </Grid>
 

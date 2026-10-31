@@ -5,6 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { FaPaw } from 'react-icons/fa';
+import { useStoreSettings } from '../../hooks/useStoreSettings';
 
 const menuItems = [
   { text: "Dashboard", path: "/admin/dashboard" },
@@ -24,7 +25,8 @@ const menuItems = [
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const [drawerOpen, setDrawerOpen] = useState(false); 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { storeName } = useStoreSettings();
 
   // Toggle drawer
   const toggleDrawer = (state) => () => {
@@ -72,7 +74,7 @@ const AdminLayout = () => {
                 textShadow: '0 2px 4px rgba(0,0,0,0.2)',
               }}
             >
-              🐾 Nhân's Pet Haven Admin
+              🐾 {storeName} Admin
             </Typography>
             <FaPaw size={24} color="white" />
           </Box>

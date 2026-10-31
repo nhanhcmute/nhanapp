@@ -19,6 +19,9 @@ namespace ECommerceAI.Repositories.Interfaces
         Task<user_model?> FindByIdAsync(string id, CancellationToken ct);
         Task<user_model?> FindByUsernameAsync(string username, CancellationToken ct);
 
+        // Đếm số khách hàng (role != 1, tức không tính tài khoản admin)
+        Task<long> CountCustomersAsync();
+
 
     }
 }

@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using ECommerceAI.Models.Pet;
+using ECommerceAI.Models.Common;
 using ECommerceAI.Repositories.Interfaces;
 using ECommerceAI.DataAccess;
 
@@ -23,6 +24,28 @@ namespace ECommerceAI.Repositories.Implementations
         {
             var filter = Builders<dog_model>.Filter.Eq(d => d.DogId, id);
             return await _dogs.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task<PaginationResponse<dog_model>> GetPagedAsync(int page, int pageSize)
+        {
+            var totalCount = await _dogs.CountDocumentsAsync(_ => true);
+            var skip = (page - 1) * pageSize;
+
+            var dogs = await _dogs
+                .Find(_ => true)
+                .Skip(skip)
+                .Limit(pageSize)
+                .SortBy(d => d.Name)
+                .ToListAsync();
+
+            return new PaginationResponse<dog_model>
+            {
+                Data = dogs,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = (int)totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
         }
 
         public async Task<IEnumerable<dog_model>> SearchAsync(string searchTerm)

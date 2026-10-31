@@ -15,7 +15,10 @@ const images = require
     return acc;
   }, {});
 
-const ProductsGrid = ({ title, color }) => {
+// mode="cheapest": sắp theo giá tăng dần (phù hợp cho "Flash Sale")
+// mode="random" (mặc định): trộn ngẫu nhiên (phù hợp cho "Gợi ý hôm nay") - tránh hiển thị
+// trùng y hệt danh sách với các ProductsGrid khác trên cùng trang
+const ProductsGrid = ({ title, color, mode = 'random' }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,17 +28,27 @@ const ProductsGrid = ({ title, color }) => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/product.ctr/get_all`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `${API_URL}/product.ctr/${mode === 'cheapest' ? 'get_sorted' : 'get_all'}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: mode === 'cheapest' ? JSON.stringify('price') : undefined,
+          }
+        );
 
         const result = await response.json();
 
         if (result.status === 200 && result.data) {
-          setProducts(result.data);
+          // Chỉ gợi ý sản phẩm còn hàng và có giá hợp lệ (loại các bản ghi dữ liệu cũ
+          // thiếu giá/hết hàng để không hiện lên đầu "Flash Sale" khi sort theo giá tăng dần)
+          const available = result.data.filter((p) => p.status === 'Còn hàng' && Number(p.price) > 0);
+          const data = mode === 'random'
+            ? [...available].sort(() => Math.random() - 0.5)
+            : available;
+          setProducts(data);
         } else {
           setError('Không thể tải danh sách sản phẩm');
         }
@@ -48,7 +61,7 @@ const ProductsGrid = ({ title, color }) => {
     };
 
     fetchProducts();
-  }, []);
+  }, [mode]);
 
   // Loading state
   if (loading) {

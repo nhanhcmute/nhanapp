@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ADMIN\\Desktop\\nhan\\nhanapp\\backend\\nhanapp\\nhanapp.csproj": {}
+    "D:\\nhanapp\\backend\\nhanapp\\nhanapp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ADMIN\\Desktop\\nhan\\nhanapp\\backend\\nhanapp\\nhanapp.csproj": {
+    "D:\\nhanapp\\backend\\nhanapp\\nhanapp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ADMIN\\Desktop\\nhan\\nhanapp\\backend\\nhanapp\\nhanapp.csproj",
+        "projectUniqueName": "D:\\nhanapp\\backend\\nhanapp\\nhanapp.csproj",
         "projectName": "nhanapp",
-        "projectPath": "C:\\Users\\ADMIN\\Desktop\\nhan\\nhanapp\\backend\\nhanapp\\nhanapp.csproj",
+        "projectPath": "D:\\nhanapp\\backend\\nhanapp\\nhanapp.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ADMIN\\Desktop\\nhan\\nhanapp\\backend\\nhanapp\\obj\\",
+        "outputPath": "D:\\nhanapp\\backend\\nhanapp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -188,6 +188,7 @@ const LoginPage = () => {
           height: '80vh',
           paddingLeft: '10%',
           zIndex: 1,
+          pointerEvents: 'none', // chữ chào trang trí - không được chặn click/nhập vào form đăng nhập phía dưới
         }}
       >
         <div>

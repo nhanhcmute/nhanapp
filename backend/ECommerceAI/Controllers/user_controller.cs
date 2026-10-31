@@ -650,6 +650,34 @@ namespace ECommerceAI.Controllers
         /// [TEST ONLY] Tạo tài khoản admin - XÓA SAU KHI DEPLOY
         /// POST /user.ctr/create_admin_test
         /// </summary>
+        /// <summary>
+        /// Đếm tổng số khách hàng (không tính tài khoản admin) - dùng cho Quick Stats trang admin
+        /// </summary>
+        [HttpPost("count_customers")]
+        public async Task<IActionResult> count_customers()
+        {
+            try
+            {
+                var count = await _userRepo.CountCustomersAsync();
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Success",
+                    data = new { count }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting customers");
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Đã xảy ra lỗi khi đếm số khách hàng",
+                    data = (object?)null
+                });
+            }
+        }
+
         [HttpPost("create_admin_test")]
         public async Task<IActionResult> create_admin_test()
         {

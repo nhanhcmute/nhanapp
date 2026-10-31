@@ -22,7 +22,6 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderPage from './pages/OrderPage';
 import AddressPage from './pages/AddressPage';
-import PetSuppliesPage from './pages/PetSuppliesPage';
 import Bank from './pages/Bank';
 import Alerts from './pages/Alerts';
 import NotificationSetting from './pages/NotificationSetting';
@@ -88,9 +87,13 @@ function App() {
 
   const ShowContactButtons = () => {
     const location = useLocation();
+    // Widget hỗ trợ khách hàng (Zalo/Facebook/Hotline) không cần thiết trong khu vực
+    // admin - admin không cần tự liên hệ hỗ trợ khi đang quản lý chính cửa hàng của họ,
+    // và widget neo góc dưới trái dễ đè lên các form/card trong trang admin.
     const isAuthPage = ['/login', '/signup'].includes(location.pathname);
+    const isAdminPage = location.pathname.startsWith('/admin');
 
-    return !isAuthPage ? <ContactButtons /> : null;
+    return !isAuthPage && !isAdminPage ? <ContactButtons /> : null;
   };
 
   return (
@@ -116,7 +119,10 @@ function App() {
               <Route path="/nhanpet" element={<HomePage />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/productlist" element={<ProductList />} />
-              <Route path="/petsupplies" element={<PetSuppliesPage />} />
+              <Route path="/petsupplies" element={<ProductList initialCategory="Phụ kiện" />} />
+              <Route path="/catlitter" element={<ProductList initialCategory="Vệ sinh" />} />
+              <Route path="/others" element={<ProductList initialCategory="Khác" />} />
+              <Route path="/otherpets" element={<ProductList />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/privacy" element={<Privacy />} />

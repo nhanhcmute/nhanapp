@@ -43,6 +43,11 @@ namespace ECommerceAI.Repositories.Implementations
             return user;
         }
 
+        public async Task<long> CountCustomersAsync()
+        {
+            return await _users.CountDocumentsAsync(u => u.Role != 1);
+        }
+
         public async Task<user_model> UpdateAsync(string id, user_model user)
         {
             user.UpdatedAt = DateTime.UtcNow;

@@ -6,9 +6,11 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import PetsIcon from '@mui/icons-material/Pets';
 import { FaPaw } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useStoreSettings } from '../../hooks/useStoreSettings';
 
 function Footer() {
   const navigate = useNavigate();
+  const { storeName } = useStoreSettings();
   return (
     <Box
       component="footer"
@@ -29,7 +31,7 @@ function Footer() {
         <FaPaw size={32} color="#ff6b81" />
         <PetsIcon sx={{ fontSize: 40, color: '#ffd93d' }} />
         <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ff6b81', mx: 1 }}>
-          Nhân's Pet Haven
+          {storeName}
         </Typography>
         <PetsIcon sx={{ fontSize: 40, color: '#ffd93d' }} />
         <FaPaw size={32} color="#ff6b81" />
@@ -37,7 +39,7 @@ function Footer() {
 
       {/* Thông tin bản quyền */}
       <Typography variant="body2" sx={{ mb: 2, color: '#ff6b81', fontWeight: 500 }}>
-        🐾 © {new Date().getFullYear()} Nhân's Pet Haven. All rights reserved. 🐾
+        🐾 © {new Date().getFullYear()} {storeName}. All rights reserved. 🐾
       </Typography>
 
       {/* Liên kết */}

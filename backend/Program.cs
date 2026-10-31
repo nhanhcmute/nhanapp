@@ -41,6 +41,7 @@ builder.Services.AddScoped<IShippingRepo, ShippingRepo>();
 builder.Services.AddScoped<ICouponRepo, CouponRepo>();
 builder.Services.AddScoped<IInventoryRepo, InventoryRepo>();
 builder.Services.AddScoped<INotificationRepo, NotificationRepo>();
+builder.Services.AddScoped<ISettingsRepo, SettingsRepo>();
 
 // Add Services
 builder.Services.AddSingleton<IImageCompressionService, ImageCompressionService>();
@@ -82,6 +83,7 @@ using (var scope = app.Services.CreateScope())
 {
     var importService = scope.ServiceProvider.GetRequiredService<ImportPetsDataService>();
     await importService.ImportDataIfNeededAsync();
+    await importService.BackfillCatImagesAsync();
 }
 
 // Tạo thumbnail cho sản phẩm cũ chưa có (idempotent - không làm gì nếu đã đủ)
@@ -89,6 +91,7 @@ using (var scope = app.Services.CreateScope())
 {
     var productRepo = scope.ServiceProvider.GetRequiredService<IProductRepo>();
     await productRepo.BackfillThumbnailsAsync();
+    await productRepo.BackfillPetTypeAndCategoryAsync();
 }
 
 // Configure the HTTP request pipeline

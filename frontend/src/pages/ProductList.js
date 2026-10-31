@@ -1,9 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { CircularProgress, Box, Grid, Card, CardContent, Typography, Button, CardMedia, Pagination, Alert } from '@mui/material';
+import { CircularProgress, Box, Grid, Card, CardContent, Typography, Button, CardMedia, Pagination, Alert, ToggleButton, ToggleButtonGroup, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
 import { getProductImageSrc } from '../utils/imageUtils';
 import { API_URL } from '../config/api';
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 'all'];
+const ALL_PAGE_SIZE = 100000; // đủ lớn để chắc chắn lấy hết sản phẩm khi chọn "All"
+
+const PET_TYPE_FILTERS = [
+  { value: '', label: 'Tất cả' },
+  { value: 'Mèo', label: 'Mèo' },
+  { value: 'Chó', label: 'Chó' },
+];
+
+const CATEGORY_FILTERS = [
+  { value: '', label: 'Tất cả loại' },
+  { value: 'Thức ăn', label: 'Thức ăn' },
+  { value: 'Đồ chơi', label: 'Đồ chơi' },
+  { value: 'Phụ kiện', label: 'Phụ kiện' },
+  { value: 'Vệ sinh', label: 'Vệ sinh' },
+  { value: 'Y tế', label: 'Y tế' },
+  { value: 'Khác', label: 'Khác' },
+];
+
+const toggleButtonSx = {
+  borderRadius: '12px !important',
+  border: '2px solid rgba(255, 107, 129, 0.3) !important',
+  color: '#ff6b81',
+  fontWeight: 600,
+  textTransform: 'none',
+  px: 2,
+  '&.Mui-selected': {
+    backgroundColor: '#ff6b81',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: '#ff4757',
+    },
+  },
+};
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -18,13 +53,16 @@ const importImages = () => {
 
 const images = importImages(); 
 
-const ProductList = () => {
+const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [productsPerPage] = useState(12);
+  const [pageSize, setPageSize] = useState(25);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [petTypeFilter, setPetTypeFilter] = useState(initialPetType);
+  const [categoryFilter, setCategoryFilter] = useState(initialCategory);
 
   // Fetch products từ API theo trang (tránh tải toàn bộ sản phẩm kèm ảnh gốc
   // base64 cùng lúc - rất nặng, chỉ lấy đúng số sản phẩm của trang hiện tại)
@@ -37,7 +75,12 @@ const ProductList = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ page, page_size: productsPerPage }),
+          body: JSON.stringify({
+            page,
+            page_size: pageSize === 'all' ? ALL_PAGE_SIZE : pageSize,
+            pet_type: petTypeFilter || null,
+            category: categoryFilter || null,
+          }),
         });
 
         const result = await response.json();
@@ -45,6 +88,7 @@ const ProductList = () => {
         if (result.status === 200 && result.data) {
           setProducts(result.data.data || []);
           setTotalPages(result.data.totalPages || 1);
+          setTotalCount(result.data.totalCount || 0);
         } else {
           setError('Không thể tải danh sách sản phẩm');
         }
@@ -57,10 +101,27 @@ const ProductList = () => {
     };
 
     fetchProducts();
-  }, [page, productsPerPage]);
+  }, [page, pageSize, petTypeFilter, categoryFilter]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  const handlePageSizeChange = (event) => {
+    setPageSize(event.target.value);
+    setPage(1);
+  };
+
+  const handlePetTypeFilterChange = (event, value) => {
+    if (value === null) return; // bỏ qua khi bấm lại nút đang chọn
+    setPetTypeFilter(value);
+    setPage(1);
+  };
+
+  const handleCategoryFilterChange = (event, value) => {
+    if (value === null) return;
+    setCategoryFilter(value);
+    setPage(1);
   };
 
   const handleClick = (productId) => {
@@ -131,6 +192,40 @@ const ProductList = () => {
         <FaPaw size={16} color="#ffd93d" />
         <FaPaw size={16} color="#ff6b81" />
       </Box>
+
+      {/* Bộ lọc theo loài & loại sản phẩm */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, mb: 4 }}>
+        <ToggleButtonGroup
+          value={petTypeFilter}
+          exclusive
+          onChange={handlePetTypeFilterChange}
+          sx={{ flexWrap: 'wrap', justifyContent: 'center', gap: 1 }}
+        >
+          {PET_TYPE_FILTERS.map((opt) => (
+            <ToggleButton key={opt.value} value={opt.value} sx={toggleButtonSx}>
+              {opt.label}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+        <ToggleButtonGroup
+          value={categoryFilter}
+          exclusive
+          onChange={handleCategoryFilterChange}
+          sx={{ flexWrap: 'wrap', justifyContent: 'center', gap: 1 }}
+        >
+          {CATEGORY_FILTERS.map((opt) => (
+            <ToggleButton key={opt.value} value={opt.value} sx={{ ...toggleButtonSx, fontSize: '13px', px: 1.5 }}>
+              {opt.label}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+      </Box>
+
+      {products.length === 0 && (
+        <Typography sx={{ textAlign: 'center', color: '#999', mb: 4 }}>
+          🐾 Không tìm thấy sản phẩm phù hợp với bộ lọc
+        </Typography>
+      )}
 
       <Grid container spacing={4}>
         {products.map((product) => (
@@ -217,8 +312,15 @@ const ProductList = () => {
         ))}
       </Grid>
 
-      {/* Pagination */}
-      <Box display="flex" justifyContent="center" sx={{ marginTop: 6, mb: 4 }}>
+      {/* Phân trang + chọn số sản phẩm/trang */}
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        justifyContent="center"
+        alignItems="center"
+        gap={2}
+        sx={{ marginTop: 6, mb: 4 }}
+      >
         <Pagination
           count={totalPages}
           page={page}
@@ -243,6 +345,35 @@ const ProductList = () => {
             },
           }}
         />
+
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel id="page-size-label">Hiển thị</InputLabel>
+          <Select
+            labelId="page-size-label"
+            label="Hiển thị"
+            value={pageSize}
+            onChange={handlePageSizeChange}
+            sx={{
+              borderRadius: '12px',
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 107, 129, 0.3)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 107, 129, 0.5)',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#ff6b81',
+              },
+            }}
+          >
+            {PAGE_SIZE_OPTIONS.map((opt) => (
+              <MenuItem key={opt} value={opt}>
+                {opt === 'all' ? `Tất cả (${totalCount})` : `${opt} / trang`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* Bottom Decorative Paws */}

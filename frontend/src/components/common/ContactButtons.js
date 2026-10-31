@@ -8,16 +8,12 @@ import Draggable from "react-draggable";
 const ContactButtons = () => {
   const headerHeight = 60; // Chiều cao của header
   const containerRef = useRef(null);
-  // Neo mặc định ở góc trên bên PHẢI, ngay dưới header: Sidebar tài khoản và
-  // nhiều layout khác luôn nằm bên trái nên neo trái/đáy khiến widget này đè
-  // lên menu hoặc các dòng cuối của danh sách (giỏ hàng, đơn hàng, ...) vốn
-  // thường kéo dài xuống gần đáy viewport. Vùng ngay dưới header, sát lề phải
-  // là nơi ít bị nội dung chính (thường căn giữa hoặc căn trái) chiếm chỗ nhất.
+  // Neo mặc định ở góc dưới bên TRÁI theo yêu cầu - cách đáy ~150px (chiều cao
+  // ước lượng của 3 nút xếp dọc, khớp với fallback btnHeight dùng trong
+  // handleStop) để không bị cắt dưới mép viewport.
   const [position, setPosition] = useState({
-    // Trên mobile/tablet widget co lại chỉ còn icon (~56px) nên không cần
-    // chừa nhiều chỗ như bản đầy đủ nhãn chữ (~220px) chỉ dùng ở desktop.
-    x: Math.max(10, window.innerWidth - (window.innerWidth < 900 ? 70 : 220)),
-    y: headerHeight + 20,
+    x: 10,
+    y: Math.max(headerHeight + 20, window.innerHeight - 170),
   });
   // Nhãn chữ chỉ hiện từ md (900px) trở lên; dưới mức đó (mobile + tablet) chỉ
   // hiện icon để thu nhỏ widget, tránh che các tiêu đề trang căn giữa (đã xác

@@ -110,13 +110,15 @@ namespace ECommerceAI.Repositories.Implementations
             return result;
         }
 
-        public async Task<PaginationResponse<product_model>> GetPagedAsync(int page, int pageSize)
+        public async Task<PaginationResponse<product_model>> GetPagedAsync(int page, int pageSize, string? petType = null, string? category = null)
         {
-            var totalCount = await _products.CountDocumentsAsync(_ => true);
+            var filter = BuildPetTypeCategoryFilter(petType, category);
+
+            var totalCount = await _products.CountDocumentsAsync(filter);
             var skip = (page - 1) * pageSize;
 
             var products = await _products
-                .Find(_ => true)
+                .Find(filter)
                 .Project<product_model>(ListProjection)
                 .Skip(skip)
                 .Limit(pageSize)
@@ -131,6 +133,24 @@ namespace ECommerceAI.Repositories.Implementations
                 TotalCount = (int)totalCount,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
             };
+        }
+
+        // "Cả hai" (dùng được cho cả Mèo và Chó) luôn hiện ra dù đang lọc theo loài nào
+        private static FilterDefinition<product_model> BuildPetTypeCategoryFilter(string? petType, string? category)
+        {
+            var filters = new List<FilterDefinition<product_model>>();
+
+            if (!string.IsNullOrWhiteSpace(petType) && petType != "Cả hai")
+            {
+                filters.Add(Builders<product_model>.Filter.In(p => p.PetType, new[] { petType, "Cả hai" }));
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                filters.Add(Builders<product_model>.Filter.Eq(p => p.Category, category));
+            }
+
+            return filters.Count > 0 ? Builders<product_model>.Filter.And(filters) : Builders<product_model>.Filter.Empty;
         }
 
         public async Task<IEnumerable<product_model>> SearchAsync(string searchTerm)
@@ -205,6 +225,39 @@ namespace ECommerceAI.Repositories.Implementations
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Warning: Failed to backfill thumbnail for product {product.Id}: {ex.Message}");
+                }
+            }
+        }
+
+        public async Task BackfillPetTypeAndCategoryAsync()
+        {
+            var filter = Builders<product_model>.Filter.Exists("category", false);
+
+            var projection = Builders<product_model>.Projection
+                .Include(p => p.Id)
+                .Include(p => p.Description);
+
+            var products = await _products.Find(filter).Project<product_model>(projection).ToListAsync();
+
+            foreach (var product in products)
+            {
+                // Mô tả sinh lúc import Open Pet Food Facts có dạng "Thức ăn cho Mèo/Chó · ..."
+                string? petType = product.Description != null && product.Description.Contains("cho Mèo") ? "Mèo"
+                    : product.Description != null && product.Description.Contains("cho Chó") ? "Chó"
+                    : null;
+
+                var update = petType != null
+                    ? Builders<product_model>.Update.Set(p => p.PetType, petType).Set(p => p.Category, "Thức ăn")
+                    : Builders<product_model>.Update.Set(p => p.Category, "Khác");
+
+                try
+                {
+                    var updateFilter = MongoFilterHelpers.ById<product_model>(product.Id);
+                    await _products.UpdateOneAsync(updateFilter, update);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Warning: Failed to backfill category for product {product.Id}: {ex.Message}");
                 }
             }
         }

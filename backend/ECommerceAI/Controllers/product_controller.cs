@@ -384,7 +384,7 @@ public async Task<IActionResult> get_by_id([FromBody] GetProductByIdRequest requ
                 if (request.page < 1) request.page = 1;
                 if (request.page_size < 1) request.page_size = 5;
 
-                var result = await _productRepo.GetPagedAsync(request.page, request.page_size);
+                var result = await _productRepo.GetPagedAsync(request.page, request.page_size, request.pet_type, request.category);
                 return Ok(new
                 {
                     status = 200,

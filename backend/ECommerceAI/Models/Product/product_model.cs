@@ -73,6 +73,18 @@ namespace ECommerceAI.Models.Product
 
 
 
+        [BsonElement("pet_type")]
+
+        public string PetType { get; set; } = "Cả hai"; // "Mèo", "Chó", "Cả hai"
+
+
+
+        [BsonElement("category")]
+
+        public string Category { get; set; } = "Khác"; // "Thức ăn", "Đồ chơi", "Phụ kiện", "Vệ sinh", "Y tế", "Khác"
+
+
+
         [BsonElement("createdAt")]
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

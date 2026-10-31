@@ -26,6 +26,28 @@ import { Edit, Delete } from "@mui/icons-material";
 import { FaPaw } from 'react-icons/fa';
 import { API_URL } from '../../config/api';
 
+const PET_TYPES = ["Mèo", "Chó", "Cả hai"];
+const CATEGORIES = ["Thức ăn", "Đồ chơi", "Phụ kiện", "Vệ sinh", "Y tế", "Khác"];
+
+const selectFieldSx = {
+  mb: 2,
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '12px',
+    '& fieldset': {
+      borderColor: 'rgba(255, 107, 129, 0.3)',
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 107, 129, 0.5)',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#ff6b81',
+    },
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#ff6b81',
+  },
+};
+
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
@@ -35,6 +57,8 @@ const Products = () => {
     image: "",
     description: "",
     status: "Còn hàng",
+    petType: "Cả hai",
+    category: "Khác",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -80,12 +104,14 @@ const Products = () => {
         base64Image = await convertFileToBase64(selectedImage);
       }
 
-      const productData = { 
+      const productData = {
         name: newProduct.name,
         price: newProduct.price, // Keep as string, backend expects string
         quantity: parseInt(newProduct.quantity),
         description: newProduct.description,
         status: newProduct.status,
+        petType: newProduct.petType,
+        category: newProduct.category,
         image: base64Image
       };
 
@@ -197,6 +223,8 @@ const Products = () => {
         quantity: parseInt(editingProduct.quantity),
         description: editingProduct.description,
         status: editingProduct.status,
+        petType: editingProduct.petType || "Cả hai",
+        category: editingProduct.category || "Khác",
         image: base64Image
       };
 
@@ -234,6 +262,8 @@ const Products = () => {
       image: "",
       description: "",
       status: "Còn hàng",
+      petType: "Cả hai",
+      category: "Khác",
     });
     setSelectedImage(null);
   };
@@ -450,6 +480,30 @@ const Products = () => {
               <MenuItem value="Hết hàng">Hết hàng</MenuItem>
               <MenuItem value="Ngừng kinh doanh">Ngừng kinh doanh</MenuItem>
             </TextField>
+            <TextField
+              label="Loài"
+              select
+              fullWidth
+              value={newProduct.petType}
+              onChange={(e) => setNewProduct({ ...newProduct, petType: e.target.value })}
+              sx={selectFieldSx}
+            >
+              {PET_TYPES.map((pt) => (
+                <MenuItem key={pt} value={pt}>{pt}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Loại sản phẩm"
+              select
+              fullWidth
+              value={newProduct.category}
+              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+              sx={selectFieldSx}
+            >
+              {CATEGORIES.map((c) => (
+                <MenuItem key={c} value={c}>{c}</MenuItem>
+              ))}
+            </TextField>
             <Box
   sx={{
     mb: 2,
@@ -646,16 +700,18 @@ const Products = () => {
           overflowY: 'hidden',
         }}
       >
-        <Table sx={{ tableLayout: 'fixed', borderCollapse: 'collapse', minWidth: 700 }}>
+        <Table sx={{ tableLayout: 'fixed', borderCollapse: 'collapse', minWidth: 900 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: 'rgba(255, 107, 129, 0.1)' }}>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '10%', fontWeight: 700, color: '#ff6b81' }}>Ảnh</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '15%', fontWeight: 700, color: '#ff6b81' }}>Tên sản phẩm</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '10%', fontWeight: 700, color: '#ff6b81' }}>Giá</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '10%', fontWeight: 700, color: '#ff6b81' }}>Số lượng</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '35%', fontWeight: 700, color: '#ff6b81' }}>Mô tả</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '10%', fontWeight: 700, color: '#ff6b81' }}>Trạng thái</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '10%', fontWeight: 700, color: '#ff6b81' }}>Hành động</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>Ảnh</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '13%', fontWeight: 700, color: '#ff6b81' }}>Tên sản phẩm</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>Giá</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '7%', fontWeight: 700, color: '#ff6b81' }}>Số lượng</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>Loài</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>Loại</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '21%', fontWeight: 700, color: '#ff6b81' }}>Mô tả</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>Trạng thái</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -692,6 +748,12 @@ const Products = () => {
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
                   {product.quantity}
+                </TableCell>
+                <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
+                  {product.petType || "Cả hai"}
+                </TableCell>
+                <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
+                  {product.category || "Khác"}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '', textAlign: 'justify', whiteSpace: 'normal' }}>
                   {product.description}
@@ -829,6 +891,34 @@ const Products = () => {
             <MenuItem value="Còn hàng">Còn hàng</MenuItem>
             <MenuItem value="Hết hàng">Hết hàng</MenuItem>
             <MenuItem value="Ngừng kinh doanh">Ngừng kinh doanh</MenuItem>
+          </TextField>
+          <TextField
+            label="Loài"
+            select
+            fullWidth
+            value={editingProduct?.petType || "Cả hai"}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, petType: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          >
+            {PET_TYPES.map((pt) => (
+              <MenuItem key={pt} value={pt}>{pt}</MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            label="Loại sản phẩm"
+            select
+            fullWidth
+            value={editingProduct?.category || "Khác"}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, category: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          >
+            {CATEGORIES.map((c) => (
+              <MenuItem key={c} value={c}>{c}</MenuItem>
+            ))}
           </TextField>
           <Box sx={{ mb: 2 }}>
             <input

@@ -44,6 +44,34 @@ namespace ECommerceAI.Controllers
             }
         }
 
+        [HttpPost("get_paged")]
+        public async Task<IActionResult> get_paged([FromBody] PagingRequest request)
+        {
+            try
+            {
+                if (request.page < 1) request.page = 1;
+                if (request.page_size < 1) request.page_size = 9;
+
+                var result = await _dogRepo.GetPagedAsync(request.page, request.page_size);
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Success",
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting paged dogs");
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Internal server error",
+                    data = (object?)null
+                });
+            }
+        }
+
         [HttpPost("get_by_id")]
         [ResponseCache(Duration = 300)]
         public async Task<IActionResult> get_by_id([FromBody] GetDogByIdRequest request)

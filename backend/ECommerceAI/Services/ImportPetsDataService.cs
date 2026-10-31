@@ -32,6 +32,45 @@ namespace ECommerceAI.Services
             _logger = logger;
         }
 
+        // TheCatAPI /v1/breeds không kèm field "image" khi gọi không có API key, nên mèo
+        // import từ JSON tĩnh trước đây bị thiếu ảnh (image_data = null). Tra lại ảnh thật
+        // qua endpoint public /v1/images/{reference_image_id} (không cần key) cho từng mèo
+        // đang thiếu ảnh - lấy đúng URL + đúng đuôi file (một số ảnh là .png, không phải
+        // lúc nào cũng .jpg). Gọi 1 lần lúc khởi động app; idempotent.
+        public async Task BackfillCatImagesAsync()
+        {
+            var cats = await _catRepo.GetAllAsync();
+            var missingImage = cats.Where(c => string.IsNullOrEmpty(c.ImageData) && !string.IsNullOrEmpty(c.ReferenceImageId)).ToList();
+
+            if (missingImage.Count == 0) return;
+
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "NhanPetHaven/1.0");
+
+            var updated = 0;
+            foreach (var cat in missingImage)
+            {
+                try
+                {
+                    var json = await client.GetStringAsync($"https://api.thecatapi.com/v1/images/{cat.ReferenceImageId}");
+                    var image = JsonSerializer.Deserialize<ImageJson>(json);
+                    if (!string.IsNullOrEmpty(image?.url))
+                    {
+                        cat.ImageData = image.url;
+                        await _catRepo.UpdateAsync(cat.Id!, cat);
+                        updated++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, $"Could not backfill image for cat breed {cat.CatId}");
+                }
+            }
+
+            _logger.LogInformation($"Backfilled images for {updated}/{missingImage.Count} cat breeds missing image_data");
+        }
+
         // Lấy thêm sản phẩm thức ăn cho mèo/chó từ Open Pet Food Facts (nguồn mở, miễn phí,
         // không cần API key - world.openpetfoodfacts.org) để làm phong phú catalog sản phẩm.
         // Chỉ thêm sản phẩm MỚI (dựa theo mã vạch "code" làm SKU để tránh trùng), không xóa
@@ -97,6 +136,8 @@ namespace ECommerceAI.Services
                         Quantity = _priceRandom.Next(10, 101),
                         Image = item.image_url,
                         Status = "Còn hàng",
+                        PetType = petLabel,
+                        Category = "Thức ăn",
                     };
 
                     await _productRepo.CreateAsync(product);
