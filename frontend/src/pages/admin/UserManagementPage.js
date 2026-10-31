@@ -4,8 +4,10 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
 import { database } from '../../firebaseConfig';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const UserManagement = () => {
+  const { t } = useLanguage();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -61,11 +63,11 @@ const UserManagement = () => {
 
     try {
       await set(child(userRef, newUserId), newUser); // Thêm hoặc cập nhật user trong database
-      toast.success(selectedUser ? 'User updated successfully' : 'User added successfully');
+      toast.success(selectedUser ? t('admin.users.updated') : t('admin.users.added'));
       fetchUsers();
       handleCloseDialog();
     } catch (error) {
-      toast.error('Failed to save user');
+      toast.error(t('admin.users.saveFailed'));
     }
   };
 
@@ -73,10 +75,10 @@ const UserManagement = () => {
     const userRef = ref(database, `users/${userId}`);
     try {
       await remove(userRef); // Xóa user khỏi database
-      toast.success('User deleted successfully');
+      toast.success(t('admin.users.deleted'));
       fetchUsers();
     } catch (error) {
-      toast.error('Failed to delete user');
+      toast.error(t('admin.users.deleteFailed'));
     }
   };
 
@@ -91,7 +93,7 @@ const UserManagement = () => {
   return (
     <Container>
       <Typography variant="h4" gutterBottom align="center" sx={{ marginBottom: 3 }}>
-        Quản lý người dùng
+        {t('admin.users.title')}
       </Typography>
       <Button 
         variant="contained" 
@@ -99,7 +101,7 @@ const UserManagement = () => {
         onClick={() => handleOpenDialog()} 
         sx={{ marginBottom: 3, display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
       >
-        Thêm người dùng
+        {t('admin.users.add')}
       </Button>
       <Grid container spacing={3}>
         {users.map((user) => (
@@ -118,7 +120,7 @@ const UserManagement = () => {
                     onClick={() => handleOpenDialog(user)} 
                     fullWidth
                   >
-                    Sửa
+                    {t('admin.common.edit')}
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
@@ -128,7 +130,7 @@ const UserManagement = () => {
                     onClick={() => handleDeleteUser(user.id)} 
                     fullWidth
                   >
-                    Xóa
+                    {t('admin.common.delete')}
                   </Button>
                 </Grid>
               </Grid>
@@ -138,10 +140,10 @@ const UserManagement = () => {
       </Grid>
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{selectedUser ? 'Sửa người dùng' : 'Thêm người dùng'}</DialogTitle>
+        <DialogTitle>{selectedUser ? t('admin.users.editTitle') : t('admin.users.add')}</DialogTitle>
         <DialogContent>
           <TextField
-            label="Tên người dùng"
+            label={t('admin.users.name')}
             fullWidth
             margin="normal"
             name="name"
@@ -149,7 +151,7 @@ const UserManagement = () => {
             onChange={handleChange}
           />
           <TextField
-            label="Email"
+            label={t('admin.common.email')}
             fullWidth
             margin="normal"
             name="email"
@@ -157,21 +159,21 @@ const UserManagement = () => {
             onChange={handleChange}
           />
           <Select 
-            label="Role" 
+            label={t('admin.users.role')} 
             fullWidth 
             margin="normal" 
             name="role" 
             value={newUser.role} 
             onChange={handleChange}
           >
-            <MenuItem value="admin">Admin</MenuItem>
-            <MenuItem value="staff">Nhân viên</MenuItem>
+            <MenuItem value="admin">{t('admin.users.admin')}</MenuItem>
+            <MenuItem value="staff">{t('admin.users.staff')}</MenuItem>
           </Select>
         </DialogContent>
         <DialogActions sx={{ paddingX: 3 }}>
-          <Button onClick={handleCloseDialog} sx={{ flex: 1 }}>Hủy</Button>
+          <Button onClick={handleCloseDialog} sx={{ flex: 1 }}>{t('admin.common.cancel')}</Button>
           <Button onClick={handleSaveUser} sx={{ flex: 1 }}>
-            {selectedUser ? 'Cập nhật' : 'Thêm'}
+            {selectedUser ? t('admin.common.update') : t('admin.common.add')}
           </Button>
         </DialogActions>
       </Dialog>

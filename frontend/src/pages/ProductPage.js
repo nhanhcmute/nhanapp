@@ -5,8 +5,10 @@ import { ref, get, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import { useCart } from '../store/CartContext';
 import RatingAndReviews from '../components/common/RatingAndReviews';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ProductPage = () => {
+  const { t } = useLanguage();
   const { id } = useParams(); // Lấy ID sản phẩm từ URL
   const navigate = useNavigate(); // Điều hướng trang
   const [product, setProduct] = useState(null); // Lưu thông tin sản phẩm
@@ -33,15 +35,15 @@ const ProductPage = () => {
           if (currentProduct) {
             setProduct(currentProduct);
           } else {
-            setError('Sản phẩm không tồn tại');
+            setError(t('shop.notFound'));
           }
         } else {
-          setError('Không có sản phẩm nào trong cơ sở dữ liệu');
+          setError(t('shop.noProducts'));
         }
         setLoading(false);
       } catch (err) {
         console.error('Lỗi khi lấy sản phẩm:', err);
-        setError('Lỗi khi lấy dữ liệu sản phẩm');
+        setError(t('shop.fetchError'));
         setLoading(false);
       }
     };
@@ -92,7 +94,7 @@ const ProductPage = () => {
   };
 
   if (loading) {
-    return <Typography variant="h6" align="center">Đang tải dữ liệu...</Typography>;
+    return <Typography variant="h6" align="center">{t('shop.loadingData')}</Typography>;
   }
 
   if (error) {
@@ -100,7 +102,7 @@ const ProductPage = () => {
   }
 
   if (!product) {
-    return <Typography variant="h6" align="center">Sản phẩm không tồn tại.</Typography>;
+    return <Typography variant="h6" align="center">{t('shop.notFoundDot')}</Typography>;
   }
 
   const statusColor =
@@ -110,7 +112,7 @@ const ProductPage = () => {
   return (
     <Container>
       <Button onClick={() => navigate(-1)} variant="outlined" sx={{ mb: 2 }}>
-        Trở lại
+        {t('shop.back')}
       </Button>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
@@ -141,12 +143,12 @@ const ProductPage = () => {
                 flexWrap: 'wrap',
               }}
             >
-              {product.description || 'Mô tả không có sẵn'}
+              {product.description || t('shop.noDescription')}
             </Typography>
 
             {/* Trạng thái sản phẩm */}
             <Typography variant="body2" color={statusColor} paragraph>
-              <strong>Trạng thái:</strong> {product.status || 'Chưa có trạng thái'}
+              <strong>{t('shop.status')}</strong> {(t('shop.statusNames')[product.status] || product.status || t('shop.noStatus'))}
             </Typography>
 
             {/* Giá sản phẩm */}
@@ -157,10 +159,10 @@ const ProductPage = () => {
             {/* Nút thêm vào giỏ hàng và mua ngay */}
             <div style={{ display: 'flex', gap: '10px' }}>
               <Button onClick={handleAddToCart} variant="contained" color="primary" sx={{ mt: 2 }}>
-                Thêm vào giỏ hàng
+                {t('shop.addToCart')}
               </Button>
               <Button onClick={handleBuyNow} variant="contained" color="error" sx={{ mt: 2 }}>
-                Mua ngay
+                {t('shop.buyNow')}
               </Button>
             </div>
           </div>
@@ -173,7 +175,7 @@ const ProductPage = () => {
       {/* Thông báo khi thêm sản phẩm vào giỏ hàng */}
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          Sản phẩm đã được thêm vào giỏ hàng!
+          {t('shop.addedToCart')}
         </Alert>
       </Snackbar>
     </Container>

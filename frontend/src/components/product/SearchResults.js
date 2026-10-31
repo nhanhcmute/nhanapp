@@ -8,6 +8,7 @@ import {
     Box,
     CardContent,
 } from "@mui/material";
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Hàm tạo giá ngẫu nhiên trong khoảng từ min đến max
 const generateRandomPrice = (min = 500000, max = 5000000) => {
@@ -15,13 +16,14 @@ const generateRandomPrice = (min = 500000, max = 5000000) => {
 };
 
 const SearchResults = () => {
+  const { t } = useLanguage();
     const location = useLocation();
     const results = location.state?.results || [];
 
     return (
         <Box sx={{ padding: 3 }}>
             <Typography variant="h4" fontWeight="bold" mb={3}>
-                Kết quả tìm kiếm
+                {t('shop.searchTitle')}
             </Typography>
             {results.length > 0 ? (
                 <Grid container spacing={4}>
@@ -58,7 +60,7 @@ const SearchResults = () => {
                                         </Typography>
                                         {/* Các thông tin khác */}
                                         <Typography variant="body2" color="textSecondary">
-                                            {petData.origin ? <strong>Origin:</strong> : null} {petData.origin}
+                                            {petData.origin ? <strong>{t('shop.origin')}</strong> : null} {petData.origin}
                                         </Typography>
                                         {/* Giá thú cưng - sử dụng giá ngẫu nhiên */}
                                         <Typography
@@ -74,7 +76,7 @@ const SearchResults = () => {
                 </Grid>
             ) : (
                 <Typography variant="h6" color="textSecondary">
-                    Không tìm thấy kết quả nào.
+                    {t('shop.noResults')}
                 </Typography>
             )}
         </Box>

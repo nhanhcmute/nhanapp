@@ -7,6 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../store/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -22,6 +23,7 @@ const importImages = () => {
 const images = importImages();
 
 const CartPage = () => {
+  const { t } = useLanguage();
   const { cart, updateCartQuantity, removeFromCart, clearCart } = useCart();
   const [selectAll, setSelectAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState({});
@@ -79,12 +81,12 @@ const CartPage = () => {
     const isSelectedAnyProduct = Object.values(selectedItems).includes(true);
 
     if (cart.length === 0) {
-      alert('Giỏ hàng của bạn đang trống! 🛒');
+      alert(t('shop.cart.emptyAlert'));
       return;
     }
 
     if (!isSelectedAnyProduct) {
-      alert('Bạn chưa chọn sản phẩm thanh toán! 🐾');
+      alert(t('shop.cart.noneSelected'));
       return;
     }
 
@@ -133,10 +135,10 @@ const CartPage = () => {
             <FaPaw size={48} color="#ff6b81" />
           </Box>
           <Typography variant="h5" sx={{ color: '#ff6b81', fontWeight: 700, mb: 2 }}>
-            🛒 Giỏ hàng của bạn đang trống
+            {`🛒 ${t('shop.cart.empty')}`}
           </Typography>
           <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
-            Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm!
+            {t('shop.cart.emptyHint')}
           </Typography>
           <Button
             variant="contained"
@@ -158,7 +160,7 @@ const CartPage = () => {
               transition: 'all 0.3s ease',
             }}
           >
-            🐾 Mua ngay
+            {`🐾 ${t('home.shopNow')}`}
           </Button>
         </Box>
       </Container>
@@ -176,7 +178,7 @@ const CartPage = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
         <FaPaw size={32} color="#ff6b81" />
         <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-          🛒 Giỏ hàng của bạn
+          {`🛒 ${t('shop.cart.title')}`}
         </Typography>
         <FaPaw size={32} color="#ff6b81" />
       </Box>
@@ -207,7 +209,7 @@ const CartPage = () => {
               }}
             />
             <Typography variant="body1" sx={{ fontWeight: 600, color: '#ff6b81' }}>
-              Chọn Tất Cả ({cart.length})
+              {t('shop.cart.selectAll', { n: cart.length })}
             </Typography>
           </Box>
           <Button
@@ -227,7 +229,7 @@ const CartPage = () => {
               transition: 'all 0.3s ease',
             }}
           >
-            🗑️ Xóa tất cả
+            {`🗑️ ${t('shop.cart.clearAll')}`}
           </Button>
         </Box>
       </Paper>
@@ -305,10 +307,10 @@ const CartPage = () => {
                           lineHeight: 1.6,
                         }}
                       >
-                        {product.description || 'Mô tả sản phẩm'}
+                        {product.description || t('shop.descriptionFallback')}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#ff4757', fontWeight: 600 }}>
-                        💰 {price.toLocaleString()} VNĐ / sản phẩm
+                        {`💰 ${t('shop.cart.perItem', { price: price.toLocaleString() })}`}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: { xs: 'space-between', sm: 'flex-end' }, gap: { xs: 1.5, sm: 3 } }}>
@@ -365,7 +367,7 @@ const CartPage = () => {
                         minWidth: { xs: 0, sm: '150px' },
                         textAlign: 'right',
                       }}>
-                        {totalPrice.toLocaleString()} VNĐ
+                        {`${totalPrice.toLocaleString()} ${t('shop.currency')}`}
                       </Typography>
                       
                       {/* Delete Button */}
@@ -409,10 +411,10 @@ const CartPage = () => {
       >
         <Box>
           <Typography sx={{ fontWeight: 600, color: '#666', mb: 1 }}>
-            Tổng số sản phẩm đã chọn: {Object.values(selectedItems).filter(Boolean).length}
+            {t('shop.cart.selectedCount', { n: Object.values(selectedItems).filter(Boolean).length })}
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-            Tổng cộng: <span style={{ color: '#ff4757' }}>{calculateTotal().toLocaleString()} VNĐ</span>
+            {t('shop.cart.total')} <span style={{ color: '#ff4757' }}>{calculateTotal().toLocaleString()} {t('shop.currency')}</span>
           </Typography>
         </Box>
         <Button
@@ -435,7 +437,7 @@ const CartPage = () => {
             transition: 'all 0.3s ease',
           }}
         >
-          🐾 Thanh toán ngay
+          {`🐾 ${t('shop.cart.checkout')}`}
         </Button>
       </Paper>
     </Container>

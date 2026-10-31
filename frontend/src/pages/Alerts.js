@@ -6,8 +6,10 @@ import Sidebar from '../components/layout/Sidebar';
 import { ref, onValue, update, remove } from "firebase/database";
 import { database } from '../firebaseConfig';
 import { FaPaw } from 'react-icons/fa'; 
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Alerts = () => {
+  const { t } = useLanguage();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,7 +48,7 @@ const Alerts = () => {
         setLoading(false);
       },
       (error) => {
-        setError("Không thể tải thông báo, vui lòng thử lại sau.");
+        setError(t('account.alerts.loadFailed'));
         setLoading(false);
         console.error("Lỗi khi lấy dữ liệu Firebase:", error);
       }
@@ -129,7 +131,7 @@ const Alerts = () => {
   // Hàm xử lý hiển thị thời gian hợp lệ
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
-    return isNaN(date.getTime()) ? 'Ngày không hợp lệ' : date.toLocaleString();
+    return isNaN(date.getTime()) ? t('account.alerts.invalidDate') : date.toLocaleString();
   };
 
   return (
@@ -147,12 +149,12 @@ const Alerts = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
             <FaPaw size={32} color="#ff6b81" />
             <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-              🔔 Thông Báo
+              {`🔔 ${t('account.alerts.title')}`}
             </Typography>
             <FaPaw size={32} color="#ff6b81" />
           </Box>
           <Typography variant="body1" sx={{ color: '#666', fontWeight: 600 }}>
-            {unreadCount} thông báo chưa đọc 🐾
+            {t('account.alerts.unread', { n: unreadCount })}
           </Typography>
         </Box>
 
@@ -164,7 +166,7 @@ const Alerts = () => {
               <FaPaw size={32} color="#ff6b81" />
             </Box>
             <Typography sx={{ color: '#ff6b81', fontWeight: 600, mt: 2 }}>
-              Đang tải thông báo...
+              {t('account.alerts.loading')}
             </Typography>
           </Box>
         ) : error ? (
@@ -198,10 +200,10 @@ const Alerts = () => {
               <Box sx={{ textAlign: 'center', py: 6 }}>
                 <FaPaw size={64} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
                 <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 1 }}>
-                  Không có thông báo nào
+                  {t('account.alerts.none')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#666' }}>
-                  Bạn chưa có thông báo nào. 🐾
+                  {t('account.alerts.noneHint')}
                 </Typography>
               </Box>
             ) : (
@@ -227,7 +229,7 @@ const Alerts = () => {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  🐾 Đánh dấu tất cả là đã đọc
+                  {`🐾 ${t('account.alerts.markAllRead')}`}
                 </Button>
 
                 <List>
@@ -323,7 +325,7 @@ const Alerts = () => {
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    🗑️ Xóa thông báo đã đọc
+                    {`🗑️ ${t('account.alerts.deleteRead')}`}
                   </Button>
                 </Box>
               </>

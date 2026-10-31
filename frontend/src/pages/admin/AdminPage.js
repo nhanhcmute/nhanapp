@@ -16,14 +16,16 @@ import { FaPaw } from "react-icons/fa";
 import { API_URL } from "../../config/api";
 import { adminOrderService } from "../../services/adminOrderService";
 import { useStoreSettings } from "../../hooks/useStoreSettings";
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const statCards = [
-  { key: "products", label: "Products", icon: PetsIcon, color: "#ff6b81", path: "products" },
-  { key: "orders", label: "Orders", icon: ShoppingCartIcon, color: "#42A5F5", path: "ordermanagement" },
-  { key: "customers", label: "Customers", icon: GroupIcon, color: "#66BB6A", path: "customers" },
+  { key: "products", icon: PetsIcon, color: "#ff6b81", path: "products" },
+  { key: "orders", icon: ShoppingCartIcon, color: "#42A5F5", path: "ordermanagement" },
+  { key: "customers", icon: GroupIcon, color: "#66BB6A", path: "customers" },
 ];
 
 const AdminPage = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { storeName } = useStoreSettings();
   const [stats, setStats] = useState({ products: null, orders: null, customers: null });
@@ -79,12 +81,12 @@ const AdminPage = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 2 }}>
           <FaPaw size={28} color="white" />
           <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, fontSize: { xs: '1.6rem', md: '2.4rem' } }}>
-            Welcome to {storeName}
+            {t('admin.home.welcome', { name: storeName })}
           </Typography>
           <FaPaw size={28} color="white" />
         </Box>
         <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 400, mb: 4, maxWidth: 640, mx: 'auto', fontSize: { xs: '0.95rem', md: '1.1rem' } }}>
-          Quản lý sản phẩm, theo dõi đơn hàng, cập nhật thông tin khách hàng - tất cả ở một nơi
+          {t('admin.home.intro')}
         </Typography>
 
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center' }}>
@@ -100,7 +102,7 @@ const AdminPage = () => {
               '&:hover': { backgroundColor: '#fff5f7' },
             }}
           >
-            🐾 Manage Products
+            {`🐾 ${t('admin.home.manageProducts')}`}
           </Button>
           <Button
             variant="outlined"
@@ -115,7 +117,7 @@ const AdminPage = () => {
               '&:hover': { borderColor: 'white', borderWidth: 2, backgroundColor: 'rgba(255,255,255,0.15)' },
             }}
           >
-            📦 View Orders
+            {`📦 ${t('admin.home.viewOrders')}`}
           </Button>
           <Button
             variant="outlined"
@@ -130,7 +132,7 @@ const AdminPage = () => {
               '&:hover': { borderColor: 'white', borderWidth: 2, backgroundColor: 'rgba(255,255,255,0.15)' },
             }}
           >
-            👥 Manage Customers
+            {`👥 ${t('admin.home.manageCustomers')}`}
           </Button>
         </Box>
       </Box>
@@ -139,13 +141,13 @@ const AdminPage = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 3 }}>
         <FaPaw size={22} color="#ff6b81" />
         <Typography variant="h5" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-          Quick Stats
+          {t('admin.home.quickStats')}
         </Typography>
         <FaPaw size={22} color="#ff6b81" />
       </Box>
 
       <Grid container spacing={3}>
-        {statCards.map(({ key, label, icon: Icon, color, path }) => (
+        {statCards.map(({ key, icon: Icon, color, path }) => (
           <Grid item xs={12} sm={6} md={4} key={key}>
             <Card
               onClick={() => handleNavigation(path)}
@@ -180,7 +182,7 @@ const AdminPage = () => {
                   <Icon sx={{ fontSize: 32, color }} />
                 </Box>
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#333' }}>
-                  {label}
+                  {t(`admin.home.${key}`)}
                 </Typography>
                 <Typography variant="h3" sx={{ fontWeight: 700, color, mt: 1 }}>
                   {stats[key] ?? '…'}

@@ -25,6 +25,7 @@ import {
 import { Edit, Delete } from "@mui/icons-material";
 import { FaPaw } from 'react-icons/fa';
 import { API_URL } from '../../config/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const PET_TYPES = ["Mèo", "Chó", "Cả hai"];
 const CATEGORIES = ["Thức ăn", "Đồ chơi", "Phụ kiện", "Vệ sinh", "Y tế", "Khác"];
@@ -49,6 +50,7 @@ const selectFieldSx = {
 };
 
 const Products = () => {
+  const { t } = useLanguage();
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -128,22 +130,22 @@ const Products = () => {
         if (result.status === 200) {
           await fetchProducts(); // Refresh list
           handleCancel();
-          alert('Thêm sản phẩm thành công!');
+          alert(t('admin.products.added'));
         } else {
-          alert(result.message || 'Failed to add product');
+          alert(result.message || t('admin.products.addFailedServer'));
         }
       } catch (error) {
         console.error("Failed to add product:", error);
-        alert('Đã xảy ra lỗi khi thêm sản phẩm');
+        alert(t('admin.products.addFailed'));
       }
     } else {
-      alert("Vui lòng điền đầy đủ thông tin sản phẩm.");
+      alert(t('admin.products.fillAll'));
     }
   };
 
   // Xóa sản phẩm
   const handleDeleteProduct = async (productId) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+    if (!window.confirm(t('admin.products.confirmDelete'))) {
       return;
     }
 
@@ -159,13 +161,13 @@ const Products = () => {
       const result = await response.json();
       if (result.status === 200) {
         setProducts(products.filter((product) => product.id !== productId));
-        alert('Xóa sản phẩm thành công!');
+        alert(t('admin.products.deleted'));
       } else {
-        alert(result.message || 'Failed to delete product');
+        alert(result.message || t('admin.products.deleteFailedServer'));
       }
     } catch (error) {
       console.error("Failed to delete product:", error);
-      alert('Đã xảy ra lỗi khi xóa sản phẩm');
+      alert(t('admin.products.deleteFailed'));
     }
   };
 
@@ -243,13 +245,13 @@ const Products = () => {
           setOpenDialog(false);
           setEditingProduct(null);
           setSelectedImage(null);
-          alert('Cập nhật sản phẩm thành công!');
+          alert(t('admin.products.updated'));
         } else {
-          alert(result.message || 'Failed to update product');
+          alert(result.message || t('admin.products.updateFailedServer'));
         }
       } catch (error) {
         console.error("Failed to edit product:", error);
-        alert('Đã xảy ra lỗi khi cập nhật sản phẩm');
+        alert(t('admin.products.updateFailed'));
       }
     }
   };
@@ -320,7 +322,7 @@ const Products = () => {
             textAlign: 'center',
           }}
         >
-          🐾 Quản lý sản phẩm
+          {`🐾 ${t('admin.products.title')}`}
         </Typography>
         <FaPaw size={32} color="#ff6b81" />
       </Box>
@@ -348,11 +350,11 @@ const Products = () => {
                   fontWeight: 700 
                 }}
               >
-                Thêm sản phẩm mới
+                {t('admin.products.addNew')}
               </Typography>
             </Box>
             <TextField
-              label="Tên sản phẩm"
+              label={t('admin.products.name')}
               fullWidth
               value={newProduct.name}
               onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
@@ -376,7 +378,7 @@ const Products = () => {
               }}
             />
             <TextField
-              label="Giá (VNĐ)"
+              label={t('admin.products.price')}
               type="text"
               fullWidth
               value={newProduct.price}
@@ -401,7 +403,7 @@ const Products = () => {
               }}
             />
             <TextField
-              label="Số lượng"
+              label={t('admin.products.quantity')}
               type="number"
               fullWidth
               value={newProduct.quantity}
@@ -426,7 +428,7 @@ const Products = () => {
               }}
             />
             <TextField
-              label="Mô tả"
+              label={t('admin.products.description')}
               fullWidth
               multiline
               rows={4}
@@ -452,7 +454,7 @@ const Products = () => {
               }}
             />
             <TextField
-              label="Trạng thái"
+              label={t('admin.products.status')}
               select
               fullWidth
               value={newProduct.status}
@@ -476,12 +478,12 @@ const Products = () => {
                 },
               }}
             >
-              <MenuItem value="Còn hàng">Còn hàng</MenuItem>
-              <MenuItem value="Hết hàng">Hết hàng</MenuItem>
-              <MenuItem value="Ngừng kinh doanh">Ngừng kinh doanh</MenuItem>
+              <MenuItem value="Còn hàng">{t('shop.statusNames')['Còn hàng']}</MenuItem>
+              <MenuItem value="Hết hàng">{t('shop.statusNames')['Hết hàng']}</MenuItem>
+              <MenuItem value="Ngừng kinh doanh">{t('shop.statusNames')['Ngừng kinh doanh']}</MenuItem>
             </TextField>
             <TextField
-              label="Loài"
+              label={t('admin.products.petType')}
               select
               fullWidth
               value={newProduct.petType}
@@ -489,11 +491,11 @@ const Products = () => {
               sx={selectFieldSx}
             >
               {PET_TYPES.map((pt) => (
-                <MenuItem key={pt} value={pt}>{pt}</MenuItem>
+                <MenuItem key={pt} value={pt}>{t('shop.petTypes')[pt] || pt}</MenuItem>
               ))}
             </TextField>
             <TextField
-              label="Loại sản phẩm"
+              label={t('admin.products.category')}
               select
               fullWidth
               value={newProduct.category}
@@ -501,7 +503,7 @@ const Products = () => {
               sx={selectFieldSx}
             >
               {CATEGORIES.map((c) => (
-                <MenuItem key={c} value={c}>{c}</MenuItem>
+                <MenuItem key={c} value={c}>{t('shop.categoryNames')[c] || c}</MenuItem>
               ))}
             </TextField>
             <Box
@@ -535,7 +537,7 @@ const Products = () => {
         px: 3,
       }}
     >
-      📸 Chọn hình ảnh
+      {`📸 ${t('admin.products.chooseImage')}`}
     </Button>
   </label>
 
@@ -564,7 +566,7 @@ const Products = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 Thêm sản phẩm
+              {`🐾 ${t('admin.products.add')}`}
             </Button>
             <Button 
               variant="outlined" 
@@ -585,7 +587,7 @@ const Products = () => {
               }} 
               onClick={handleCancel}
             >
-              Hủy
+              {t('admin.common.cancel')}
             </Button>
           </Paper>
         </Grid>
@@ -601,11 +603,11 @@ const Products = () => {
             fontWeight: 700 
           }}
         >
-          Danh sách sản phẩm
+          {t('admin.products.list')}
         </Typography>
       </Box>
       <TextField
-        label="🔍 Tìm kiếm sản phẩm"
+        label={`🔍 ${t('admin.products.search')}`}
         variant="outlined"
         fullWidth
         value={searchTerm}
@@ -648,7 +650,7 @@ const Products = () => {
               },
             }}
           >
-            Sắp xếp theo tên
+            {t('admin.products.sortName')}
           </Button>
           <Button
             variant={sortBy === 'quantity' ? 'contained' : 'outlined'}
@@ -665,7 +667,7 @@ const Products = () => {
               },
             }}
           >
-            Sắp xếp theo số lượng
+            {t('admin.products.sortQty')}
           </Button>
           <Button
             variant={sortBy === 'price' ? 'contained' : 'outlined'}
@@ -682,7 +684,7 @@ const Products = () => {
               },
             }}
           >
-            Sắp xếp theo giá
+            {t('admin.products.sortPrice')}
           </Button>
           </Box>
         </Grid>
@@ -703,15 +705,15 @@ const Products = () => {
         <Table sx={{ tableLayout: 'fixed', borderCollapse: 'collapse', minWidth: 900 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: 'rgba(255, 107, 129, 0.1)' }}>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>Ảnh</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '13%', fontWeight: 700, color: '#ff6b81' }}>Tên sản phẩm</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>Giá</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '7%', fontWeight: 700, color: '#ff6b81' }}>Số lượng</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>Loài</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>Loại</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '21%', fontWeight: 700, color: '#ff6b81' }}>Mô tả</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>Trạng thái</TableCell>
-              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>Hành động</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.image')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '13%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.name')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.price')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '7%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.qty')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.pet')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '8%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.category')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '21%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.description')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.status')}</TableCell>
+              <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", width: '9%', fontWeight: 700, color: '#ff6b81' }}>{t('admin.products.cols.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -744,16 +746,16 @@ const Products = () => {
                   {product.name}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '', fontWeight: 600 }}>
-                  {product.price} VNĐ
+                  {`${product.price} ${t('shop.currency')}`}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
                   {product.quantity}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
-                  {product.petType || "Cả hai"}
+                  {t('shop.petTypes')[product.petType || 'Cả hai'] || product.petType}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
-                  {product.category || "Khác"}
+                  {t('shop.categoryNames')[product.category || 'Khác'] || product.category}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '', textAlign: 'justify', whiteSpace: 'normal' }}>
                   {product.description}
@@ -764,7 +766,7 @@ const Products = () => {
                   color: product.status === "Hết hàng" ? "#ff4757" : product.status === "Còn hàng" ? "#2ed573" : "#a4b0be",
                   fontWeight: 600,
                 }}>
-                  {product.status}
+                  {t('shop.statusNames')[product.status] || product.status}
                 </TableCell>
                 <TableCell sx={{ border: "1px solid rgba(255, 107, 129, 0.2)", borderBottom: index === paginatedProducts.length - 1 ? '1px solid rgba(255, 107, 129, 0.2)' : '' }}>
                   <IconButton 
@@ -809,6 +811,8 @@ const Products = () => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage={t('admin.pagination.rowsPerPage')}
+        labelDisplayedRows={({ from, to, count }) => t('admin.pagination.displayed', { from, to, count })}
       />
 
       {/* Dialog chỉnh sửa sản phẩm */}
@@ -835,11 +839,11 @@ const Products = () => {
           fontWeight: 700,
         }}>
           <FaPaw size={20} color="#ff6b81" />
-          Chỉnh sửa sản phẩm
+          {t('admin.products.editTitle')}
         </DialogTitle>
         <DialogContent>
           <TextField
-            label="Tên sản phẩm"
+            label={t('admin.products.name')}
             fullWidth
             value={editingProduct?.name || ""}
             onChange={(e) =>
@@ -848,7 +852,7 @@ const Products = () => {
             sx={{ mb: 2 }}
           />
           <TextField
-            label="Giá (VNĐ)"
+            label={t('admin.products.price')}
             type="text"
             fullWidth
             value={editingProduct?.price || ""}
@@ -858,7 +862,7 @@ const Products = () => {
             sx={{ mb: 2 }}
           />
           <TextField
-            label="Số lượng"
+            label={t('admin.products.quantity')}
             type="number"
             fullWidth
             value={editingProduct?.quantity || ""}
@@ -868,7 +872,7 @@ const Products = () => {
             sx={{ mb: 2 }}
           />
           <TextField
-            label="Mô tả"
+            label={t('admin.products.description')}
             fullWidth
             multiline
             rows={4}
@@ -879,7 +883,7 @@ const Products = () => {
             sx={{ mb: 2 }}
           />
           <TextField
-            label="Trạng thái"
+            label={t('admin.products.status')}
             select
             fullWidth
             value={editingProduct?.status || "Còn hàng"}
@@ -888,12 +892,12 @@ const Products = () => {
             }
             sx={{ mb: 2 }}
           >
-            <MenuItem value="Còn hàng">Còn hàng</MenuItem>
-            <MenuItem value="Hết hàng">Hết hàng</MenuItem>
-            <MenuItem value="Ngừng kinh doanh">Ngừng kinh doanh</MenuItem>
+            <MenuItem value="Còn hàng">{t('shop.statusNames')['Còn hàng']}</MenuItem>
+            <MenuItem value="Hết hàng">{t('shop.statusNames')['Hết hàng']}</MenuItem>
+            <MenuItem value="Ngừng kinh doanh">{t('shop.statusNames')['Ngừng kinh doanh']}</MenuItem>
           </TextField>
           <TextField
-            label="Loài"
+            label={t('admin.products.petType')}
             select
             fullWidth
             value={editingProduct?.petType || "Cả hai"}
@@ -903,11 +907,11 @@ const Products = () => {
             sx={{ mb: 2 }}
           >
             {PET_TYPES.map((pt) => (
-              <MenuItem key={pt} value={pt}>{pt}</MenuItem>
+              <MenuItem key={pt} value={pt}>{t('shop.petTypes')[pt] || pt}</MenuItem>
             ))}
           </TextField>
           <TextField
-            label="Loại sản phẩm"
+            label={t('admin.products.category')}
             select
             fullWidth
             value={editingProduct?.category || "Khác"}
@@ -917,7 +921,7 @@ const Products = () => {
             sx={{ mb: 2 }}
           >
             {CATEGORIES.map((c) => (
-              <MenuItem key={c} value={c}>{c}</MenuItem>
+              <MenuItem key={c} value={c}>{t('shop.categoryNames')[c] || c}</MenuItem>
             ))}
           </TextField>
           <Box sx={{ mb: 2 }}>
@@ -943,7 +947,7 @@ const Products = () => {
               },
             }}
           >
-            Hủy
+            {t('admin.common.cancel')}
           </Button>
           <Button 
             onClick={handleSaveEdit}
@@ -960,7 +964,7 @@ const Products = () => {
               },
             }}
           >
-            🐾 Lưu
+            {`🐾 ${t('admin.common.save')}`}
           </Button>
         </DialogActions>
       </Dialog>

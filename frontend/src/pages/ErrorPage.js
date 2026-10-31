@@ -2,8 +2,10 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Typography, Button, Box } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ErrorPage = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   return (
@@ -13,10 +15,10 @@ const ErrorPage = () => {
         404
       </Typography>
       <Typography variant="h4" mt={2} fontWeight="medium" color="text.primary">
-        Oops! Trang không tồn tại.
+        {t('account.error.title')}
       </Typography>
       <Typography variant="body1" color="textSecondary" mt={1}>
-        Có vẻ như bạn đã đi nhầm đường. Hãy thử kiểm tra lại đường dẫn hoặc quay về trang chủ.
+        {t('account.error.text')}
       </Typography>
       <Box mt={4}>
         <Button
@@ -26,7 +28,7 @@ const ErrorPage = () => {
           onClick={() => navigate("/")}
           sx={{ borderRadius: 2, textTransform: "none", fontSize: "1rem", px: 4, py: 1.5 }}
         >
-          Quay lại trang chủ
+          {t('account.error.home')}
         </Button>
       </Box>
     </Container>

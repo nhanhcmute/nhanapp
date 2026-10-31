@@ -6,8 +6,10 @@ import MapComponent from '../components/common/MapComponent';
 import { FaPaw } from 'react-icons/fa';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ProfilePage = () => {
+  const { t } = useLanguage();
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
 
@@ -46,12 +48,12 @@ const ProfilePage = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 3 }}>
               <FaPaw size={32} color="#ff6b81" />
               <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                Thông tin cá nhân
+                {t('account.profile.title')}
               </Typography>
               <FaPaw size={32} color="#ff6b81" />
             </Box>
             <Typography variant="body1" sx={{ color: '#666', mb: 4, lineHeight: 1.8 }}>
-              Chưa có thông tin cá nhân. Vui lòng cập nhật thông tin của bạn.
+              {t('account.profile.empty')}
             </Typography>
             <Button
               variant="contained"
@@ -73,7 +75,7 @@ const ProfilePage = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 Cập nhật thông tin
+              {`🐾 ${t('account.profile.update')}`}
             </Button>
           </Paper>
         </Container>
@@ -114,7 +116,7 @@ const ProfilePage = () => {
                 textAlign: 'center',
               }}
             >
-              👤 Thông tin cá nhân
+              {`👤 ${t('account.profile.title')}`}
             </Typography>
             <FaPaw size={32} color="#ff6b81" />
           </Box>
@@ -136,28 +138,28 @@ const ProfilePage = () => {
               <Box mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <FaPaw size={16} color="#ff6b81" />
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>Họ và Tên:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>{t('account.profile.fullName')}</Typography>
                 </Box>
                 <Typography variant="body1" sx={{ marginLeft: '24px', color: '#666', fontSize: '16px' }}>{userInfo.name}</Typography>
               </Box>
               <Box mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <FaPaw size={16} color="#ff6b81" />
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>Số điện thoại:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>{t('account.profile.phone')}</Typography>
                 </Box>
                 <Typography variant="body1" sx={{ marginLeft: '24px', color: '#666', fontSize: '16px' }}>{userInfo.phone}</Typography>
               </Box>
               <Box mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <FaPaw size={16} color="#ff6b81" />
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>Ngày sinh:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>{t('account.profile.birthday')}</Typography>
                 </Box>
                 <Typography variant="body1" sx={{ marginLeft: '24px', color: '#666', fontSize: '16px' }}>{userInfo.dob}</Typography>
               </Box>
               <Box mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <FaPaw size={16} color="#ff6b81" />
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>Địa chỉ:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>{t('account.profile.address')}</Typography>
                 </Box>
                 <Typography variant="body1" sx={{ marginLeft: '24px', color: '#666', fontSize: '16px', lineHeight: 1.8 }}>
                   {userInfo.ward}, {userInfo.district}, {userInfo.province}
@@ -170,7 +172,7 @@ const ProfilePage = () => {
               <Box mb={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <FaPaw size={16} color="#ff6b81" />
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>📍 Vị trí:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>📍 {t('account.profile.location')}</Typography>
                 </Box>
                 <Box sx={{ borderRadius: '16px', overflow: 'hidden', border: '2px solid rgba(255, 107, 129, 0.2)' }}>
                   <MapComponent
@@ -200,7 +202,7 @@ const ProfilePage = () => {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  Chỉnh sửa
+                  {t('account.profile.edit')}
                 </Button>
                 <Button
                   variant="contained"
@@ -221,7 +223,7 @@ const ProfilePage = () => {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  🐾 Lưu
+                  {`🐾 ${t('account.profile.save')}`}
                 </Button>
               </Box>
             </CardContent>

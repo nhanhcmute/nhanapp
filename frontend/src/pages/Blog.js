@@ -12,62 +12,62 @@ import {
     Paper,
 } from "@mui/material";
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../i18n/LanguageContext';
 const featuredPost = {
-    title: "Top 5+ cách làm cây thông Noel bằng giấy đơn giản, sáng tạo",
-    description:
-        "Khám phá cách làm cây thông Noel đẹp mắt bằng các nguyên liệu đơn giản.",
+    title: { vi: "Top 5+ cách làm cây thông Noel bằng giấy đơn giản, sáng tạo", en: "5+ simple, creative ways to make a paper Christmas tree" },
+    description: { vi: "Khám phá cách làm cây thông Noel đẹp mắt bằng các nguyên liệu đơn giản.", en: "Learn how to make a beautiful Christmas tree from simple materials." },
     image: "/giainhan1.jpg",
-    category: "Sự kiện",
+    category: { vi: "Sự kiện", en: "Events" },
     date: "08/12/2024",
 };
 
 const sidePosts = [
     {
-        title: "Gợi ý 33+ mẫu nail đẹp, cuốn hút, hot trend",
+        title: { vi: "Gợi ý 33+ mẫu nail đẹp, cuốn hút, hot trend", en: "33+ beautiful, eye-catching trending nail designs" },
         image: "/anh1.jpg",
-        category: "Chăm sóc cơ thể",
+        category: { vi: "Chăm sóc cơ thể", en: "Body care" },
         link: "https://en.wikipedia.beta.wmflabs.org/wiki/Black_cat"
     },
     {
-        title: "20+ mẫu nail chân đơn giản, hot trend, được ưa thích",
+        title: { vi: "20+ mẫu nail chân đơn giản, hot trend, được ưa thích", en: "20+ simple, popular trending toenail designs" },
         image: "/anh1.jpg",
-        category: "Chăm sóc cơ thể",
+        category: { vi: "Chăm sóc cơ thể", en: "Body care" },
         link: "https://vi.wikipedia.org/wiki/Ch%C3%B3_Corgi_Wales"
     },
     {
-        title: "20+ mẫu nail sơn thạch đơn giản, nổi bật, tôn da",
+        title: { vi: "20+ mẫu nail sơn thạch đơn giản, nổi bật, tôn da", en: "20+ simple, striking jelly nail designs" },
         image: "/anh1.jpg",
-        category: "Chăm sóc cơ thể",
+        category: { vi: "Chăm sóc cơ thể", en: "Body care" },
         link: "https://vi.wikipedia.org/wiki/Shiba_Inu"
     },
 ];
 
 const recentUpdates = [
     {
-        title: "10 cách chăm sóc thú cưng hiệu quả",
-        description: "Những mẹo hay giúp bạn chăm sóc thú cưng tốt nhất.",
+        title: { vi: "10 cách chăm sóc thú cưng hiệu quả", en: "10 effective ways to care for your pet" },
+        description: { vi: "Những mẹo hay giúp bạn chăm sóc thú cưng tốt nhất.", en: "Handy tips to give your pet the best care." },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Ch%C3%B3_Corgi_Wales"
     },
     {
-        title: "Làm sao để hiểu thú cưng hơn?",
-        description: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.",
+        title: { vi: "Làm sao để hiểu thú cưng hơn?", en: "How to understand your pet better?" },
+        description: { vi: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.", en: "Learn about your pet's body language and emotions." },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Ch%C3%B3_Corgi_Wales"
     },
     {
-        title: "Làm sao để hiểu thú cưng hơn?",
-        description: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.",
+        title: { vi: "Làm sao để hiểu thú cưng hơn?", en: "How to understand your pet better?" },
+        description: { vi: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.", en: "Learn about your pet's body language and emotions." },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Ch%C3%B3_Corgi_Wales"
     }, {
-        title: "Làm sao để hiểu thú cưng hơn?",
-        description: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.",
+        title: { vi: "Làm sao để hiểu thú cưng hơn?", en: "How to understand your pet better?" },
+        description: { vi: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.", en: "Learn about your pet's body language and emotions." },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Ch%C3%B3_Corgi_Wales"
     }, {
-        title: "Làm sao để hiểu thú cưng hơn?",
-        description: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.",
+        title: { vi: "Làm sao để hiểu thú cưng hơn?", en: "How to understand your pet better?" },
+        description: { vi: "Tìm hiểu ngôn ngữ cơ thể và cảm xúc của thú cưng.", en: "Learn about your pet's body language and emotions." },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Ch%C3%B3_Corgi_Wales"
     },
@@ -75,31 +75,31 @@ const recentUpdates = [
 
 const petAndYou = [
     {
-        title: "Chăm sóc sức khỏe cho thú cưng",
+        title: { vi: "Chăm sóc sức khỏe cho thú cưng", en: "Health care for pets" },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Shiba_Inu"
 
     },
     {
-        title: "Làm đẹp cho thú cưng tại nhà",
+        title: { vi: "Làm đẹp cho thú cưng tại nhà", en: "Grooming your pet at home" },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Shiba_Inu"
 
     },
     {
-        title: "Những lưu ý khi thú cưng bị bệnh",
+        title: { vi: "Những lưu ý khi thú cưng bị bệnh", en: "What to watch for when your pet is sick" },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Shiba_Inu"
 
     },
     {
-        title: "Những lưu ý khi thú cưng bị bệnh",
+        title: { vi: "Những lưu ý khi thú cưng bị bệnh", en: "What to watch for when your pet is sick" },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Shiba_Inu"
 
     },
     {
-        title: "Những lưu ý khi thú cưng bị bệnh",
+        title: { vi: "Những lưu ý khi thú cưng bị bệnh", en: "What to watch for when your pet is sick" },
         image: "/anh1.jpg",
         link: "https://vi.wikipedia.org/wiki/Shiba_Inu"
 
@@ -108,15 +108,15 @@ const petAndYou = [
 
 const trends = [
     {
-        title: "Top 10 giống thú cưng đẹp nhất năm 2024",
+        title: { vi: "Top 10 giống thú cưng đẹp nhất năm 2024", en: "Top 10 most beautiful pet breeds of 2024" },
         image: "/anh1.jpg",
     },
     {
-        title: "Các vật dụng giúp thú cưng vui vẻ hơn",
+        title: { vi: "Các vật dụng giúp thú cưng vui vẻ hơn", en: "Items that make your pet happier" },
         image: "/anh1.jpg",
     },
     {
-        title: "Mẹo nuôi dạy thú cưng thông minh",
+        title: { vi: "Mẹo nuôi dạy thú cưng thông minh", en: "Tips for raising a smart pet" },
         image: "/anh1.jpg",
     },
 ];
@@ -126,6 +126,7 @@ const handleClick = (link) => {
 };
 
 const Blog = () => {
+  const { t, pick } = useLanguage();
     return (
         <div>
             <Box sx={{ 
@@ -139,7 +140,7 @@ const Blog = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
                         <FaPaw size={32} color="#ff6b81" />
                         <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center' }}>
-                            📝 Blog Thú Cưng
+                            {`📝 ${t('content.blog.title')}`}
                         </Typography>
                         <FaPaw size={32} color="#ff6b81" />
                     </Box>
@@ -170,12 +171,12 @@ const Blog = () => {
                                     component="img"
                                     height="359"
                                     image={featuredPost.image}
-                                    alt={featuredPost.title}
+                                    alt={pick(featuredPost.title)}
                                     sx={{ borderRadius: '24px 24px 0 0' }}
                                 />
                                 <CardContent sx={{ position: "relative", p: 3 }}>
                                     <Chip
-                                        label={featuredPost.category}
+                                        label={pick(featuredPost.category)}
                                         sx={{
                                             position: "absolute",
                                             top: 16,
@@ -188,15 +189,15 @@ const Blog = () => {
                                         }}
                                     />
                                     <Typography variant="h5" sx={{ fontWeight: 700, color: "#ff6b81", mt: 5, mb: 2 }}>
-                                        {featuredPost.title}
+                                        {pick(featuredPost.title)}
                                     </Typography>
                                     <Typography variant="body1" sx={{ color: "#666", mb: 2, lineHeight: 1.8 }}>
-                                        {featuredPost.description}
+                                        {pick(featuredPost.description)}
                                     </Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <FaPaw size={14} color="#ff6b81" />
                                         <Typography variant="caption" sx={{ color: "#999" }}>
-                                            Cập nhật {featuredPost.date}
+                                            {t('content.blog.updated', { date: featuredPost.date })}
                                         </Typography>
                                     </Box>
                                 </CardContent>
@@ -237,7 +238,7 @@ const Blog = () => {
                                                     objectFit: "cover",
                                                 }}
                                                 image={post.image}
-                                                alt={post.title}
+                                                alt={pick(post.title)}
                                             />
                                             <CardContent
                                                 sx={{
@@ -258,7 +259,7 @@ const Blog = () => {
                                                 }}
                                             >
                                                 <Chip
-                                                    label={post.category}
+                                                    label={pick(post.category)}
                                                     sx={{
                                                         backgroundColor: "#ff6b81",
                                                         color: "#fff",
@@ -280,7 +281,7 @@ const Blog = () => {
                                                         WebkitLineClamp: 2,
                                                     }}
                                                 >
-                                                    {post.title}
+                                                    {pick(post.title)}
                                                 </Typography>
                                             </CardContent>
                                         </Card>
@@ -310,7 +311,7 @@ const Blog = () => {
                                         alignItems: "center",
                                     }}
                                 >
-                                    Thú Cưng & Bạn
+                                    {t('content.blog.petsAndYou')}
                                 </Typography>
                                 <Box
 
@@ -337,11 +338,11 @@ const Blog = () => {
                                                         component="img"
                                                         height="200"
                                                         image={post.image}
-                                                        alt={post.title}
+                                                        alt={pick(post.title)}
                                                     />
                                                     <CardContent>
                                                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                                            {post.title}
+                                                            {pick(post.title)}
                                                         </Typography>
                                                     </CardContent>
                                                 </Card>
@@ -363,7 +364,7 @@ const Blog = () => {
                                                             objectFit: "cover",
                                                         }}
                                                         image={update.image}
-                                                        alt={update.title}
+                                                        alt={pick(update.title)}
                                                     />
                                                     <CardContent
                                                         sx={{
@@ -374,10 +375,10 @@ const Blog = () => {
                                                         }}
                                                     >
                                                         <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: "0.875rem" }}>
-                                                            {update.title}
+                                                            {pick(update.title)}
                                                         </Typography>
                                                         <Typography variant="body2" sx={{ color: "#666", fontSize: "0.75rem", mt: 1 }}>
-                                                            {update.description}
+                                                            {pick(update.description)}
                                                         </Typography>
                                                     </CardContent>
                                                 </Card>
@@ -408,7 +409,7 @@ const Blog = () => {
                                         alignItems: "center",
                                     }}
                                 >
-                                    ⭐ Mới Cập Nhật
+                                    {`⭐ ${t('content.blog.latest')}`}
                                 </Typography>
                                 <Box
 
@@ -434,7 +435,7 @@ const Blog = () => {
                                                     height: 100,
                                                 }}
                                                 image={post.image}
-                                                alt={post.title}
+                                                alt={pick(post.title)}
                                             />
                                             <CardContent sx={{
                                                 display: "flex",
@@ -444,10 +445,10 @@ const Blog = () => {
                                                 padding: 2
                                             }}> {/* Phần còn lại chiếm 2/3 chiều rộng */}
                                                 <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "0.875rem" }}>
-                                                    {post.title}
+                                                    {pick(post.title)}
                                                 </Typography>
                                                 <Typography variant="body2" sx={{ color: "#666", mt: 1, fontSize: "0.75rem" }}>
-                                                    {post.description}
+                                                    {pick(post.description)}
                                                 </Typography>
                                             </CardContent>
                                         </Card>
@@ -473,7 +474,7 @@ const Blog = () => {
                                     component="img"
                                     height="200"
                                     image="/anh1.jpg"
-                                    alt="Thú Cưng"
+                                    alt={t('content.blog.pets')}
                                     sx={{
                                         transition: "transform 0.3s ease-in-out", // Thêm hiệu ứng chuyển động cho ảnh
                                         "&:hover": {
@@ -500,7 +501,7 @@ const Blog = () => {
                                         zIndex: 1, // Đảm bảo Box luôn ở trên ảnh
                                     }}
                                 >
-                                    <Typography variant="h6">Thú Cưng</Typography>
+                                    <Typography variant="h6">{t('content.blog.pets')}</Typography>
                                 </Box>
                             </Card>
                         </Grid>
@@ -512,7 +513,7 @@ const Blog = () => {
                                     component="img"
                                     height="200"
                                     image="/dochoi1.jpg"
-                                    alt="Phụ Kiện"
+                                    alt={t('content.blog.accessories')}
                                     sx={{
                                         transition: "transform 0.3s ease-in-out", // Thêm hiệu ứng chuyển động cho ảnh
                                         "&:hover": {
@@ -539,7 +540,7 @@ const Blog = () => {
 
                                     }}
                                 >
-                                    <Typography variant="h6">Phụ Kiện</Typography>
+                                    <Typography variant="h6">{t('content.blog.accessories')}</Typography>
                                 </Box>
                             </Card>
                         </Grid>
@@ -551,7 +552,7 @@ const Blog = () => {
                                     component="img"
                                     height="200"
                                     image="/dochoi1.jpg" // Thay thế với URL của ảnh Chăm Sóc
-                                    alt="Chăm Sóc"
+                                    alt={t('content.blog.care')}
                                     sx={{
                                         transition: "transform 0.3s ease-in-out", // Thêm hiệu ứng chuyển động cho ảnh
                                         "&:hover": {
@@ -577,7 +578,7 @@ const Blog = () => {
                                         borderRadius: "8px", // Bo góc cho Box
                                     }}
                                 >
-                                    <Typography variant="h6">Chăm Sóc</Typography>
+                                    <Typography variant="h6">{t('content.blog.care')}</Typography>
                                 </Box>
                             </Card>
                         </Grid>
@@ -604,7 +605,7 @@ const Blog = () => {
                                 alignItems: "center",
                             }}
                         >
-                            Xu Hướng Mới
+                            {t('content.blog.trends')}
                         </Typography>
                         <Box
 
@@ -627,17 +628,17 @@ const Blog = () => {
                                         component="img"
                                         sx={{ width: { xs: '100%', sm: '200px' }, height: { xs: '180px', sm: '150px' }, objectFit: "cover" }}
                                         image={trend.image}
-                                        alt={trend.title}
+                                        alt={pick(trend.title)}
                                     />
                                     {/* Nội dung */}
                                     <CardContent sx={{ minWidth: 0 }}>
                                         <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "8px" }}>
-                                            {trend.title}
+                                            {pick(trend.title)}
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: "gray", marginBottom: "8px" }}>
-                                            CẬP NHẬT {trend.date} · {trend.comments} bình luận
+                                            {t('content.blog.trendMeta', { date: trend.date, n: trend.comments })}
                                         </Typography>
-                                        <Typography variant="body2">{trend.description}</Typography>
+                                        <Typography variant="body2">{pick(trend.description)}</Typography>
                                     </CardContent>
                                 </Box>
                             </Grid>

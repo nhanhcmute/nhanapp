@@ -1,8 +1,10 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Component bảo vệ các route yêu cầu đăng nhập
 const ProtectedRoute = ({ element }) => {
+  const { t } = useLanguage();
   const location = useLocation();
   const userStr = localStorage.getItem('user');
   
@@ -17,18 +19,18 @@ const ProtectedRoute = ({ element }) => {
       } else {
         // User object không hợp lệ, xóa và redirect
         localStorage.removeItem('user');
-        return <Navigate to="/login" state={{ from: location.pathname, message: 'Vui lòng đăng nhập để tiếp tục' }} replace />;
+        return <Navigate to="/login" state={{ from: location.pathname, message: t('auth.redirect.loginToContinue') }} replace />;
       }
     } catch (error) {
       console.error('Error parsing user from localStorage:', error);
       // Nếu parse lỗi, xóa localStorage và redirect về login
       localStorage.removeItem('user');
-      return <Navigate to="/login" state={{ from: location.pathname, message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' }} replace />;
+      return <Navigate to="/login" state={{ from: location.pathname, message: t('auth.redirect.sessionExpired') }} replace />;
     }
   }
   
   // Nếu chưa đăng nhập, redirect về trang login với thông tin trang gốc
-  return <Navigate to="/login" state={{ from: location.pathname, message: 'Vui lòng đăng nhập để truy cập trang này' }} replace />;
+  return <Navigate to="/login" state={{ from: location.pathname, message: t('auth.redirect.loginToAccess') }} replace />;
 };
 
 export default ProtectedRoute;

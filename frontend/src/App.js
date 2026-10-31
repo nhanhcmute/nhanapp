@@ -39,6 +39,16 @@ import Dogs from './pages/Dogs';
 import PetDetails from './pages/PetDetails';
 import ErrorPage from './pages/ErrorPage';
 
+// Thú y thông minh
+import PetCareLayout from './features/pet-care/components/PetCareLayout';
+import CareDashboardPage from './features/pet-care/pages/CareDashboardPage';
+import AiConsultationPage from './features/pet-care/pages/AiConsultationPage';
+import PetProfilesPage from './features/pet-care/pages/PetProfilesPage';
+import HealthRecordsPage from './features/pet-care/pages/HealthRecordsPage';
+import BookAppointmentPage from './features/pet-care/pages/BookAppointmentPage';
+import HealthArticlesPage from './features/pet-care/pages/HealthArticlesPage';
+import VetCasesPage from './features/pet-care/pages/VetCasesPage';
+
 
 
 // Admin pages
@@ -66,6 +76,7 @@ import ContactButtons from './components/common/ContactButtons';
 import SearchResults from './components/product/SearchResults';
 // Context
 import { CartProvider } from './store/CartContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 
 // AdminRoute bảo vệ các route của admin
 import AdminRoute from './components/common/AdminRoute';
@@ -80,7 +91,7 @@ function App() {
   const ShowHeader = () => {
     const location = useLocation();
 
-    const isAuthPage = ['/login', '/signup' , '/homepage', '/aboutus'].includes(location.pathname);
+    const isAuthPage = ['/login', '/signup' , '/aboutus'].includes(location.pathname);
 
     return isAuthPage && <Header />;
   };
@@ -99,6 +110,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <LanguageProvider>
       <GoogleOAuthProvider clientId={clientId}>
         <Router>
           <AutoLogout />
@@ -110,13 +122,13 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-otp" element={<VerifyOTPPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/homepage" element={<HomePage />} />
           <Route path="/aboutus" element={<AboutUs />} />
             {/* Routes dành cho khách hàng */}
             <Route element={<LayoutPage />}>
               {/* Public Routes - Không cần đăng nhập */}
               <Route path="/" element={<HomePage />} />
               <Route path="/nhanpet" element={<HomePage />} />
+              <Route path="/homepage" element={<HomePage />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/productlist" element={<ProductList />} />
               <Route path="/petsupplies" element={<ProductList initialCategory="Phụ kiện" />} />
@@ -132,7 +144,18 @@ function App() {
               <Route path="/dogs" element={<Dogs />} />
               <Route path="/petdetails" element={<PetDetails />} />
               <Route path="/search" element={<SearchResults />} />
-              
+
+              {/* Thú y thông minh */}
+              <Route path="/pet-care" element={<PetCareLayout />}>
+                <Route index element={<CareDashboardPage />} />
+                <Route path="ai-consultation" element={<AiConsultationPage />} />
+                <Route path="pets" element={<PetProfilesPage />} />
+                <Route path="health" element={<HealthRecordsPage />} />
+                <Route path="appointments" element={<BookAppointmentPage />} />
+                <Route path="articles" element={<HealthArticlesPage />} />
+                <Route path="vet" element={<AdminRoute element={<VetCasesPage />} />} />
+              </Route>
+
               {/* Protected Routes - Yêu cầu đăng nhập */}
               <Route 
                 path="/profile" 
@@ -306,6 +329,7 @@ function App() {
         </CartProvider>
       </Router>
     </GoogleOAuthProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

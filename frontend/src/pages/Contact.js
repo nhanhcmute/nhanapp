@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Grid, Paper } from '@mui/material';
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Contact = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,7 +22,7 @@ const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
-    alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể. 🐾');
+    alert(t('content.contact.thanks'));
     setFormData({ name: '', email: '', phone: '', message: '' });
   };
 
@@ -58,7 +60,7 @@ const Contact = () => {
                 color: '#ff6b81',
               }}
             >
-              Liên Hệ Với Chúng Tôi
+              {t('content.contact.title')}
             </Typography>
             <FaPaw size={32} color="#ff6b81" />
           </Box>
@@ -71,14 +73,14 @@ const Contact = () => {
               lineHeight: 1.8,
             }}
           >
-            Chúng tôi luôn sẵn sàng hỗ trợ bạn. Vui lòng điền vào mẫu dưới đây và chúng tôi sẽ liên hệ lại với bạn trong thời gian sớm nhất. 🐾
+            {t('content.contact.intro')}
           </Typography>
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Họ Tên"
+                  label={t('content.contact.name')}
                   name="name"
                   variant="outlined"
                   fullWidth
@@ -106,7 +108,7 @@ const Contact = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Email"
+                  label={t('content.contact.email')}
                   name="email"
                   type="email"
                   variant="outlined"
@@ -135,7 +137,7 @@ const Contact = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="Số Điện Thoại"
+                  label={t('content.contact.phone')}
                   name="phone"
                   variant="outlined"
                   fullWidth
@@ -163,7 +165,7 @@ const Contact = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="Lời Nhắn"
+                  label={t('content.contact.message')}
                   name="message"
                   variant="outlined"
                   multiline
@@ -213,7 +215,7 @@ const Contact = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 Gửi Tin Nhắn
+              {`🐾 ${t('content.contact.send')}`}
             </Button>
           </form>
         </Paper>

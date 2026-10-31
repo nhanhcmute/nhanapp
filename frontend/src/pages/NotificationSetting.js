@@ -3,34 +3,36 @@ import { Box, Typography, Switch, Divider, List, ListItem, ListItemText, Paper }
 import Sidebar from '../components/layout/Sidebar';
 import { FaPaw } from 'react-icons/fa';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useLanguage } from '../i18n/LanguageContext';
   
 const NotificationSetting = () => {
+  const { t } = useLanguage();
   // Dữ liệu cấu hình thông báo
   const [settings, setSettings] = useState([
     {
-      category: "Email thông báo",
-      description: "Thông báo và nhắc nhở quan trọng về tài khoản sẽ không thể bị tắt",
+      category: "email",
+      description: "locked",
       enabled: true,
       options: [
-        { label: "Cập nhật đơn hàng", description: "Cập nhật về tình trạng vận chuyển của tất cả các đơn hàng", enabled: true },
-        { label: "Khuyến mãi", description: "Cập nhật các ưu đãi và khuyến mãi sắp tới", enabled: true },
-        { label: "Khảo sát", description: "Đồng ý nhận khảo sát để chúng tôi được lắng nghe bạn", enabled: false },
+        { label: "orders", description: "ordersDesc", enabled: true },
+        { label: "promo", description: "promoDesc", enabled: true },
+        { label: "survey", description: "surveyDesc", enabled: false },
       ],
     },
     {
-      category: "Thông báo SMS",
-      description: "Thông báo và nhắc nhở quan trọng về tài khoản sẽ không thể bị tắt",
+      category: "sms",
+      description: "locked",
       enabled: true,
       options: [
-        { label: "Khuyến mãi", description: "Cập nhật về các ưu đãi và khuyến mãi sắp tới", enabled: true },
+        { label: "promo", description: "promoDesc", enabled: true },
       ],
     },
     {
-      category: "Thông báo Zalo",
-      description: "Thông báo và nhắc nhở quan trọng về tài khoản sẽ không thể bị tắt",
+      category: "zalo",
+      description: "locked",
       enabled: true,
       options: [
-        { label: "Khuyến mãi (Shopee Việt Nam)", description: "Cập nhật các ưu đãi và khuyến mãi sắp tới", enabled: true },
+        { label: "promoShopee", description: "promoDesc", enabled: true },
       ],
     },
   ]);
@@ -64,7 +66,7 @@ const NotificationSetting = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
           <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-            🔔 Cài Đặt Thông Báo
+            {`🔔 ${t('account.notif.title')}`}
           </Typography>
           <FaPaw size={32} color="#ff6b81" />
         </Box>
@@ -100,7 +102,7 @@ const NotificationSetting = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <FaPaw size={20} color="#ff6b81" />
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                  {setting.category}
+                  {t(`account.notif.${setting.category}`)}
                 </Typography>
               </Box>
               <Switch
@@ -117,7 +119,7 @@ const NotificationSetting = () => {
               />
             </Box>
             <Typography variant="body2" sx={{ color: '#666', marginBottom: 3, lineHeight: 1.8 }}>
-              {setting.description}
+              {t(`account.notif.${setting.description}`)}
             </Typography>
 
             {/* Các tùy chọn */}
@@ -145,11 +147,11 @@ const NotificationSetting = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                         <FaPaw size={14} color="#ff6b81" />
                         <Typography variant="body1" sx={{ fontWeight: 600, color: '#ff6b81' }}>
-                          {option.label}
+                          {t(`account.notif.${option.label}`)}
                         </Typography>
                       </Box>
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.6 }}>
-                        {option.description}
+                        {t(`account.notif.${option.description}`)}
                       </Typography>
                     </Box>
                     <Switch

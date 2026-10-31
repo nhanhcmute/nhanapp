@@ -37,8 +37,10 @@ import {
   Block,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Privacy = () => {
+  const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const [privacySettings, setPrivacySettings] = useState({
     showEmail: false,
@@ -71,7 +73,7 @@ const Privacy = () => {
     };
     setPrivacySettings(newSettings);
     localStorage.setItem('privacySettings', JSON.stringify(newSettings));
-    toast.success('Đã cập nhật cài đặt riêng tư');
+    toast.success(t('content.privacy.updated'));
   };
 
   // Xuất dữ liệu cá nhân
@@ -97,11 +99,11 @@ const Privacy = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success('Đã xuất dữ liệu thành công!');
+      toast.success(t('content.privacy.exported'));
       setExportDialogOpen(false);
     } catch (error) {
       console.error('Error exporting data:', error);
-      toast.error('Có lỗi xảy ra khi xuất dữ liệu');
+      toast.error(t('content.privacy.exportFailed'));
     }
   };
 
@@ -110,7 +112,7 @@ const Privacy = () => {
     // TODO: Gọi API backend để xóa tài khoản
     // Hiện tại chỉ xóa dữ liệu local
     localStorage.clear();
-    toast.success('Đã xóa tài khoản. Bạn sẽ được chuyển về trang đăng nhập.');
+    toast.success(t('content.privacy.deleted'));
     setTimeout(() => {
       window.location.href = '/login';
     }, 2000);
@@ -133,7 +135,7 @@ const Privacy = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-            🔒 Thiết lập riêng tư
+            {`🔒 ${t('content.privacy.title')}`}
           </Typography>
           <FaPaw size={32} color="#ff6b81" />
         </Box>
@@ -155,7 +157,7 @@ const Privacy = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
               <Person sx={{ color: '#ff6b81' }} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                Thông tin tài khoản
+                {t('content.privacy.accountInfo')}
               </Typography>
             </Box>
             <List>
@@ -165,9 +167,9 @@ const Privacy = () => {
                 </ListItemIcon>
                 <ListItemText
                   primary="Email"
-                  secondary={user?.email || 'Chưa cập nhật'}
+                  secondary={user?.email || t('content.privacy.notUpdated')}
                 />
-                <Tooltip title={privacySettings.showEmail ? 'Email đang hiển thị công khai' : 'Email đang được ẩn'}>
+                <Tooltip title={privacySettings.showEmail ? t('content.privacy.emailPublic') : t('content.privacy.emailHidden')}>
                   <IconButton>
                     {privacySettings.showEmail ? <Visibility sx={{ color: '#4caf50' }} /> : <VisibilityOff sx={{ color: '#999' }} />}
                   </IconButton>
@@ -178,10 +180,10 @@ const Privacy = () => {
                   <Phone sx={{ color: '#ff6b81' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Số điện thoại"
-                  secondary={user?.phone || 'Chưa cập nhật'}
+                  primary={t('content.privacy.phone')}
+                  secondary={user?.phone || t('content.privacy.notUpdated')}
                 />
-                <Tooltip title={privacySettings.showPhone ? 'Số điện thoại đang hiển thị công khai' : 'Số điện thoại đang được ẩn'}>
+                <Tooltip title={privacySettings.showPhone ? t('content.privacy.phonePublic') : t('content.privacy.phoneHidden')}>
                   <IconButton>
                     {privacySettings.showPhone ? <Visibility sx={{ color: '#4caf50' }} /> : <VisibilityOff sx={{ color: '#999' }} />}
                   </IconButton>
@@ -207,7 +209,7 @@ const Privacy = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
               <Security sx={{ color: '#ff6b81' }} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                Quyền riêng tư
+                {t('content.privacy.privacy')}
               </Typography>
             </Box>
             <List>
@@ -216,8 +218,8 @@ const Privacy = () => {
                   <Visibility sx={{ color: '#ff6b81' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Hiển thị email công khai"
-                  secondary="Cho phép người khác xem email của bạn"
+                  primary={t('content.privacy.showEmail')}
+                  secondary={t('content.privacy.showEmailDesc')}
                 />
                 <FormControlLabel
                   control={
@@ -243,8 +245,8 @@ const Privacy = () => {
                   <Phone sx={{ color: '#ff6b81' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Hiển thị số điện thoại công khai"
-                  secondary="Cho phép người khác xem số điện thoại của bạn"
+                  primary={t('content.privacy.showPhone')}
+                  secondary={t('content.privacy.showPhoneDesc')}
                 />
                 <FormControlLabel
                   control={
@@ -270,8 +272,8 @@ const Privacy = () => {
                   <Public sx={{ color: '#ff6b81' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Hiển thị hồ sơ công khai"
-                  secondary="Cho phép người khác xem thông tin hồ sơ của bạn"
+                  primary={t('content.privacy.showProfile')}
+                  secondary={t('content.privacy.showProfileDesc')}
                 />
                 <FormControlLabel
                   control={
@@ -311,7 +313,7 @@ const Privacy = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
               <Info sx={{ color: '#ff6b81' }} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                Dữ liệu và quyền riêng tư
+                {t('content.privacy.dataPrivacy')}
               </Typography>
             </Box>
             <List>
@@ -320,8 +322,8 @@ const Privacy = () => {
                   <Email sx={{ color: '#ff6b81' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Cho phép gửi email marketing"
-                  secondary="Nhận email về sản phẩm mới và khuyến mãi"
+                  primary={t('content.privacy.marketing')}
+                  secondary={t('content.privacy.marketingDesc')}
                 />
                 <FormControlLabel
                   control={
@@ -347,8 +349,8 @@ const Privacy = () => {
                   <Block sx={{ color: '#ff6b81' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Chia sẻ dữ liệu với bên thứ ba"
-                  secondary="Cho phép chia sẻ dữ liệu để cải thiện dịch vụ"
+                  primary={t('content.privacy.thirdParty')}
+                  secondary={t('content.privacy.thirdPartyDesc')}
                 />
                 <FormControlLabel
                   control={
@@ -388,7 +390,7 @@ const Privacy = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
               <Download sx={{ color: '#ff6b81' }} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                Quản lý dữ liệu của bạn
+                {t('content.privacy.manageData')}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -408,7 +410,7 @@ const Privacy = () => {
                   },
                 }}
               >
-                Xuất dữ liệu của tôi
+                {t('content.privacy.exportMine')}
               </Button>
               <Button
                 variant="outlined"
@@ -426,7 +428,7 @@ const Privacy = () => {
                   },
                 }}
               >
-                Xóa dữ liệu cá nhân
+                {t('content.privacy.deleteData')}
               </Button>
             </Box>
           </CardContent>
@@ -448,11 +450,11 @@ const Privacy = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <DeleteForever sx={{ color: '#ff4757' }} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff4757' }}>
-                Vùng nguy hiểm
+                {t('content.privacy.danger')}
               </Typography>
             </Box>
             <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
-              Xóa tài khoản sẽ xóa vĩnh viễn tất cả dữ liệu của bạn. Hành động này không thể hoàn tác.
+              {t('content.privacy.dangerText')}
             </Alert>
             <Button
               variant="contained"
@@ -469,7 +471,7 @@ const Privacy = () => {
                 },
               }}
             >
-              Xóa tài khoản vĩnh viễn
+              {t('content.privacy.deleteForever')}
             </Button>
           </CardContent>
         </Card>
@@ -486,11 +488,11 @@ const Privacy = () => {
           }}
         >
           <DialogTitle sx={{ color: '#ff6b81', fontWeight: 700 }}>
-            📥 Xuất dữ liệu
+            {`📥 ${t('content.privacy.exportTitle')}`}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Bạn có muốn xuất tất cả dữ liệu cá nhân của mình không? Dữ liệu sẽ được tải xuống dưới dạng file JSON.
+              {t('content.privacy.exportConfirm')}
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
@@ -498,7 +500,7 @@ const Privacy = () => {
               onClick={() => setExportDialogOpen(false)}
               sx={{ color: '#666', borderRadius: '12px' }}
             >
-              Hủy
+              {t('content.privacy.cancel')}
             </Button>
             <Button
               onClick={handleExportData}
@@ -511,7 +513,7 @@ const Privacy = () => {
                 },
               }}
             >
-              Xuất dữ liệu
+              {t('content.privacy.export')}
             </Button>
           </DialogActions>
         </Dialog>
@@ -528,14 +530,14 @@ const Privacy = () => {
           }}
         >
           <DialogTitle sx={{ color: '#ff4757', fontWeight: 700 }}>
-            ⚠️ Xác nhận xóa
+            {`⚠️ ${t('content.privacy.confirmDeleteTitle')}`}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Bạn có chắc chắn muốn xóa dữ liệu cá nhân / tài khoản của mình không? Hành động này không thể hoàn tác.
+              {t('content.privacy.confirmDeleteText')}
             </DialogContentText>
             <Alert severity="error" sx={{ mt: 2, borderRadius: '12px' }}>
-              Tất cả dữ liệu sẽ bị xóa vĩnh viễn!
+              {t('content.privacy.allDataGone')}
             </Alert>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
@@ -543,7 +545,7 @@ const Privacy = () => {
               onClick={() => setDeleteDialogOpen(false)}
               sx={{ color: '#666', borderRadius: '12px' }}
             >
-              Hủy
+              {t('content.privacy.cancel')}
             </Button>
             <Button
               onClick={handleDeleteAccount}
@@ -556,7 +558,7 @@ const Privacy = () => {
                 },
               }}
             >
-              Xác nhận xóa
+              {t('content.privacy.confirmDelete')}
             </Button>
           </DialogActions>
         </Dialog>

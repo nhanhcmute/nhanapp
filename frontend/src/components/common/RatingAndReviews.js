@@ -5,22 +5,17 @@ import { database } from '../../firebaseConfig';
 import { FaPaw } from 'react-icons/fa';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SendIcon from '@mui/icons-material/Send';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const RatingAndReviews = ({ productId }) => {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [reviews, setReviews] = useState([]);
   const [userName, setUserName] = useState(''); 
 
   // Các bình luận mẫu
-  const sampleComments = [
-    'Sản phẩm tuyệt vời!',
-    'Đúng theo mô tả!',
-    'Giao hàng nhanh chóng!',
-    'Chất lượng tuyệt vời!',
-    'Rất hài lòng với sản phẩm!',
-    'Sản phẩm rất đẹp và tiện lợi!',
-  ];
+  const sampleComments = t('shop.reviews.samples');
 
   // Lấy thông tin người dùng từ localStorage sau khi đăng nhập
   useEffect(() => {
@@ -52,7 +47,7 @@ const RatingAndReviews = ({ productId }) => {
   // Cập nhật đánh giá vào Firebase
   const handleCommentSubmit = () => {
     if (rating === 0 || comment === '') {
-      alert('Vui lòng chọn đánh giá và viết bình luận.');
+      alert(t('shop.reviews.needRatingAndComment'));
       return;
     }
 
@@ -105,7 +100,7 @@ const RatingAndReviews = ({ productId }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={28} color="#ff6b81" />
           <Typography variant="h5" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-            ⭐ Đánh giá và bình luận
+            {`⭐ ${t('shop.reviews.title')}`}
           </Typography>
           <FaPaw size={28} color="#ff6b81" />
         </Box>
@@ -114,7 +109,7 @@ const RatingAndReviews = ({ productId }) => {
         {reviews.length > 0 ? (
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#ff6b81', mb: 2 }}>
-              💬 Bình luận ({reviews.length})
+              {`💬 ${t('shop.reviews.comments', { n: reviews.length })}`}
             </Typography>
             {reviews.map((review, index) => (
               <Paper
@@ -145,7 +140,7 @@ const RatingAndReviews = ({ productId }) => {
                   </Avatar>
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                      {review.username || 'Người dùng ẩn danh'} 🐾
+                      {review.username || t('shop.reviews.anonymous')} 🐾
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                       <Rating 
@@ -203,7 +198,7 @@ const RatingAndReviews = ({ productId }) => {
           <Box sx={{ textAlign: 'center', py: 4, mb: 4 }}>
             <FaPaw size={48} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
             <Typography variant="body1" sx={{ color: '#666' }}>
-              Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này! 🐾
+              {t('shop.reviews.none')}
             </Typography>
           </Box>
         )}
@@ -211,13 +206,13 @@ const RatingAndReviews = ({ productId }) => {
         {/* Form đánh giá */}
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#ff6b81', mb: 3 }}>
-            ✍️ Viết đánh giá của bạn
+            {`✍️ ${t('shop.reviews.write')}`}
           </Typography>
           
           {/* Rating */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ fontWeight: 600, color: '#666', mb: 1 }}>
-              Đánh giá sản phẩm:
+              {t('shop.reviews.rate')}
             </Typography>
             <Rating
               value={rating}
@@ -237,7 +232,7 @@ const RatingAndReviews = ({ productId }) => {
           {/* Comment */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ fontWeight: 600, color: '#666', mb: 1 }}>
-              Viết bình luận:
+              {t('shop.reviews.comment')}
             </Typography>
             <TextField
               value={comment}
@@ -246,7 +241,7 @@ const RatingAndReviews = ({ productId }) => {
               rows={4}
               fullWidth
               variant="outlined"
-              placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
+              placeholder={t('shop.reviews.placeholder')}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
@@ -270,7 +265,7 @@ const RatingAndReviews = ({ productId }) => {
           {/* Sample Comments */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ fontWeight: 600, color: '#666', mb: 2 }}>
-              💡 Chọn bình luận mẫu:
+              {`💡 ${t('shop.reviews.pickSample')}`}
             </Typography>
             <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
               {sampleComments.map((sample, index) => (
@@ -322,7 +317,7 @@ const RatingAndReviews = ({ productId }) => {
               transition: 'all 0.3s ease',
             }}
           >
-            🐾 Gửi đánh giá
+            {`🐾 ${t('shop.reviews.submit')}`}
           </Button>
         </Box>
       </Paper>

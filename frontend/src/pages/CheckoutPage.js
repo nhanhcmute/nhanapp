@@ -38,6 +38,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -54,6 +55,7 @@ const images = importImages();
 
 
 const CheckoutPage = () => {
+  const { t } = useLanguage();
     const location = useLocation(); 
     const navigate = useNavigate();
     const product = location.state?.product || null; 
@@ -233,11 +235,11 @@ const CheckoutPage = () => {
                 if (response.status === 200 && Array.isArray(response.data)) {
                     setProvinces(response.data);
                 } else {
-                    setError('Không có dữ liệu tỉnh/thành phố');
+                    setError(t('checkout.address.errors.noProvinces'));
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách tỉnh/thành phố:', error);
-                setError('Lỗi khi tải dữ liệu tỉnh/thành phố');
+                setError(t('checkout.address.errors.provincesFailed'));
             } finally {
                 setLoading(false);
             }
@@ -256,12 +258,12 @@ const CheckoutPage = () => {
                         setDistricts(response.data.districts);
                     } else {
                         setDistricts([]);
-                        setError('Không có dữ liệu quận/huyện cho tỉnh này.');
+                        setError(t('checkout.address.errors.noDistricts'));
                     }
                 } catch (error) {
                     console.error('Lỗi khi lấy danh sách quận/huyện:', error);
                     setDistricts([]);
-                    setError('Lỗi khi tải dữ liệu quận/huyện');
+                    setError(t('checkout.address.errors.districtsFailed'));
                 } finally {
                     setLoading(false);
                 }
@@ -283,12 +285,12 @@ const CheckoutPage = () => {
                         setWards(response.data.wards);
                     } else {
                         setWards([]);
-                        setError('Không có dữ liệu phường/xã.');
+                        setError(t('checkout.address.errors.noWards'));
                     }
                 } catch (error) {
                     console.error('Lỗi khi lấy danh sách phường/xã:', error);
                     setWards([]);
-                    setError('Lỗi khi tải dữ liệu phường/xã');
+                    setError(t('checkout.address.errors.wardsFailed'));
                 } finally {
                     setLoading(false);
                 }
@@ -321,7 +323,7 @@ const CheckoutPage = () => {
     const handleEditAddress = () => {
         // Kiểm tra dữ liệu địa chỉ có đầy đủ thông tin không
         if (!newAddress.fullName || !newAddress.phone || !newAddress.province || !newAddress.district || !newAddress.ward || !newAddress.addressType || !newAddress.street) {
-            alert('Vui lòng điền đầy đủ thông tin địa chỉ');
+            alert(t('checkout.address.errors.fillAll'));
             return;
         }
         const updatedAddress = { ...newAddress };
@@ -355,19 +357,19 @@ const CheckoutPage = () => {
 
     const handleConfirmPayment = async () => {
         if (!cart || cart.length === 0) {
-            alert('Không có sản phẩm nào trong giỏ hàng để thanh toán.');
+            alert(t('checkout.pay.emptyCartAlert'));
             navigate('/cart');
             return;
         }
 
         if (!defaultAddress) {
-            alert('Vui lòng thêm địa chỉ giao hàng trước khi thanh toán.');
+            alert(t('checkout.pay.needAddress'));
             return;
         }
 
         const selectedProducts = cart.filter((product) => selectedItems[product.id]);
         if (selectedProducts.length === 0) {
-            alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+            alert(t('checkout.pay.needItem'));
             return;
         }
 
@@ -411,7 +413,7 @@ const CheckoutPage = () => {
             const result = await orderService.createOrder(orderData);
 
             if (result.status === 200) {
-                alert('Mua hàng thành công!');
+                alert(t('checkout.pay.success'));
 
                 // Xóa các sản phẩm đã chọn khỏi giỏ hàng
                 await Promise.all(
@@ -423,11 +425,11 @@ const CheckoutPage = () => {
                 // Chuyển hướng đến trang danh sách đơn hàng
                 navigate('/orders');
             } else {
-                alert(result.message || 'Có lỗi xảy ra khi tạo đơn hàng.');
+                alert(result.message || t('checkout.pay.createFailed'));
             }
         } catch (error) {
             console.error('Lỗi khi xử lý thanh toán:', error);
-            alert('Có lỗi xảy ra, vui lòng thử lại.');
+            alert(t('checkout.pay.retry'));
         }
     };
 
@@ -475,7 +477,7 @@ const CheckoutPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                 <FaPaw size={32} color="#ff6b81" />
                 <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                    🛒 Thanh Toán
+                    {`🛒 ${t('checkout.pay.title')}`}
                 </Typography>
                 <FaPaw size={32} color="#ff6b81" />
             </Box>
@@ -496,10 +498,10 @@ const CheckoutPage = () => {
                 >
                     <FaPaw size={64} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
                     <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 2 }}>
-                        Chưa có sản phẩm trong giỏ hàng
+                        {t('checkout.pay.emptyCart')}
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
-                        Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán! 🐾
+                        {t('checkout.pay.emptyCartHint')}
                     </Typography>
                     <Button
                         variant="contained"
@@ -521,7 +523,7 @@ const CheckoutPage = () => {
                             transition: 'all 0.3s ease',
                         }}
                     >
-                        🛍️ Mua ngay
+                        {`🛍️ ${t('home.shopNow')}`}
                     </Button>
                 </Paper>
             ) : (
@@ -548,7 +550,7 @@ const CheckoutPage = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                 <HomeIcon sx={{ color: '#ff6b81' }} />
                                 <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                                    📍 Địa chỉ giao hàng
+                                    {`📍 ${t('checkout.pay.shippingAddress')}`}
                                 </Typography>
                             </Box>
                             <Divider sx={{ mb: 2, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
@@ -568,7 +570,7 @@ const CheckoutPage = () => {
                                 )}
                                 {/* Loại địa chỉ */}
                                 <Chip
-                                    label={defaultAddress.addressType === 'home' ? '🏠 Nhà riêng' : '🏢 Văn phòng'}
+                                    label={defaultAddress.addressType === 'home' ? `🏠 ${t('checkout.address.home')}` : `🏢 ${t('checkout.address.office')}`}
                                     sx={{
                                         mt: 1,
                                         backgroundColor: '#ff6b81',
@@ -597,7 +599,7 @@ const CheckoutPage = () => {
                                     transition: 'all 0.3s ease',
                                 }}
                             >
-                                Thay đổi địa chỉ
+                                {t('checkout.pay.changeAddress')}
                             </Button>
                         </Paper>
                     ) : (
@@ -612,7 +614,7 @@ const CheckoutPage = () => {
                             }}
                         >
                             <Typography variant="body1" sx={{ color: '#ff4757', fontWeight: 600 }}>
-                                ⚠️ Bạn chưa có địa chỉ mặc định! Vui lòng thêm địa chỉ trước khi thanh toán.
+                                {`⚠️ ${t('checkout.pay.noDefaultAddress')}`}
                             </Typography>
                             <Button
                                 variant="contained"
@@ -627,7 +629,7 @@ const CheckoutPage = () => {
                                     },
                                 }}
                             >
-                                ➕ Thêm địa chỉ
+                                {`➕ ${t('checkout.address.add')}`}
                             </Button>
                         </Paper>
                     )}
@@ -647,7 +649,7 @@ const CheckoutPage = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                             <FaPaw size={20} color="#ff6b81" />
                             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                                🛍️ Sản phẩm đã chọn
+                                {`🛍️ ${t('checkout.pay.selectedItems')}`}
                             </Typography>
                         </Box>
                         <Divider sx={{ mb: 3, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
@@ -690,7 +692,7 @@ const CheckoutPage = () => {
                                                 />
                                                 <Box>
                                                     <Typography variant="body2" sx={{ fontWeight: 600, color: '#ff6b81', mb: 0.5 }}>
-                                                        Sản Phẩm
+                                                        {t('checkout.pay.product')}
                                                     </Typography>
                                                     <Typography variant="body1" sx={{ fontWeight: 700, color: '#666' }}>
                                                         {product.name}
@@ -702,7 +704,7 @@ const CheckoutPage = () => {
                                         {/* Đơn giá */}
                                         <Grid item xs={6} md={2}>
                                             <Typography variant="body2" sx={{ fontWeight: 600, color: '#ff6b81', mb: 0.5 }}>
-                                                Đơn Giá
+                                                {t('checkout.pay.unitPrice')}
                                             </Typography>
                                             <Typography variant="body1" sx={{ fontWeight: 600, color: '#666' }}>
                                                 💰 {typeof product.price === 'string' 
@@ -714,7 +716,7 @@ const CheckoutPage = () => {
                                         {/* Số lượng */}
                                         <Grid item xs={6} md={2}>
                                             <Typography variant="body2" sx={{ fontWeight: 600, color: '#ff6b81', mb: 0.5 }}>
-                                                Số Lượng
+                                                {t('checkout.pay.quantity')}
                                             </Typography>
                                             <Typography variant="body1" sx={{ fontWeight: 700, color: '#ff6b81', fontSize: '18px' }}>
                                                 {product.quantity}
@@ -724,7 +726,7 @@ const CheckoutPage = () => {
                                         {/* Thành tiền */}
                                         <Grid item xs={12} md={3}>
                                             <Typography variant="body2" sx={{ fontWeight: 600, color: '#ff6b81', mb: 0.5 }}>
-                                                Thành Tiền
+                                                {t('checkout.pay.lineTotal')}
                                             </Typography>
                                             <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff4757' }}>
                                                 💵 {((typeof product.price === 'string' 
@@ -754,7 +756,7 @@ const CheckoutPage = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                             <FaPaw size={20} color="#ff6b81" />
                             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                                🎟️ Chọn Voucher
+                                {`🎟️ ${t('checkout.pay.chooseVoucher')}`}
                             </Typography>
                         </Box>
                         <SelectVoucher
@@ -779,18 +781,18 @@ const CheckoutPage = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                             <LocalShippingIcon sx={{ color: '#ff6b81' }} />
                             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                                🚚 Phương thức vận chuyển
+                                {`🚚 ${t('checkout.pay.shippingMethod')}`}
                             </Typography>
                         </Box>
                         <FormControl fullWidth sx={{ mb: 3 }}>
-                            <InputLabel sx={{ color: '#ff6b81' }}>Phương thức vận chuyển</InputLabel>
+                            <InputLabel sx={{ color: '#ff6b81' }}>{t('checkout.pay.shippingMethod')}</InputLabel>
                             <Select
                                 value={shippingMethod}
                                 onChange={(e) => {
                                     setShippingMethod(e.target.value);
                                     // Phí ship sẽ được tính tự động trong useEffect
                                 }}
-                                label="Phương thức vận chuyển"
+                                label={t('checkout.pay.shippingMethod')}
                                 sx={{
                                     borderRadius: '12px',
                                     '& .MuiOutlinedInput-notchedOutline': {
@@ -804,8 +806,8 @@ const CheckoutPage = () => {
                                     },
                                 }}
                             >
-                                <MenuItem value="standard">🚚 Giao hàng tiêu chuẩn (3-5 ngày) - 20,000 VND</MenuItem>
-                                <MenuItem value="express">⚡ Giao hàng nhanh (1-2 ngày) - 50,000 VND</MenuItem>
+                                <MenuItem value="standard">🚚 {t('checkout.pay.standard')}</MenuItem>
+                                <MenuItem value="express">⚡ {t('checkout.pay.express')}</MenuItem>
                             </Select>
                         </FormControl>
 
@@ -814,15 +816,15 @@ const CheckoutPage = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                             <PaymentIcon sx={{ color: '#ff6b81' }} />
                             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                                💳 Phương thức thanh toán
+                                {`💳 ${t('checkout.pay.paymentMethod')}`}
                             </Typography>
                         </Box>
                         <FormControl fullWidth sx={{ mb: 3 }}>
-                            <InputLabel sx={{ color: '#ff6b81' }}>Phương thức thanh toán</InputLabel>
+                            <InputLabel sx={{ color: '#ff6b81' }}>{t('checkout.pay.paymentMethod')}</InputLabel>
                             <Select
                                 value={paymentMethod}
                                 onChange={(e) => setPaymentMethod(e.target.value)}
-                                label="Phương thức thanh toán"
+                                label={t('checkout.pay.paymentMethod')}
                                 sx={{
                                     borderRadius: '12px',
                                     '& .MuiOutlinedInput-notchedOutline': {
@@ -836,22 +838,22 @@ const CheckoutPage = () => {
                                     },
                                 }}
                             >
-                                <MenuItem value="cash">💰 Thanh toán khi nhận hàng</MenuItem>
-                                <MenuItem value="wallet">📱 Thanh toán qua ví điện tử Momo</MenuItem>
-                                <MenuItem value="bank">🏦 Thanh toán qua ngân hàng</MenuItem>
-                                <MenuItem value="credit-card">💳 Thẻ tín dụng/Ghi nợ</MenuItem>
+                                <MenuItem value="cash">💰 {t('checkout.pay.cash')}</MenuItem>
+                                <MenuItem value="wallet">📱 {t('checkout.pay.wallet')}</MenuItem>
+                                <MenuItem value="bank">🏦 {t('checkout.pay.bank')}</MenuItem>
+                                <MenuItem value="credit-card">💳 {t('checkout.pay.card')}</MenuItem>
                             </Select>
                         </FormControl>
 
                         {/* Ghi chú cho người bán */}
                         <TextField
                             fullWidth
-                            label="📝 Ghi chú cho người bán"
+                            label={`📝 ${t('checkout.pay.sellerNote')}`}
                             multiline
                             rows={3}
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
-                            placeholder="Nhập ghi chú (nếu có)..."
+                            placeholder={t('checkout.pay.notePlaceholder')}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
@@ -888,7 +890,7 @@ const CheckoutPage = () => {
                         <Box sx={{ mb: 2 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                 <Typography variant="body1" sx={{ color: '#666' }}>
-                                    Phí vận chuyển:
+                                    {t('checkout.pay.shippingFee')}
                                 </Typography>
                                 <Typography 
                                     variant="body1" 
@@ -898,7 +900,7 @@ const CheckoutPage = () => {
                                     }}
                                 >
                                     {shippingFee === 0 ? (
-                                        <span style={{ color: '#4caf50' }}>✅ Miễn phí</span>
+                                        <span style={{ color: '#4caf50' }}>✅ {t('checkout.pay.free')}</span>
                                     ) : (
                                         `💰 ${shippingFee.toLocaleString()} VND`
                                     )}
@@ -906,13 +908,13 @@ const CheckoutPage = () => {
                             </Box>
                             {calculateTotalAmount() < 500000 && (
                                 <Typography variant="caption" sx={{ color: '#999', fontStyle: 'italic' }}>
-                                    💡 Mua thêm {(500000 - calculateTotalAmount()).toLocaleString()} VND để được miễn phí ship!
+                                    {`💡 ${t('checkout.pay.freeShipHint', { amount: (500000 - calculateTotalAmount()).toLocaleString() })}`}
                                 </Typography>
                             )}
                             {discount > 0 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     <Typography variant="body1" sx={{ color: '#4caf50' }}>
-                                        Giảm giá:
+                                        {t('checkout.pay.discount')}
                                     </Typography>
                                     <Typography variant="body1" sx={{ fontWeight: 600, color: '#4caf50' }}>
                                         - 💵 {discount.toLocaleString()} VND
@@ -922,7 +924,7 @@ const CheckoutPage = () => {
                             <Divider sx={{ my: 2, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                                    Tổng cần thanh toán:
+                                    {t('checkout.pay.grandTotal')}
                                 </Typography>
                                 <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff4757' }}>
                                     💵 {finalAmount.toLocaleString()} VND
@@ -952,7 +954,7 @@ const CheckoutPage = () => {
                                 transition: 'all 0.3s ease',
                             }}
                         >
-                            🐾 Xác nhận mua hàng
+                            {`🐾 ${t('checkout.pay.confirm')}`}
                         </Button>
                     </Paper>
                 </>
@@ -975,12 +977,12 @@ const CheckoutPage = () => {
                 <DialogTitle sx={{ color: '#ff6b81', fontWeight: 700 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <HomeIcon sx={{ color: '#ff6b81' }} />
-                        {newAddress.id ? '✏️ Chỉnh sửa địa chỉ' : '➕ Thêm địa chỉ mới'}
+                        {newAddress.id ? `✏️ ${t('checkout.address.editTitle')}` : `➕ ${t('checkout.address.addTitle')}`}
                     </Box>
                 </DialogTitle>
                 <DialogContent>
                     <TextField
-                        label="👤 Họ và tên"
+                        label={`👤 ${t('checkout.address.fullName')}`}
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -1007,7 +1009,7 @@ const CheckoutPage = () => {
                         }}
                     />
                     <TextField
-                        label="📞 Số điện thoại"
+                        label={`📞 ${t('checkout.address.phone')}`}
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -1034,7 +1036,7 @@ const CheckoutPage = () => {
                         }}
                     />
                     <FormControl fullWidth margin="normal">
-                        <InputLabel sx={{ color: '#ff6b81' }}>🏙️ Tỉnh/Thành phố</InputLabel>
+                        <InputLabel sx={{ color: '#ff6b81' }}>🏙️ {t('checkout.address.province')}</InputLabel>
                         <Select
                             value={newAddress.province}
                             onChange={(e) => {
@@ -1061,7 +1063,7 @@ const CheckoutPage = () => {
                         </Select>
                     </FormControl>
                     <FormControl fullWidth margin="normal" disabled={!newAddress.province}>
-                        <InputLabel sx={{ color: '#ff6b81' }}>🏘️ Quận/Huyện</InputLabel>
+                        <InputLabel sx={{ color: '#ff6b81' }}>🏘️ {t('checkout.address.district')}</InputLabel>
                         <Select
                             value={newAddress.district}
                             onChange={(e) => {
@@ -1086,7 +1088,7 @@ const CheckoutPage = () => {
                         </Select>
                     </FormControl>
                     <FormControl fullWidth margin="normal" disabled={!newAddress.district}>
-                        <InputLabel sx={{ color: '#ff6b81' }}>🏠 Phường/Xã</InputLabel>
+                        <InputLabel sx={{ color: '#ff6b81' }}>🏠 {t('checkout.address.ward')}</InputLabel>
                         <Select
                             value={newAddress.ward}
                             onChange={(e) => {
@@ -1106,7 +1108,7 @@ const CheckoutPage = () => {
                         </Select>
                     </FormControl>
                     <TextField
-                        label="🛣️ Tên đường/Số nhà"
+                        label={`🛣️ ${t('checkout.address.street')}`}
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -1133,7 +1135,7 @@ const CheckoutPage = () => {
                         }}
                     />
                     <TextField
-                        label="📝 Ghi chú thêm (nếu có)"
+                        label={`📝 ${t('checkout.address.note')}`}
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -1163,7 +1165,7 @@ const CheckoutPage = () => {
                     />
                     <FormControl component="fieldset" margin="normal">
                         <Typography variant="body1" sx={{ marginBottom: 2, fontWeight: 600, color: '#ff6b81' }}>
-                            🏡 Loại địa chỉ
+                            {`🏡 ${t('checkout.address.type')}`}
                         </Typography>
                         <RadioGroup
                             value={newAddress.addressType}
@@ -1182,7 +1184,7 @@ const CheckoutPage = () => {
                             <FormControlLabel
                                 value="home"
                                 control={<Radio />}
-                                label="🏠 Nhà riêng"
+                                label={`🏠 ${t('checkout.address.home')}`}
                                 sx={{
                                     '& .MuiFormControlLabel-label': {
                                         fontWeight: 600,
@@ -1193,7 +1195,7 @@ const CheckoutPage = () => {
                             <FormControlLabel
                                 value="office"
                                 control={<Radio />}
-                                label="🏢 Văn phòng"
+                                label={`🏢 ${t('checkout.address.office')}`}
                                 sx={{
                                     '& .MuiFormControlLabel-label': {
                                         fontWeight: 600,
@@ -1220,7 +1222,7 @@ const CheckoutPage = () => {
                             },
                         }}
                     >
-                        ❌ Hủy
+                        {`❌ ${t('checkout.address.cancel')}`}
                     </Button>
                     <Button
                         onClick={newAddress.id ? handleEditAddress : handleSaveAddress}
@@ -1240,7 +1242,7 @@ const CheckoutPage = () => {
                             transition: 'all 0.3s ease',
                         }}
                     >
-                        💾 {newAddress.id ? 'Lưu thay đổi' : 'Lưu'}
+                        💾 {newAddress.id ? t('checkout.address.saveChanges') : t('checkout.address.save')}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -8,14 +8,16 @@ import {
     Button,
     Box,
 } from "@mui/material";
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PetDetails = () => {
+  const { t } = useLanguage();
     const location = useLocation();
     const petData = location.state?.petData; 
     const petType = location.state?.petType; 
 
     if (!petData) {
-        return <Typography variant="h6">Không tìm thấy thông tin thú cưng.</Typography>;
+        return <Typography variant="h6">{t('content.pets.notFound')}</Typography>;
     }
 
     return (
@@ -58,26 +60,26 @@ const PetDetails = () => {
 
                         {/* Nhóm giống (tùy thuộc vào petType) */}
                         <Typography variant="subtitle1" color="textSecondary">
-                            Nhóm giống: {petData.breed_group || "Không có thông tin"}
+                            {t('content.pets.breedGroup', { value: petData.breed_group || t('content.pets.unknown') })}
                         </Typography>
                         <Typography variant="body1" >
-                            Mô tả: {petData.description || "Không có thông tin"}
+                            {t('content.pets.description', { value: petData.description || t('content.pets.unknown') })}
                         </Typography>
                         {/* Các đặc điểm khác */}
                         <Typography variant="body1">
-                            Cân nặng: {petData.weight?.metric || "Không có thông tin"} kg
+                            {t('content.pets.weight', { value: petData.weight?.metric || t('content.pets.unknown') })}
                         </Typography>
                         <Typography variant="body1">
-                            Chiều cao: {petData.height?.metric || "Không có thông tin"} cm
+                            {t('content.pets.height', { value: petData.height?.metric || t('content.pets.unknown') })}
                         </Typography>
                         <Typography variant="body1">
-                            Tuổi thọ: {petData.life_span || "Không có thông tin"}
+                            {t('content.pets.lifeSpan', { value: petData.life_span || t('content.pets.unknown') })}
                         </Typography>
                         <Typography variant="body1">
-                            Tính cách: {petData.temperament || "Không có thông tin"}
+                            {t('content.pets.temperament', { value: petData.temperament || t('content.pets.unknown') })}
                         </Typography>
                         <Typography variant="body1">
-                            Nguồn gốc: {petData.origin || "Không có thông tin"}
+                            {t('content.pets.originLine', { value: petData.origin || t('content.pets.unknown') })}
                         </Typography>
 
                         {/* Giá thú cưng */}
@@ -87,7 +89,7 @@ const PetDetails = () => {
                             fontWeight="bold"
                             sx={{ marginTop: 2 }}
                         >
-                            Giá: {petData.price?.toLocaleString("vi-VN", { style: "currency", currency: "VND" }) || "Không có thông tin"}
+                            {t('content.pets.price', { value: petData.price?.toLocaleString("vi-VN", { style: "currency", currency: "VND" }) || t('content.pets.unknown') })}
                         </Typography>
 
                         {/* Nút hành động */}
@@ -98,7 +100,7 @@ const PetDetails = () => {
                                 size="large"
                                 sx={{ flex: 1 }}
                             >
-                                Thêm vào giỏ hàng
+                                {t('shop.addToCart')}
                             </Button>
                             <Button
                                 variant="outlined"
@@ -106,7 +108,7 @@ const PetDetails = () => {
                                 size="large"
                                 sx={{ flex: 1 }}
                             >
-                                Mua ngay
+                                {t('shop.buyNow')}
                             </Button>
                         </Box>
                     </Box>

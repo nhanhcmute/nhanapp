@@ -4,8 +4,10 @@ import Sidebar from '../components/layout/Sidebar';
 import { database, ref, get } from '../firebaseConfig';
 import { FaPaw } from 'react-icons/fa';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import { useLanguage } from '../i18n/LanguageContext';
      
 const Voucher = () => {
+  const { t } = useLanguage();
   const [vouchers, setVouchers] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -38,7 +40,7 @@ const Voucher = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
           <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-            🎟️ Quản lý Voucher
+            {`🎟️ ${t('account.voucher.manage')}`}
           </Typography>
           <FaPaw size={32} color="#ff6b81" />
         </Box>
@@ -59,10 +61,10 @@ const Voucher = () => {
           >
             <LocalOfferIcon sx={{ fontSize: 64, color: '#ff6b81', opacity: 0.3, mb: 2 }} />
             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 2 }}>
-              Chưa có voucher nào
+              {t('account.voucher.none')}
             </Typography>
             <Typography variant="body1" sx={{ color: '#666' }}>
-              Hãy thêm voucher để khách hàng sử dụng! 🐾
+              {t('account.voucher.noneHint')}
             </Typography>
           </Paper>
         ) : (
@@ -93,7 +95,7 @@ const Voucher = () => {
                         {voucher.code}
                       </Typography>
                       <Chip
-                        label={voucher.usedCount < voucher.quantity ? "Còn hàng" : "Hết hàng"}
+                        label={voucher.usedCount < voucher.quantity ? t('account.voucher.available') : t('account.voucher.soldOut')}
                         sx={{
                           backgroundColor: voucher.usedCount < voucher.quantity ? '#4caf50' : '#f44336',
                           color: 'white',
@@ -115,7 +117,7 @@ const Voucher = () => {
                       border: '1px solid rgba(255, 107, 129, 0.2)',
                     }}>
                       <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-                        📊 Số lượng đã sử dụng:
+                        {`📊 ${t('account.voucher.used')}`}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#ff4757', fontWeight: 700 }}>
                         {voucher.usedCount} / {voucher.quantity}

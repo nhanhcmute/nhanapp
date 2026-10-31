@@ -6,24 +6,27 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { FaPaw } from 'react-icons/fa';
 import { useStoreSettings } from '../../hooks/useStoreSettings';
+import LanguageSwitcher from '../common/LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const menuItems = [
-  { text: "Dashboard", path: "/admin/dashboard" },
-  { text: "Products", path: "/admin/products" },
-  { text: "Orders", path: "/admin/ordermanagement" },
-  { text: "Customers", path: "/admin/customers" },
-  { text: "Analytics and Reports", path: "/admin/reports" },
-  { text: "Inventory", path: "/admin/inventory" },
-  { text: "Promotions", path: "/admin/promotions" },
-  { text: "Reviews", path: "/admin/reviews" },
-  { text: "Notifications", path: "/admin/notifications" },
-  { text: "Shipping", path: "/admin/shipping" },
-  { text: "Payments", path: "/admin/payments" },
-  { text: "User Management", path: "/admin/usermanagement" },
-  { text: "Settings", path: "/admin/settings" },
+  { key: "dashboard", path: "/admin/dashboard" },
+  { key: "products", path: "/admin/products" },
+  { key: "orders", path: "/admin/ordermanagement" },
+  { key: "customers", path: "/admin/customers" },
+  { key: "reports", path: "/admin/reports" },
+  { key: "inventory", path: "/admin/inventory" },
+  { key: "promotions", path: "/admin/promotions" },
+  { key: "reviews", path: "/admin/reviews" },
+  { key: "notifications", path: "/admin/notifications" },
+  { key: "shipping", path: "/admin/shipping" },
+  { key: "payments", path: "/admin/payments" },
+  { key: "users", path: "/admin/usermanagement" },
+  { key: "settings", path: "/admin/settings" },
 ];
 
 const AdminLayout = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { storeName } = useStoreSettings();
@@ -74,10 +77,11 @@ const AdminLayout = () => {
                 textShadow: '0 2px 4px rgba(0,0,0,0.2)',
               }}
             >
-              🐾 {storeName} Admin
+              {`🐾 ${storeName} ${t('admin.layout.admin')}`}
             </Typography>
             <FaPaw size={24} color="white" />
           </Box>
+          <LanguageSwitcher sx={{ mr: 1.5, backgroundColor: 'rgba(255, 255, 255, 0.9)' }} />
           <Button 
             onClick={handleLogout} 
             sx={{
@@ -94,7 +98,7 @@ const AdminLayout = () => {
               transition: 'all 0.3s ease',
             }}
           >
-            Đăng xuất 🚪
+            {`${t('admin.layout.logout')} 🚪`}
           </Button>
         </Toolbar>
       </AppBar>
@@ -129,7 +133,7 @@ const AdminLayout = () => {
                 fontWeight: 700,
               }}
             >
-              🐾 Admin Menu
+              {`🐾 ${t('admin.layout.menu')}`}
             </Typography>
             <FaPaw size={20} color="#ff6b81" />
           </Box>
@@ -138,7 +142,7 @@ const AdminLayout = () => {
             {menuItems.map((item) => (
               <ListItem 
                 button 
-                key={item.text}
+                key={item.key}
                 sx={{
                   borderRadius: '12px',
                   mx: 1,
@@ -162,7 +166,7 @@ const AdminLayout = () => {
                 >
                   <FaPaw size={14} color="#ff6b81" />
                   <ListItemText 
-                    primary={item.text}
+                    primary={t(`admin.layout.items.${item.key}`)}
                     sx={{
                       '& .MuiTypography-root': {
                         color: '#ff6b81',

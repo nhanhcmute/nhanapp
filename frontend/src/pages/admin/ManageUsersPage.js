@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box } from '@mui/material';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const CustomerManagement = () => {
+  const { t } = useLanguage();
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -39,10 +41,10 @@ const CustomerManagement = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>Quản lý khách hàng</Typography>
+      <Typography variant="h4" gutterBottom>{t('admin.customers.title')}</Typography>
 
       <TextField
-        label="Tìm kiếm khách hàng"
+        label={t('admin.customers.search')}
         variant="outlined"
         fullWidth
         value={search}
@@ -53,12 +55,12 @@ const CustomerManagement = () => {
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
-              <TableCell>Tên</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Số điện thoại</TableCell>
-              <TableCell>Số đơn hàng</TableCell>
-              <TableCell>Số tiền đã mua</TableCell>
-              <TableCell>Thao tác</TableCell>
+              <TableCell>{t('admin.customers.name')}</TableCell>
+              <TableCell>{t('admin.common.email')}</TableCell>
+              <TableCell>{t('admin.customers.phone')}</TableCell>
+              <TableCell>{t('admin.customers.orders')}</TableCell>
+              <TableCell>{t('admin.customers.spent')}</TableCell>
+              <TableCell>{t('admin.common.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -70,7 +72,7 @@ const CustomerManagement = () => {
                 <TableCell>{customer.orders}</TableCell>
                 <TableCell>{customer.totalSpent.toLocaleString()} VND</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleSelectCustomer(customer)}>Xem chi tiết</Button>
+                  <Button onClick={() => handleSelectCustomer(customer)}>{t('admin.customers.viewDetail')}</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -80,15 +82,15 @@ const CustomerManagement = () => {
 
       {selectedCustomer && (
         <Box sx={{ mt: 3 }}>
-          <Typography variant="h6">Chi tiết khách hàng: {selectedCustomer.name}</Typography>
+          <Typography variant="h6">{t('admin.customers.detail', { name: selectedCustomer.name })}</Typography>
           <Typography>Email: {selectedCustomer.email}</Typography>
-          <Typography>Số điện thoại: {selectedCustomer.phone}</Typography>
-          <Typography>Lịch sử mua hàng: {selectedCustomer.history}</Typography>
-          <Typography>Đánh giá/nhận xét: {selectedCustomer.feedback}</Typography>
-          <Typography>Số tiền đã mua: {selectedCustomer.totalSpent.toLocaleString()} VND</Typography>
+          <Typography>{t('admin.customers.phoneLine', { v: selectedCustomer.phone })}</Typography>
+          <Typography>{t('admin.customers.history', { v: selectedCustomer.history })}</Typography>
+          <Typography>{t('admin.customers.feedback', { v: selectedCustomer.feedback })}</Typography>
+          <Typography>{t('admin.customers.spentLine', { v: selectedCustomer.totalSpent.toLocaleString() })}</Typography>
           <Box sx={{ mt: 2 }}>
             <TextField
-              label="Phân nhóm khách hàng"
+              label={t('admin.customers.group')}
               variant="outlined"
               fullWidth
               value={group}
@@ -97,10 +99,10 @@ const CustomerManagement = () => {
               SelectProps={{ native: true }}
             >
               <option value="VIP">VIP</option>
-              <option value="Regular">Thường xuyên</option>
-              <option value="New">Mới</option>
+              <option value="Regular">{t('admin.customers.groups.Regular')}</option>
+              <option value="New">{t('admin.customers.groups.New')}</option>
             </TextField>
-            <Button onClick={() => handleGroupChange(selectedCustomer.id)} sx={{ mt: 2 }}>Cập nhật nhóm</Button>
+            <Button onClick={() => handleGroupChange(selectedCustomer.id)} sx={{ mt: 2 }}>{t('admin.customers.updateGroup')}</Button>
           </Box>
         </Box>
       )}

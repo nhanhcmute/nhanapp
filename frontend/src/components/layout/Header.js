@@ -4,7 +4,7 @@ import {
     AppBar, Toolbar, Button, Box, Badge, ListItemText, Typography,
     Drawer, List, ListItem, ListItemButton,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -16,9 +16,13 @@ import { API_URL } from '../../config/api';
 
 import logo from '../../assets/images/logo.png';
 import NotificationBell from '../common/NotificationBell';
+import LanguageSwitcher from '../common/LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 function Header() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { t } = useLanguage();
     const { cart, getTotalQuantity } = useCart();
     const [searchQuery, setSearchQuery] = useState('');
     const [user, setUser] = useState(null);
@@ -34,11 +38,17 @@ function Header() {
 
     // Các mục điều hướng chính - dùng chung cho thanh nav desktop và drawer mobile
     const navLinks = [
-        { label: '🏠 Home', path: '/homepage' },
-        { label: '🛍️ Products', path: '/productlist' },
-        { label: 'ℹ️ About Us', path: '/aboutus' },
-        { label: '📞 Contact', path: '/contact' },
+        // match: các đường dẫn (tiền tố) được tính là đang ở mục này, để tô sáng đúng nút
+        { label: `🏠 ${t('nav.home')}`, path: '/homepage', match: ['/homepage', '/nhanpet'], exact: ['/'] },
+        { label: `🛍️ ${t('nav.products')}`, path: '/productlist', match: ['/productlist', '/product/', '/productdetail', '/petsupplies', '/catlitter', '/others', '/otherpets'] },
+        { label: `✨ ${t('nav.petCare')}`, path: '/pet-care', match: ['/pet-care'] },
+        { label: `ℹ️ ${t('nav.about')}`, path: '/aboutus', match: ['/aboutus'] },
+        { label: `📞 ${t('nav.contact')}`, path: '/contact', match: ['/contact'] },
     ];
+
+    const isActive = (link) =>
+        (link.exact || []).includes(location.pathname) ||
+        link.match.some((prefix) => location.pathname.startsWith(prefix));
 
     useEffect(() => {
         const handleScroll = () => {
@@ -246,7 +256,7 @@ function Header() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSearchSubmit();
               }}
-              placeholder="Tìm kiếm thú cưng yêu..."
+              placeholder={t('nav.searchPlaceholder')}
               sx={{
                 backgroundColor: 'rgba(255, 255, 255, 0.7)',
                 backdropFilter: 'blur(8px)',
@@ -370,7 +380,7 @@ function Header() {
           handleUserClose();
         }}
       >
-        👤 Tài khoản của tôi
+        👤 {t('nav.myAccount')}
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -378,7 +388,7 @@ function Header() {
           handleUserClose();
         }}
       >
-        📦 Đơn hàng
+        📦 {t('nav.orders')}
       </MenuItem>
       <Divider sx={{ my: 0.5, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
       <MenuItem
@@ -387,7 +397,7 @@ function Header() {
           handleUserClose();
         }}
       >
-        🚪 Đăng xuất
+        🚪 {t('nav.logout')}
       </MenuItem>
     </>
   ) : (
@@ -398,7 +408,7 @@ function Header() {
           handleUserClose();
         }}
       >
-        🔑 Đăng nhập
+        🔑 {t('nav.login')}
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -406,7 +416,7 @@ function Header() {
           handleUserClose();
         }}
       >
-        📝 Đăng ký
+        📝 {t('nav.signup')}
       </MenuItem>
     </>
   )}
@@ -415,74 +425,32 @@ function Header() {
 
               {/* Navigation Buttons - Desktop (ẩn trên mobile/tablet, thay bằng Drawer) */}
               <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-                <Button
-                  onClick={() => navigate('/homepage')}
-                  sx={{
-                    marginRight: '10px',
-                    color: '#ff6b81',
-                    fontWeight: '600',
-                    textTransform: 'none',
-                    borderRadius: '12px',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  🏠 Home
-                </Button>
-                <Button
-                  onClick={() => navigate('/productlist')}
-                  sx={{
-                    marginRight: '10px',
-                    color: '#ff6b81',
-                    fontWeight: '600',
-                    textTransform: 'none',
-                    borderRadius: '12px',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  🛍️ Products
-                </Button>
-                <Button
-                  onClick={() => navigate('/aboutus')}
-                  sx={{
-                    marginRight: '10px',
-                    color: '#ff6b81',
-                    fontWeight: '600',
-                    textTransform: 'none',
-                    borderRadius: '12px',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  ℹ️ About Us
-                </Button>
-                <Button
-                  onClick={() => navigate('/contact')}
-                  sx={{
-                    marginRight: '10px',
-                    color: '#ff6b81',
-                    fontWeight: '600',
-                    textTransform: 'none',
-                    borderRadius: '12px',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 107, 129, 0.15)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  📞 Contact
-                </Button>
+                {navLinks.map((link) => {
+                  const active = isActive(link);
+                  return (
+                    <Button
+                      key={link.path}
+                      onClick={() => navigate(link.path)}
+                      aria-current={active ? 'page' : undefined}
+                      sx={{
+                        marginRight: '10px',
+                        color: active ? '#fff' : '#ff6b81',
+                        backgroundColor: active ? '#ff6b81' : 'transparent',
+                        boxShadow: active ? '0 4px 12px rgba(255, 107, 129, 0.35)' : 'none',
+                        fontWeight: active ? '700' : '600',
+                        textTransform: 'none',
+                        borderRadius: '12px',
+                        '&:hover': {
+                          backgroundColor: active ? '#ff4757' : 'rgba(255, 107, 129, 0.15)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {link.label}
+                    </Button>
+                  );
+                })}
 
                 {!user && (
                   <>
@@ -506,7 +474,7 @@ function Header() {
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      🐾 Đăng Nhập
+                      🐾 {t('nav.login')}
                     </Button>
                     <Button
                       onClick={() => navigate('/signup')}
@@ -527,16 +495,17 @@ function Header() {
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      🐶 Đăng Ký
+                      🐶 {t('nav.signup')}
                     </Button>
                   </>
                 )}
+                <LanguageSwitcher sx={{ ml: 1.5 }} />
               </Box>
 
               {/* Hamburger - chỉ hiện trên mobile/tablet, mở Drawer điều hướng */}
               <IconButton
                 onClick={() => setMobileNavOpen(true)}
-                aria-label="Mở menu điều hướng"
+                aria-label={t('nav.openMenu')}
                 sx={{
                   display: { xs: 'flex', md: 'none' },
                   color: '#ff6b81',
@@ -565,18 +534,21 @@ function Header() {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, p: 2 }}>
               <FaPaw size={18} color="#ff6b81" />
               <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                🐾 Menu
+                🐾 {t('nav.menu')}
               </Typography>
               <FaPaw size={18} color="#ff6b81" />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', pb: 2 }}>
+              <LanguageSwitcher />
             </Box>
             <Divider sx={{ borderColor: 'rgba(255, 107, 129, 0.2)' }} />
             <List>
               {navLinks.map((link) => (
                 <ListItem key={link.path} disablePadding>
-                  <ListItemButton onClick={() => handleMobileNavClick(link.path)}>
+                  <ListItemButton selected={isActive(link)} onClick={() => handleMobileNavClick(link.path)}>
                     <ListItemText
                       primary={link.label}
-                      primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: 600 } }}
+                      primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: isActive(link) ? 700 : 600 } }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -587,7 +559,7 @@ function Header() {
                   <ListItem disablePadding>
                     <ListItemButton onClick={() => handleMobileNavClick('/login')}>
                       <ListItemText
-                        primary="🐾 Đăng Nhập"
+                        primary={`🐾 ${t('nav.login')}`}
                         primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: 600 } }}
                       />
                     </ListItemButton>
@@ -595,7 +567,7 @@ function Header() {
                   <ListItem disablePadding>
                     <ListItemButton onClick={() => handleMobileNavClick('/signup')}>
                       <ListItemText
-                        primary="🐶 Đăng Ký"
+                        primary={`🐶 ${t('nav.signup')}`}
                         primaryTypographyProps={{ sx: { color: '#ff6b81', fontWeight: 600 } }}
                       />
                     </ListItemButton>

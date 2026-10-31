@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { database, ref, get } from '../../firebaseConfig';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const SelectVoucher = ({ onVoucherChange, calculateTotalAmount }) => {
+  const { t } = useLanguage();
   const [vouchers, setVouchers] = useState([]); // Lưu danh sách voucher
   const [voucher, setVoucher] = useState(''); // Voucher đã chọn
   const [discount, setDiscount] = useState(0); // Giá trị giảm giá
@@ -59,17 +61,17 @@ const SelectVoucher = ({ onVoucherChange, calculateTotalAmount }) => {
     } else {
       setDiscount(0); // Nếu voucher không hợp lệ, đặt discount = 0
       onVoucherChange(0);
-      alert('Voucher không hợp lệ');
+      alert(t('shop.voucher.invalid'));
     }
   };
 
   return (
     <FormControl fullWidth sx={{ marginBottom: 2 }}>
-  <InputLabel>Chọn Voucher</InputLabel>
+  <InputLabel>{t('shop.voucher.choose')}</InputLabel>
   <Select
     value={voucher}
     onChange={(e) => handleVoucherChange(e.target.value)}
-    label="Voucher"
+    label={t('shop.voucher.label')}
   >
     {vouchers.length > 0 ? (
       vouchers.map((voucherItem) => (
@@ -82,7 +84,7 @@ const SelectVoucher = ({ onVoucherChange, calculateTotalAmount }) => {
         </MenuItem>
       ))
     ) : (
-      <MenuItem disabled>Không có voucher</MenuItem>
+      <MenuItem disabled>{t('shop.voucher.none')}</MenuItem>
     )}
   </Select>
 </FormControl>

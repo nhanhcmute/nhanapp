@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Grid, Card, CardContent, Divider } from '@mui/material';
 import { ref, get, update } from 'firebase/database';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { database } from '../../firebaseConfig';  // Import cấu hình Firebase
 
 const Shipping = () => {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState([]);
 
   // Lấy danh sách đơn hàng từ Firebase khi component mount
@@ -43,7 +45,7 @@ const Shipping = () => {
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Quản lý vận chuyển
+        {t('admin.shipping.title')}
       </Typography>
 
       <Grid container spacing={3}>
@@ -54,10 +56,10 @@ const Shipping = () => {
                 <Typography variant="h6">{order.productName}</Typography>
                 <Typography variant="body1">Total: ${order.totalAmount}</Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Payment Status: {order.paymentStatus}
+                  {t('admin.payments.status', { v: t('admin.payments.statuses')[order.paymentStatus] || order.paymentStatus })}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
-                  Shipping Status: {order.shippingStatus}
+                  {t('admin.shipping.status', { v: t('admin.shipping.statuses')[order.shippingStatus] || order.shippingStatus })}
                 </Typography>
 
                 <Box sx={{ marginTop: 2 }}>
@@ -67,7 +69,7 @@ const Shipping = () => {
                       color="primary"
                       onClick={() => handleShippingStatusChange(order.id, 'Shipped')}
                     >
-                      Mark as Shipped
+                      {t('admin.shipping.markShipped')}
                     </Button>
                   ) : order.shippingStatus === 'Shipped' ? (
                     <Button
@@ -75,7 +77,7 @@ const Shipping = () => {
                       color="secondary"
                       onClick={() => handleShippingStatusChange(order.id, 'Delivered')}
                     >
-                      Mark as Delivered
+                      {t('admin.shipping.markDelivered')}
                     </Button>
                   ) : (
                     <Button
@@ -83,7 +85,7 @@ const Shipping = () => {
                       color="secondary"
                       disabled
                     >
-                      Delivered
+                      {t('admin.shipping.delivered')}
                     </Button>
                   )}
                 </Box>

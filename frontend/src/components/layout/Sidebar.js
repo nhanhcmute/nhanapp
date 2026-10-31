@@ -3,24 +3,26 @@ import { Box, Typography, Avatar, List, ListItem, ListItemIcon, ListItemText, Di
 import { AccountCircle, Home, CreditCard, Lock, Notifications, PrivacyTip, ShoppingCart, CardGiftcard } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const Sidebar = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Cấu hình các menu items
   const accountMenuItems = [
-    { icon: <AccountCircle />, text: 'Hồ sơ', route: '/profile' },
-    { icon: <Home />, text: 'Địa chỉ', route: '/address' },
-    { icon: <CreditCard />, text: 'Ngân hàng', route: '/bank' },
-    { icon: <Lock />, text: 'Đổi mật khẩu', route: '/changepassword' },
-    { icon: <Notifications />, text: 'Cài đặt thông báo', route: '/notificationsetting' },
-    { icon: <PrivacyTip />, text: 'Thiết lập riêng tư', route: '/privacy' },
+    { icon: <AccountCircle />, text: t('account.sidebar.profile'), route: '/profile' },
+    { icon: <Home />, text: t('account.sidebar.address'), route: '/address' },
+    { icon: <CreditCard />, text: t('account.sidebar.bank'), route: '/bank' },
+    { icon: <Lock />, text: t('account.sidebar.changePassword'), route: '/changepassword' },
+    { icon: <Notifications />, text: t('account.sidebar.notificationSettings'), route: '/notificationsetting' },
+    { icon: <PrivacyTip />, text: t('account.sidebar.privacy'), route: '/privacy' },
   ];
 
   const otherMenuItems = [
-    { icon: <ShoppingCart />, text: 'Đơn mua', route: '/orders' },
-    { icon: <Notifications />, text: 'Thông báo', route: '/alerts' },
-    { icon: <CardGiftcard />, text: 'Voucher', route: '/voucher' },
+    { icon: <ShoppingCart />, text: t('account.sidebar.orders'), route: '/orders' },
+    { icon: <Notifications />, text: t('account.sidebar.notifications'), route: '/alerts' },
+    { icon: <CardGiftcard />, text: t('account.sidebar.voucher'), route: '/voucher' },
   ];
 
   // Lấy avatar và username từ LocalStorage
@@ -114,10 +116,10 @@ const Sidebar = () => {
         />
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81', fontSize: '16px' }}>
-            {name || 'Tên User'} 🐾
+            {name || t('account.sidebar.userFallback')} 🐾
           </Typography>
           <Typography variant="caption" sx={{ color: '#666', fontSize: '12px' }}>
-            Thành viên
+            {t('account.sidebar.member')}
           </Typography>
         </Box>
       </Box>
@@ -128,7 +130,7 @@ const Sidebar = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <FaPaw size={16} color="#ff6b81" />
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-          Tài khoản của tôi
+          {t('account.sidebar.myAccount')}
         </Typography>
       </Box>
       <List sx={{ py: 0 }}>
@@ -167,7 +169,7 @@ const Sidebar = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <FaPaw size={16} color="#ff6b81" />
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-          Khác
+          {t('account.sidebar.other')}
         </Typography>
       </Box>
       <List sx={{ py: 0 }}>

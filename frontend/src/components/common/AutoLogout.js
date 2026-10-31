@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const AUTO_LOGOUT_TIME = 10 * 60 * 10000; 
 
 const AutoLogout = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   let timeout;
 
@@ -19,7 +21,7 @@ const AutoLogout = () => {
   const handleLogout = () => {
     localStorage.removeItem('user'); 
     localStorage.removeItem('lastActivity'); //
-    alert('Bạn đã bị đăng xuất do không hoạt động.');
+    alert(t('auth.autoLogout'));
     navigate('/login'); 
   };
 

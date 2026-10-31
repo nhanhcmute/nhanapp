@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Grid, Card, CardContent, CardMedia, CircularProgress, Typography, Button, Box, Pagination, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Thêm hook điều hướng
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 'all'];
 const ALL_PAGE_SIZE = 100000; // đủ lớn để chắc chắn lấy hết khi chọn "All"
 
 const Cats = () => {
+  const { t } = useLanguage();
     const [catsData, setCatsData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -111,7 +113,7 @@ const Cats = () => {
                                         {cat.name}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        <strong>Origin:</strong> {cat.origin}
+                                        <strong>{t('content.pets.origin')}</strong> {cat.origin}
                                     </Typography>
                                     {/* Hiển thị giá ngẫu nhiên */}
                                     <Typography variant="body1" color="primary" sx={{ marginTop: "8px" }}>
@@ -131,7 +133,7 @@ const Cats = () => {
                                     }}
                                     onClick={(e) => e.stopPropagation()} // Ngăn xung đột với sự kiện click trên Card
                                 >
-                                    More Info
+                                    {t('content.pets.moreInfo')}
                                 </Button>
                             </Card>
                         </Grid>
@@ -152,16 +154,16 @@ const Cats = () => {
                     <Pagination count={totalPages} page={page} onChange={handlePageChange} shape="rounded" />
 
                     <FormControl size="small" sx={{ minWidth: 150 }}>
-                        <InputLabel id="cats-page-size-label">Hiển thị</InputLabel>
+                        <InputLabel id="cats-page-size-label">{t('shop.show')}</InputLabel>
                         <Select
                             labelId="cats-page-size-label"
-                            label="Hiển thị"
+                            label={t('shop.show')}
                             value={pageSize}
                             onChange={handlePageSizeChange}
                         >
                             {PAGE_SIZE_OPTIONS.map((opt) => (
                                 <MenuItem key={opt} value={opt}>
-                                    {opt === 'all' ? `Tất cả (${totalCount})` : `${opt} / trang`}
+                                    {opt === 'all' ? t('shop.allCount', { n: totalCount }) : t('shop.perPage', { n: opt })}
                                 </MenuItem>
                             ))}
                         </Select>

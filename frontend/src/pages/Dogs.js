@@ -3,11 +3,13 @@ import { Grid, Card, CardContent, CardMedia, CircularProgress, Typography, Box, 
 import { useNavigate } from "react-router-dom";
 
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 'all'];
 const ALL_PAGE_SIZE = 100000; // đủ lớn để chắc chắn lấy hết khi chọn "All"
 
 const Dogs = () => {
+  const { t } = useLanguage();
   const [dogBreeds, setDogBreeds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -79,7 +81,7 @@ const Dogs = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 style={{ textAlign: "center" }}>Danh mục chó</h1>
+      <h1 style={{ textAlign: "center" }}>{t('content.pets.dogsTitle')}</h1>
       {loading ? (
         <div style={{ textAlign: "center" }}>
           <CircularProgress />
@@ -103,10 +105,10 @@ const Dogs = () => {
                 <CardContent>
                   <Typography variant="h6">{dog.name}</Typography>
                   <Typography variant="body2" color="textSecondary">
-                    {dog.breed_group ? dog.breed_group : "Chưa có thông tin nhóm giống"}
+                    {dog.breed_group ? dog.breed_group : t('content.pets.noBreedGroup')}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    Nguồn gốc: {dog.origin || "Chưa có thông tin"}
+                    {t('content.pets.originLine', { value: dog.origin || t('content.pets.noInfo') })}
                   </Typography>
                   <Typography variant="body1" color="primary" sx={{ marginTop: "8px" }}>
                     {dog.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
@@ -131,16 +133,16 @@ const Dogs = () => {
           <Pagination count={totalPages} page={page} onChange={handlePageChange} shape="rounded" />
 
           <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel id="dogs-page-size-label">Hiển thị</InputLabel>
+            <InputLabel id="dogs-page-size-label">{t('shop.show')}</InputLabel>
             <Select
               labelId="dogs-page-size-label"
-              label="Hiển thị"
+              label={t('shop.show')}
               value={pageSize}
               onChange={handlePageSizeChange}
             >
               {PAGE_SIZE_OPTIONS.map((opt) => (
                 <MenuItem key={opt} value={opt}>
-                  {opt === 'all' ? `Tất cả (${totalCount})` : `${opt} / trang`}
+                  {opt === 'all' ? t('shop.allCount', { n: totalCount }) : t('shop.perPage', { n: opt })}
                 </MenuItem>
               ))}
             </Select>

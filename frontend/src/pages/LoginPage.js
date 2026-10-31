@@ -3,6 +3,7 @@ import { Button, TextField, Container, Typography, Box, Alert, Modal, Fade, Back
 import { FaGoogle, FaFacebook, FaGithub, FaPaw } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Chrome tự tô nền vàng/trắng cho input khi autofill hoặc khi chọn gợi ý đã lưu,
 // đè lên theme nền tối trong suốt của form. Dùng "mẹo" box-shadow inset để che nền
@@ -18,6 +19,7 @@ const autofillFixSx = {
 };
 
 const LoginPage = () => {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -40,7 +42,7 @@ const LoginPage = () => {
     setSuccess(false);
 
     if (!username || !password) {
-      setError('Vui lòng nhập tên đăng nhập và mật khẩu!');
+      setError(t('auth.errors.needUserPass'));
       return;
     }
 
@@ -78,7 +80,7 @@ const LoginPage = () => {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi đăng nhập!');
+      setError(t('auth.errors.loginFailed'));
       console.error('Login error:', err);
     }
   };
@@ -86,11 +88,11 @@ const LoginPage = () => {
   useEffect(() => {
     const hours = new Date().getHours();
     if (hours < 12) {
-      setGreeting('Good Morning');
+      setGreeting('morning');
     } else if (hours < 18) {
-      setGreeting('Good Afternoon');
+      setGreeting('afternoon');
     } else {
-      setGreeting('Good Evening');
+      setGreeting('evening');
     }
   }, []);
 
@@ -102,7 +104,7 @@ const LoginPage = () => {
     setSuccess(false);
 
     if (!resetUsername || !resetEmail) {
-      setError('Vui lòng nhập tên đăng nhập và email!');
+      setError(t('auth.errors.needUserEmail'));
       setIsSubmitting(false);
       setIsSendingOTP(false);
       return;
@@ -136,7 +138,7 @@ const LoginPage = () => {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi gửi yêu cầu đặt lại mật khẩu!');
+      setError(t('auth.errors.resetRequestFailed'));
       console.error('Forgot password error:', err);
     } finally {
       setIsSubmitting(false);
@@ -208,7 +210,7 @@ const LoginPage = () => {
               lineHeight: 1.2,
             }}
           >
-            {greeting},
+            {greeting && t(`auth.greet.${greeting}`)},
           </Typography>
           <Typography
             variant="h3"
@@ -226,7 +228,7 @@ const LoginPage = () => {
               lineHeight: 1.2,
             }}
           >
-            Welcome to Nhân's Pet Haven
+            {t('auth.welcome')}
           </Typography>
         </div>
       </Container>
@@ -264,7 +266,7 @@ const LoginPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
             <FaPaw size={28} color="#ff6b81" />
             <Typography variant="h5" color='white' sx={{ fontWeight: 600 }}>
-              Đăng nhập
+              {t('auth.login')}
             </Typography>
             <FaPaw size={28} color="#ff6b81" />
           </Box>
@@ -284,20 +286,20 @@ const LoginPage = () => {
 
           {success && (
             <Alert severity="success" sx={{ mb: 2, width: '100%', borderRadius: '12px' }}>
-              Đăng nhập thành công!
+              {t('auth.loginSuccess')}
             </Alert>
           )}
 
           {/* Display user info if logged in */}
           {user && (
             <Alert severity="info" sx={{ mb: 2, width: '100%' }}>
-              Chào {user.name || user.username}, Bạn đã đăng nhập thành công!
+              {t('auth.greeting', { name: user.name || user.username })}
             </Alert>
           )}
           <Box sx={{ backgroundColor: "transparent", width: "100%" }}>
             <form autoComplete="off">
               <TextField
-                label="Tên đăng nhập"
+                label={t('auth.username')}
                 variant="standard"
                 color="white"
                 fullWidth
@@ -333,7 +335,7 @@ const LoginPage = () => {
           </Box>
 
           <TextField
-            label="Mật khẩu"
+            label={t('auth.password')}
             variant="standard"
             color="white"
             fullWidth
@@ -386,7 +388,7 @@ const LoginPage = () => {
             }}
             onClick={handleLogin}
           >
-            🐾 Đăng nhập
+            {`🐾 ${t('auth.login')}`}
           </Button>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
             <Button
@@ -432,7 +434,7 @@ const LoginPage = () => {
               setSuccess(false);
             }}
           >
-            🔑 Quên mật khẩu?
+            {`🔑 ${t('auth.forgotPassword')}`}
           </Button>
 
           <Button
@@ -453,7 +455,7 @@ const LoginPage = () => {
             }}
             onClick={() => navigate('/signup')}
           >
-            🐶 Chưa có tài khoản? Đăng ký ngay
+            {`🐶 ${t('auth.noAccount')}`}
           </Button>
         </Box>
 
@@ -490,14 +492,14 @@ const LoginPage = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                 <FaPaw size={24} color="#ff6b81" />
                 <Typography variant="h6" color='#ff6b81' sx={{ fontWeight: 600 }}>
-                  Quên mật khẩu
+                  {t('auth.forgotTitle')}
                 </Typography>
               </Box>
               <Box sx={{ backgroundColor: "transparent", width: "100%" }}>
   <form autoComplete="off">
     {/* Ô nhập Tên đăng nhập */}
     <TextField
-      label="Tên đăng nhập"
+      label={t('auth.username')}
       variant="standard"
       fullWidth
       margin="normal"
@@ -522,7 +524,7 @@ const LoginPage = () => {
       }}
     />
                   <TextField
-                    label="Email"
+                    label={t('auth.email')}
                     variant="standard"
                     fullWidth
                     margin="normal"
@@ -572,7 +574,7 @@ const LoginPage = () => {
                 onClick={handleForgotPassword}
                 disabled={isSendingOTP}
               >
-                {isSendingOTP ? '📧 Đang gửi...' : '🚀 Gửi mã OTP'}
+                {isSendingOTP ? `📧 ${t('auth.sending')}` : `🚀 ${t('auth.sendOtp')}`}
               </Button>
             </Box>
           </Fade>

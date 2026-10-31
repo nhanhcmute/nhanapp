@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Grid, Card, CardContent, Divider } from '@mui/material';
 import { getDatabase, ref, get, update } from 'firebase/database';
 import { database } from '../../firebaseConfig';  
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const Payments = () => {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState([]);
 
   // Lấy danh sách đơn hàng từ Firebase
@@ -44,7 +46,7 @@ const Payments = () => {
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Quản lý thanh toán
+        {t('admin.payments.title')}
       </Typography>
 
       <Grid container spacing={3}>
@@ -55,7 +57,7 @@ const Payments = () => {
                 <Typography variant="h6">{order.productName}</Typography>
                 <Typography variant="body1">Total: ${order.totalAmount}</Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Payment Status: {order.paymentStatus}
+                  {t('admin.payments.status', { v: t('admin.payments.statuses')[order.paymentStatus] || order.paymentStatus })}
                 </Typography>
 
                 <Box sx={{ marginTop: 2 }}>
@@ -65,7 +67,7 @@ const Payments = () => {
                       color="primary"
                       onClick={() => handlePaymentStatusChange(order.id, 'Paid')}
                     >
-                      Mark as Paid
+                      {t('admin.payments.markPaid')}
                     </Button>
                   ) : (
                     <Button
@@ -73,7 +75,7 @@ const Payments = () => {
                       color="secondary"
                       onClick={() => handlePaymentStatusChange(order.id, 'Pending')}
                     >
-                      Mark as Pending
+                      {t('admin.payments.markPending')}
                     </Button>
                   )}
                 </Box>

@@ -13,6 +13,7 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Registering ChartJS components
 ChartJS.register(
@@ -28,12 +29,13 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
+  const { t } = useLanguage();
   // Sample data for the charts
   const revenueData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    labels: t('admin.dashboard.months'),
     datasets: [
       {
-        label: "Revenue",
+        label: t('admin.dashboard.revenue'),
         data: [5000, 7000, 8000, 6500, 9000, 11000, 12000],
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
@@ -43,10 +45,10 @@ const Dashboard = () => {
   };
 
   const orderData = {
-    labels: ["Pending", "Completed", "Canceled"],
+    labels: t('admin.dashboard.orderLabels'),
     datasets: [
       {
-        label: "Orders",
+        label: t('admin.dashboard.orders'),
         data: [30, 50, 20],
         backgroundColor: ["#ffeb3b", "#4caf50", "#f44336"],
       },
@@ -54,10 +56,10 @@ const Dashboard = () => {
   };
 
   const productData = {
-    labels: ["Product A", "Product B", "Product C"],
+    labels: ['A', 'B', 'C'].map((x) => t('admin.dashboard.product', { x })),
     datasets: [
       {
-        label: "Top Products",
+        label: t('admin.dashboard.topProducts'),
         data: [100, 150, 120],
         backgroundColor: ["#ff5733", "#33ff57", "#3357ff"],
       },
@@ -65,10 +67,10 @@ const Dashboard = () => {
   };
 
   const customersData = {
-    labels: ["New Customers"],
+    labels: [t('admin.dashboard.newCustomers')],
     datasets: [
       {
-        label: "Customers",
+        label: t('admin.dashboard.customers'),
         data: [300],
         backgroundColor: ["#3f51b5"],
       },
@@ -78,44 +80,44 @@ const Dashboard = () => {
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
-        Dashboard
+        {t('admin.dashboard.title')}
       </Typography>
       <Grid container spacing={3}>
         {/* Tổng doanh thu */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper elevation={3} sx={{ padding: 2 }}>
-            <Typography variant="h6">Total Revenue</Typography>
-            <Typography variant="h4">1.250.000.000 VNĐ</Typography>
-            <Typography variant="body2">Daily: 30.000.000 VNĐ</Typography>
-            <Typography variant="body2">Monthly: 750.000.000 VNĐ</Typography>
-            <Typography variant="body2">Yearly: 3.000.000.000 VNĐ</Typography>
+            <Typography variant="h6">{t('admin.dashboard.totalRevenue')}</Typography>
+            <Typography variant="h4">1.250.000.000 {t('shop.currency')}</Typography>
+            <Typography variant="body2">{t('admin.dashboard.daily', { v: `30.000.000 ${t('shop.currency')}` })}</Typography>
+            <Typography variant="body2">{t('admin.dashboard.monthly', { v: `750.000.000 ${t('shop.currency')}` })}</Typography>
+            <Typography variant="body2">{t('admin.dashboard.yearly', { v: `3.000.000.000 ${t('shop.currency')}` })}</Typography>
           </Paper>
         </Grid>
 
         {/* Số lượng đơn hàng */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper elevation={3} sx={{ padding: 2 }}>
-            <Typography variant="h6">Orders</Typography>
-            <Typography variant="body1">Pending: 30</Typography>
-            <Typography variant="body1">Completed: 50</Typography>
-            <Typography variant="body1">Canceled: 20</Typography>
+            <Typography variant="h6">{t('admin.dashboard.orders')}</Typography>
+            <Typography variant="body1">{t('admin.dashboard.pending', { n: 30 })}</Typography>
+            <Typography variant="body1">{t('admin.dashboard.completed', { n: 50 })}</Typography>
+            <Typography variant="body1">{t('admin.dashboard.canceled', { n: 20 })}</Typography>
           </Paper>
         </Grid>
 
         {/* Sản phẩm bán chạy nhất */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper elevation={3} sx={{ padding: 2 }}>
-            <Typography variant="h6">Top Selling Products</Typography>
-            <Typography variant="body1">Product A - 100 units</Typography>
-            <Typography variant="body1">Product B - 150 units</Typography>
-            <Typography variant="body1">Product C - 120 units</Typography>
+            <Typography variant="h6">{t('admin.dashboard.topSelling')}</Typography>
+            <Typography variant="body1">{t('admin.dashboard.units', { name: t('admin.dashboard.product', { x: 'A' }), n: 100 })}</Typography>
+            <Typography variant="body1">{t('admin.dashboard.units', { name: t('admin.dashboard.product', { x: 'B' }), n: 150 })}</Typography>
+            <Typography variant="body1">{t('admin.dashboard.units', { name: t('admin.dashboard.product', { x: 'C' }), n: 120 })}</Typography>
           </Paper>
         </Grid>
 
         {/* Số lượng khách hàng mới */}
         <Grid item xs={12} sm={6} md={3}>
           <Paper elevation={3} sx={{ padding: 2 }}>
-            <Typography variant="h6">New Customers</Typography>
+            <Typography variant="h6">{t('admin.dashboard.newCustomers')}</Typography>
             <Typography variant="h4">300</Typography>
           </Paper>
         </Grid>
@@ -124,7 +126,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Revenue Overview
+              {t('admin.dashboard.revenueOverview')}
             </Typography>
             <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
               <Line data={revenueData} options={{ responsive: true, maintainAspectRatio: false }} />
@@ -136,7 +138,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Orders Breakdown
+              {t('admin.dashboard.ordersBreakdown')}
             </Typography>
             <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
               <Bar data={orderData} options={{ responsive: true, maintainAspectRatio: false }} />
@@ -148,7 +150,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Top Products
+              {t('admin.dashboard.topProducts')}
             </Typography>
             <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
               <Pie data={productData} options={{ responsive: true, maintainAspectRatio: false }} />
@@ -160,7 +162,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 2 }}>
             <Typography variant="h6" gutterBottom>
-              New Customers Overview
+              {t('admin.dashboard.newCustomersOverview')}
             </Typography>
             <Box sx={{ height: { xs: 220, sm: 280, md: 320 } }}>
               <Pie data={customersData} options={{ responsive: true, maintainAspectRatio: false }} />

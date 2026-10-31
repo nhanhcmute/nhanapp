@@ -17,8 +17,10 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { database, ref, set, push, update, remove, get } from "../../firebaseConfig";
+import { useLanguage } from '../../i18n/LanguageContext';
 
 function Inventory() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -63,14 +65,14 @@ function Inventory() {
 
       await set(productRef, productData); // Lưu sản phẩm vào Firebase
       setProducts([...products, { id: productRef.key, ...productData }]);
-      toast.success('Sản phẩm đã được thêm thành công');
+      toast.success(t('admin.inventory.added'));
       reset();
       setImagePreview('');
       setUploadedImage(null);
       setOpenDialog(false);
     } catch (error) {
       console.error('Error adding product:', error);
-      toast.error('Có lỗi xảy ra khi thêm sản phẩm');
+      toast.error(t('admin.inventory.addFailed'));
     }
   };
 
@@ -89,14 +91,14 @@ function Inventory() {
       setProducts(products.map((product) =>
         product.id === selectedProduct.id ? { id: selectedProduct.id, ...updatedProduct } : product
       ));
-      toast.success('Cập nhật sản phẩm thành công');
+      toast.success(t('admin.inventory.updated'));
       setOpenDialog(false);
       reset();
       setImagePreview('');
       setUploadedImage(null);
     } catch (error) {
       console.error('Error updating product:', error);
-      toast.error('Có lỗi xảy ra khi cập nhật sản phẩm');
+      toast.error(t('admin.inventory.updateFailed'));
     }
   };
 
@@ -122,10 +124,10 @@ function Inventory() {
       const productRef = ref(database, `products/${productId}`);
       await remove(productRef); // Xóa sản phẩm từ Firebase
       setProducts(products.filter((product) => product.id !== productId));
-      toast.success('Sản phẩm đã được xóa');
+      toast.success(t('admin.inventory.deleted'));
     } catch (error) {
       console.error('Error deleting product:', error);
-      toast.error('Có lỗi xảy ra khi xóa sản phẩm');
+      toast.error(t('admin.inventory.deleteFailed'));
     }
   };
 
@@ -148,7 +150,7 @@ function Inventory() {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Quản lý tồn kho sản phẩm</Typography>
+      <Typography variant="h4" gutterBottom>{t('admin.inventory.title')}</Typography>
 
       {/* Danh sách sản phẩm */}
       <Grid container spacing={3}>
@@ -179,8 +181,8 @@ function Inventory() {
                 />
               </Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{product.name}</Typography>
-              <Typography variant="body1" color="textSecondary">Số lượng: {product.quantity}</Typography>
-              <Typography variant="body1" sx={{ fontWeight: 'bold', marginTop: '10px' }}>Giá: {product.price} VNĐ</Typography>
+              <Typography variant="body1" color="textSecondary">{t('admin.inventory.qty', { n: product.quantity })}</Typography>
+              <Typography variant="body1" sx={{ fontWeight: 'bold', marginTop: '10px' }}>{t('admin.inventory.price', { v: product.price })}</Typography>
               <Box sx={{ marginTop: 2 }}>
                 <Button
                   variant="outlined"
@@ -188,7 +190,7 @@ function Inventory() {
                   onClick={() => handleOpenDialog(product)}
                   sx={{ marginRight: 1, padding: '6px 16px', fontSize: '0.875rem' }}
                 >
-                  Sửa
+                  {t('admin.common.edit')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -196,7 +198,7 @@ function Inventory() {
                   onClick={() => handleDeleteProduct(product.id)}
                   sx={{ padding: '6px 16px', fontSize: '0.875rem' }}
                 >
-                  Xóa
+                  {t('admin.common.delete')}
                 </Button>
               </Box>
             </Paper>
@@ -206,37 +208,37 @@ function Inventory() {
 
       {/* Dialog Thêm / Sửa sản phẩm */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>{selectedProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}</DialogTitle>
+        <DialogTitle>{selectedProduct ? t('admin.inventory.editTitle') : t('admin.inventory.addTitle')}</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit(selectedProduct ? onEditProduct : onAddProduct)}>
             <TextField
-              label="Tên sản phẩm"
+              label={t('admin.inventory.name')}
               fullWidth
               margin="normal"
               {...register('name', { required: true })}
             />
             <TextField
-              label="Số lượng"
+              label={t('admin.inventory.quantity')}
               fullWidth
               margin="normal"
               type="number"
               {...register('quantity', { required: true })}
             />
             <TextField
-              label="Giá"
+              label={t('admin.inventory.priceLabel')}
               fullWidth
               margin="normal"
               type="number"
               {...register('price', { required: true })}
             />
             <Box sx={{ marginTop: 2 }}>
-              <Typography>Hình ảnh</Typography>
+              <Typography>{t('admin.inventory.image')}</Typography>
               <input type="file" onChange={handleImageChange} />
               {imagePreview && (
                 <Box mt={2} sx={{ textAlign: 'center' }}>
                   <img
                     src={imagePreview}
-                    alt="Preview"
+                    alt={t('admin.inventory.preview')}
                     style={{
                       width: '150px',
                       maxWidth: '100%',
@@ -249,8 +251,8 @@ function Inventory() {
               )}
             </Box>
             <DialogActions>
-              <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
-              <Button type="submit">{selectedProduct ? 'Cập nhật' : 'Thêm'}</Button>
+              <Button onClick={() => setOpenDialog(false)}>{t('admin.common.cancel')}</Button>
+              <Button type="submit">{selectedProduct ? t('admin.common.update') : t('admin.common.add')}</Button>
             </DialogActions>
           </form>
         </DialogContent>

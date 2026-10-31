@@ -3,6 +3,7 @@ import { Button, TextField, Container, Typography, Box, Alert } from '@mui/mater
 import { FaPaw } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Chrome tự tô nền vàng/trắng cho input khi autofill hoặc khi chọn gợi ý đã lưu,
 // đè lên theme nền tối trong suốt của form. Dùng "mẹo" box-shadow inset để che nền
@@ -18,6 +19,7 @@ const autofillFixSx = {
 };
 
 const SignupPage = () => {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -35,13 +37,13 @@ const SignupPage = () => {
     setIsSendingOTP(true);
 
     if (!name || !email || !username || !password || !confirmPassword) {
-      setError('Vui lòng điền đầy đủ thông tin!');
+      setError(t('auth.errors.fillAll'));
       setIsSendingOTP(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Mật khẩu và xác nhận mật khẩu không khớp!');
+      setError(t('auth.errors.passwordMismatch'));
       setIsSendingOTP(false);
       return;
     }
@@ -66,7 +68,7 @@ const SignupPage = () => {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi gửi mã OTP!');
+      setError(t('auth.errors.sendOtpFailed'));
       console.error('Send OTP error:', err);
     } finally {
       setIsSendingOTP(false);
@@ -77,7 +79,7 @@ const SignupPage = () => {
     setError('');
 
     if (!otpCode || otpCode.length !== 6) {
-      setError('Vui lòng nhập mã OTP 6 chữ số!');
+      setError(t('auth.errors.otp6'));
       return;
     }
 
@@ -103,7 +105,7 @@ const SignupPage = () => {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi xác thực OTP!');
+      setError(t('auth.errors.verifyOtpFailed'));
       console.error('Verify OTP error:', err);
     }
   };
@@ -138,7 +140,7 @@ const SignupPage = () => {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi đăng ký!');
+      setError(t('auth.errors.signupFailed'));
       console.error('Signup error:', err);
     }
   };
@@ -191,7 +193,7 @@ const SignupPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
             <FaPaw size={28} color="#ff6b81" />
             <Typography variant="h5" color='white' sx={{ fontWeight: 600 }}>
-              {step === 1 ? 'Đăng ký tài khoản' : step === 2 ? 'Xác thực OTP' : 'Hoàn tất'}
+              {step === 1 ? t('auth.signupTitle') : step === 2 ? t('auth.otpTitle') : t('auth.done')}
             </Typography>
             <FaPaw size={28} color="#ff6b81" />
           </Box>
@@ -204,14 +206,14 @@ const SignupPage = () => {
 
           {success && (
             <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
-              Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.
+              {t('auth.signupSuccess')}
             </Alert>
           )}
 
           {step === 1 ? (
             <>
               <TextField
-            label="Họ và tên"
+            label={t('auth.fullName')}
             variant="standard"
             color="white"
             fullWidth
@@ -246,7 +248,7 @@ const SignupPage = () => {
           />
 
           <TextField
-            label="Email"
+            label={t('auth.email')}
             variant="standard"
             color='white'
             fullWidth
@@ -281,7 +283,7 @@ const SignupPage = () => {
           />
 
           <TextField
-            label="Tên đăng nhập"
+            label={t('auth.username')}
             variant="standard"
             fullWidth
             margin="normal"
@@ -318,7 +320,7 @@ const SignupPage = () => {
           />
 
           <TextField
-            label="Mật khẩu"
+            label={t('auth.password')}
             variant="standard"
             fullWidth
             margin="normal"
@@ -356,7 +358,7 @@ const SignupPage = () => {
           />
 
           <TextField
-            label="Xác nhận mật khẩu"
+            label={t('auth.confirmPassword')}
             variant="standard"
             fullWidth
             margin="normal"
@@ -418,20 +420,20 @@ const SignupPage = () => {
                 onClick={handleSendOTP}
                 disabled={isSendingOTP}
               >
-                {isSendingOTP ? '📧 Đang gửi...' : '🚀 Tiếp tục - Gửi mã OTP'}
+                {isSendingOTP ? `📧 ${t('auth.sending')}` : `🚀 ${t('auth.continueSendOtp')}`}
               </Button>
             </>
           ) : step === 2 ? (
             <>
               <Typography variant="body1" sx={{ mb: 2, color: 'white', textAlign: 'center' }}>
-                📧 Chúng tôi đã gửi mã OTP 6 chữ số đến email
+                {`📧 ${t('auth.otpSentTo')}`}
               </Typography>
               <Typography variant="body2" sx={{ mb: 3, color: '#ffd93d', fontWeight: 600, textAlign: 'center' }}>
                 {email}
               </Typography>
 
               <TextField
-                label="Mã OTP"
+                label={t('auth.otpCode')}
                 variant="standard"
                 fullWidth
                 margin="normal"
@@ -485,7 +487,7 @@ const SignupPage = () => {
                 onClick={handleVerifyOTP}
                 disabled={otpCode.length !== 6}
               >
-                ✅ Xác thực & Đăng ký
+                {`✅ ${t('auth.verifyAndSignup')}`}
               </Button>
 
               <Button
@@ -504,19 +506,19 @@ const SignupPage = () => {
                   setOtpCode('');
                 }}
               >
-                ← Quay lại
+                {`← ${t('auth.back')}`}
               </Button>
             </>
           ) : (
             <>
               <Typography variant="h6" sx={{ mb: 2, color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
                 <FaPaw size={24} color="#ffd93d" />
-                Đang xử lý đăng ký...
+                {t('auth.processingSignup')}
                 <FaPaw size={24} color="#ffd93d" />
               </Typography>
               {success && (
                 <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
-                  Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.
+                  {t('auth.signupSuccess')}
                 </Alert>
               )}
               {error && (
@@ -528,7 +530,7 @@ const SignupPage = () => {
           )}
 
           <Typography variant="body2" sx={{ mt: 3, color: 'white', textAlign: 'center' }}>
-            Bạn đã có tài khoản?{' '}
+            {t('auth.haveAccount')}{' '}
             <Button 
               sx={{ 
                 color: '#ffd93d',
@@ -540,7 +542,7 @@ const SignupPage = () => {
               }} 
               onClick={() => navigate('/login')}
             >
-              Đăng nhập ngay
+              {t('auth.loginNow')}
             </Button>
           </Typography>
         </Box>

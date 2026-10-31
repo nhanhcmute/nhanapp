@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { database, ref, get, update } from '../firebaseConfig'; 
+import { useLanguage } from '../i18n/LanguageContext';
 
 const GetVoucher = () => {
+  const { t } = useLanguage();
   const [vouchers, setVouchers] = useState([]);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ const GetVoucher = () => {
   return (
     <Container maxWidth="md">
       <Typography variant="h4" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
-        Các Mã Khuyến Mãi
+        {t('account.voucher.promoTitle')}
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -49,20 +51,20 @@ const GetVoucher = () => {
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Promo Code</TableCell>
-                    <TableCell>Discount</TableCell>
-                    <TableCell>Min Order Amount</TableCell>
-                    <TableCell>Product Condition</TableCell>
-                    <TableCell>Expiration Date</TableCell>
-                    <TableCell>Action</TableCell>
+                    <TableCell>{t('account.voucher.code')}</TableCell>
+                    <TableCell>{t('account.voucher.discount')}</TableCell>
+                    <TableCell>{t('account.voucher.minOrder')}</TableCell>
+                    <TableCell>{t('account.voucher.condition')}</TableCell>
+                    <TableCell>{t('account.voucher.expires')}</TableCell>
+                    <TableCell>{t('account.voucher.action')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {vouchers.map((voucher) => (
                     <TableRow key={voucher.id}>
                       <TableCell>{voucher.code}</TableCell>
-                      <TableCell>{voucher.discountType === 'percentage' ? `${voucher.discountValue}%` : `${voucher.discountValue.toLocaleString('vi-VN')} VNĐ`}</TableCell>
-                      <TableCell>{voucher.minOrderAmount.toLocaleString('vi-VN')} VNĐ</TableCell>
+                      <TableCell>{voucher.discountType === 'percentage' ? `${voucher.discountValue}%` : `${voucher.discountValue.toLocaleString('vi-VN')} ${t('shop.currency')}`}</TableCell>
+                      <TableCell>{voucher.minOrderAmount.toLocaleString('vi-VN')} {t('shop.currency')}</TableCell>
                       <TableCell>{voucher.productCondition}</TableCell>
                       <TableCell>{voucher.expirationDate}</TableCell>
                       <TableCell>
@@ -73,7 +75,7 @@ const GetVoucher = () => {
                           disabled={voucher.usedCount >= voucher.quantity} // Disable button when quantity is reached
                           sx={{ backgroundColor: voucher.usedCount >= voucher.quantity ? '#b0bec5' : '#1976d2', '&:hover': { backgroundColor: voucher.usedCount >= voucher.quantity ? '#b0bec5' : '#1565c0' } }}
                         >
-                          {voucher.usedCount < voucher.quantity ? 'Lấy Mã' : 'Đã hết mã'}
+                          {voucher.usedCount < voucher.quantity ? t('account.voucher.get') : t('account.voucher.outOfCodes')}
                         </Button>
                       </TableCell>
                     </TableRow>

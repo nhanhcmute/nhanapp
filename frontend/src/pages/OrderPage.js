@@ -9,6 +9,7 @@ import useOrders from '../hooks/useOrder';
 import { orderService } from '../services/orderService';
 import { getProductImageSrc } from '../utils/imageUtils';
 import { ORDER_STATUS_FILTERS } from '../utils/orderStatus';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -24,6 +25,7 @@ const importImages = () => {
 const images = importImages(); 
 
 const OrderPage = () => {
+  const { t } = useLanguage();
   const orderStatuses = ORDER_STATUS_FILTERS;
 
   const { orders, loading } = useOrders(); 
@@ -134,7 +136,7 @@ const OrderPage = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
           <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center' }}>
-            📦 Quản lý Đơn Hàng
+            {`📦 ${t('checkout.orders.title')}`}
           </Typography>
           <FaPaw size={32} color="#ff6b81" />
         </Box>
@@ -152,8 +154,8 @@ const OrderPage = () => {
           }}
         >
           <TextField
-            label="🔍 Tìm kiếm đơn hàng"
-            placeholder="Bạn có thể tìm kiếm theo ID đơn hàng hoặc tên sản phẩm..."
+            label={`🔍 ${t('checkout.orders.search')}`}
+            placeholder={t('checkout.orders.searchPlaceholder')}
             variant="outlined"
             fullWidth
             value={searchTerm}
@@ -207,7 +209,7 @@ const OrderPage = () => {
                   transition: 'all 0.3s ease',
                 }}
               >
-                {status.status}
+                {t('checkout.orderStatus')[status.status] || status.status}
               </Button>
             ))}
           </Box>
@@ -237,16 +239,16 @@ const OrderPage = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <FaPaw size={20} color="#ff6b81" />
                     <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700 }}>
-                      📦 Mã đơn hàng: {order.orderCode || order.id}
+                      {`📦 ${t('checkout.orders.code', { code: order.orderCode || order.id })}`}
                     </Typography>
                   </Box>
                   <Typography variant="body1" sx={{ mb: 1, color: '#666', fontWeight: 600 }}>
-                    💰 Tổng tiền: <span style={{ color: '#ff4757', fontSize: '18px' }}>
-                      {order.totalAmount ? order.totalAmount.toLocaleString() : 'Không có dữ liệu'} VND
+                    💰 {t('checkout.orders.total')} <span style={{ color: '#ff4757', fontSize: '18px' }}>
+                      {order.totalAmount ? order.totalAmount.toLocaleString() : t('checkout.orders.noData')} VND
                     </span>
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
-                    📅 Ngày tạo: {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Không có dữ liệu'}
+                    {`📅 ${t('checkout.orders.createdAt', { date: order.createdAt ? new Date(order.createdAt).toLocaleString() : t('checkout.orders.noData') })}`}
                   </Typography>
 
                   {/* Kiểm tra nếu có sản phẩm trong đơn hàng */}
@@ -292,17 +294,17 @@ const OrderPage = () => {
                               {product.productName || product.name}
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#666', mb: 0.5 }}>
-                              Số lượng: {product.quantity} x {product.unitPrice ? product.unitPrice.toLocaleString() : (product.price ? product.price.toLocaleString() : 'Không có giá')} VND
+                              {t('checkout.orders.qty', { qty: product.quantity, price: product.unitPrice ? product.unitPrice.toLocaleString() : (product.price ? product.price.toLocaleString() : t('checkout.orders.noPrice')) })}
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#ff4757', fontWeight: 600 }}>
-                              Tổng: {(product.totalPrice || product.total || (product.unitPrice || product.price || 0) * product.quantity).toLocaleString()} VND
+                              {t('checkout.orders.lineTotal', { amount: (product.totalPrice || product.total || (product.unitPrice || product.price || 0) * product.quantity).toLocaleString() })}
                             </Typography>
                           </Box>
                         </Paper>
                       ))
                     ) : (
                       <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', py: 2 }}>
-                        Không có sản phẩm trong đơn hàng này.
+                        {t('checkout.orders.noItems')}
                       </Typography>
                     )}
                   </Box>
@@ -324,10 +326,10 @@ const OrderPage = () => {
               >
                 <FaPaw size={48} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
                 <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600 }}>
-                  Không có đơn hàng nào
+                  {t('checkout.orders.none')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#666', mt: 1 }}>
-                  Không có đơn hàng nào với trạng thái này hoặc từ khóa tìm kiếm.
+                  {t('checkout.orders.noneHint')}
                 </Typography>
               </Paper>
             </Grid>

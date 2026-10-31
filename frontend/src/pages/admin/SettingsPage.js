@@ -3,6 +3,7 @@ import { Box, TextField, Button, Typography, FormControl, InputLabel, Select, Me
 import { CloudUpload } from '@mui/icons-material';
 import { FaPaw } from 'react-icons/fa';
 import { API_URL } from '../../config/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const fieldSx = {
   mb: 2.5,
@@ -26,6 +27,7 @@ const sectionSx = {
 };
 
 const SettingsPage = () => {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState({
     storeName: '',
     storeLogo: null,
@@ -60,7 +62,7 @@ const SettingsPage = () => {
         }
       } catch (err) {
         console.error('Error loading settings:', err);
-        setFeedback({ type: 'error', message: 'Không thể tải cài đặt hiện tại' });
+        setFeedback({ type: 'error', message: t('admin.settings.loadFailed') });
       } finally {
         setLoading(false);
       }
@@ -100,13 +102,13 @@ const SettingsPage = () => {
       });
       const result = await res.json();
       if (result.status === 200) {
-        setFeedback({ type: 'success', message: 'Lưu cài đặt thành công!' });
+        setFeedback({ type: 'success', message: t('admin.settings.saved') });
       } else {
-        setFeedback({ type: 'error', message: result.message || 'Lưu cài đặt thất bại' });
+        setFeedback({ type: 'error', message: result.message || t('admin.settings.saveFailed') });
       }
     } catch (err) {
       console.error('Error saving settings:', err);
-      setFeedback({ type: 'error', message: 'Đã xảy ra lỗi khi lưu cài đặt' });
+      setFeedback({ type: 'error', message: t('admin.settings.saveError') });
     } finally {
       setSaving(false);
     }
@@ -125,7 +127,7 @@ const SettingsPage = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
         <FaPaw size={26} color="#ff6b81" />
         <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, fontSize: { xs: '1.5rem', md: '2rem' } }}>
-          Cài đặt hệ thống
+          {t('admin.settings.title')}
         </Typography>
       </Box>
 
@@ -138,17 +140,17 @@ const SettingsPage = () => {
       {/* Cấu hình cửa hàng */}
       <Paper elevation={0} sx={sectionSx}>
         <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700, mb: 2 }}>
-          Cấu hình cửa hàng
+          {t('admin.settings.store')}
         </Typography>
         <TextField
-          label="Tên cửa hàng"
+          label={t('admin.settings.storeName')}
           fullWidth
           value={settings.storeName}
           onChange={handleChange('storeName')}
           sx={fieldSx}
         />
         <Box sx={{ mb: 2.5 }}>
-          <Typography variant="body2" sx={{ mb: 1, color: '#666' }}>Logo cửa hàng</Typography>
+          <Typography variant="body2" sx={{ mb: 1, color: '#666' }}>{t('admin.settings.logo')}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <input
               type="file"
@@ -164,21 +166,21 @@ const SettingsPage = () => {
                 startIcon={<CloudUpload />}
                 sx={{ backgroundColor: '#ff6b81', borderRadius: '12px', '&:hover': { backgroundColor: '#ff4f70' } }}
               >
-                Tải lên logo
+                {t('admin.settings.uploadLogo')}
               </Button>
             </label>
             {settings.storeLogo && (
               <Box
                 component="img"
                 src={settings.storeLogo}
-                alt="Store Logo"
+                alt={t('admin.settings.logoAlt')}
                 sx={{ width: 64, height: 64, borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,107,129,0.3)' }}
               />
             )}
           </Box>
         </Box>
         <TextField
-          label="Thông tin liên hệ"
+          label={t('admin.settings.contact')}
           fullWidth
           value={settings.contactInfo}
           onChange={handleChange('contactInfo')}
@@ -189,14 +191,14 @@ const SettingsPage = () => {
       {/* Thanh toán */}
       <Paper elevation={0} sx={sectionSx}>
         <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700, mb: 2 }}>
-          Thanh toán
+          {t('admin.settings.payment')}
         </Typography>
         <FormControl fullWidth sx={fieldSx}>
-          <InputLabel>Chọn cổng thanh toán</InputLabel>
+          <InputLabel>{t('admin.settings.gateway')}</InputLabel>
           <Select
             value={settings.paymentMethod}
             onChange={handleChange('paymentMethod')}
-            label="Chọn cổng thanh toán"
+            label={t('admin.settings.gateway')}
           >
             <MenuItem value="PayPal">PayPal</MenuItem>
             <MenuItem value="MoMo">MoMo</MenuItem>
@@ -208,10 +210,10 @@ const SettingsPage = () => {
       {/* Giao hàng */}
       <Paper elevation={0} sx={sectionSx}>
         <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700, mb: 2 }}>
-          Giao hàng
+          {t('admin.settings.shipping')}
         </Typography>
         <TextField
-          label="Phí giao hàng"
+          label={t('admin.settings.shippingFee')}
           fullWidth
           type="number"
           value={settings.shippingFee}
@@ -219,7 +221,7 @@ const SettingsPage = () => {
           sx={fieldSx}
         />
         <TextField
-          label="Đối tác vận chuyển"
+          label={t('admin.settings.carrier')}
           fullWidth
           value={settings.shippingPartner}
           onChange={handleChange('shippingPartner')}
@@ -230,7 +232,7 @@ const SettingsPage = () => {
       {/* API Keys */}
       <Paper elevation={0} sx={sectionSx}>
         <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700, mb: 2 }}>
-          API Keys
+          {t('admin.settings.apiKeys')}
         </Typography>
         <TextField
           label="API Key"
@@ -257,7 +259,7 @@ const SettingsPage = () => {
             '&:hover': { backgroundColor: '#ff4757' },
           }}
         >
-          {saving ? 'Đang lưu...' : '💾 Lưu cài đặt'}
+          {saving ? t('admin.settings.saving') : `💾 ${t('admin.settings.save')}`}
         </Button>
       </Box>
     </Box>

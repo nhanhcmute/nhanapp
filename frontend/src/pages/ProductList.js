@@ -4,24 +4,26 @@ import { Link } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
 import { getProductImageSrc } from '../utils/imageUtils';
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 'all'];
 const ALL_PAGE_SIZE = 100000; // đủ lớn để chắc chắn lấy hết sản phẩm khi chọn "All"
 
+// value là giá trị lưu trong DB; nhãn hiển thị lấy từ shop.petTypes / shop.categoryNames
 const PET_TYPE_FILTERS = [
-  { value: '', label: 'Tất cả' },
-  { value: 'Mèo', label: 'Mèo' },
-  { value: 'Chó', label: 'Chó' },
+  { value: '' },
+  { value: 'Mèo' },
+  { value: 'Chó' },
 ];
 
 const CATEGORY_FILTERS = [
-  { value: '', label: 'Tất cả loại' },
-  { value: 'Thức ăn', label: 'Thức ăn' },
-  { value: 'Đồ chơi', label: 'Đồ chơi' },
-  { value: 'Phụ kiện', label: 'Phụ kiện' },
-  { value: 'Vệ sinh', label: 'Vệ sinh' },
-  { value: 'Y tế', label: 'Y tế' },
-  { value: 'Khác', label: 'Khác' },
+  { value: '' },
+  { value: 'Thức ăn' },
+  { value: 'Đồ chơi' },
+  { value: 'Phụ kiện' },
+  { value: 'Vệ sinh' },
+  { value: 'Y tế' },
+  { value: 'Khác' },
 ];
 
 const toggleButtonSx = {
@@ -54,6 +56,7 @@ const importImages = () => {
 const images = importImages(); 
 
 const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
+  const { t } = useLanguage();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -90,11 +93,11 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
           setTotalPages(result.data.totalPages || 1);
           setTotalCount(result.data.totalCount || 0);
         } else {
-          setError('Không thể tải danh sách sản phẩm');
+          setError(t('shop.loadFailed'));
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Đã xảy ra lỗi khi tải sản phẩm');
+        setError(t('shop.loadError'));
       } finally {
         setLoading(false);
       }
@@ -144,7 +147,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
           <FaPaw size={32} color="#ff6b81" />
         </Box>
         <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600 }}>
-          🐾 Đang tải danh sách sản phẩm...
+          {`🐾 ${t('shop.loadingList')}`}
         </Typography>
       </Box>
     );
@@ -179,7 +182,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
         <FaPaw size={32} color="#ff6b81" />
         <Typography variant="h3" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center' }}>
-          🛍️ Danh sách sản phẩm
+          {`🛍️ ${t('shop.listTitle')}`}
         </Typography>
         <FaPaw size={32} color="#ff6b81" />
       </Box>
@@ -203,7 +206,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
         >
           {PET_TYPE_FILTERS.map((opt) => (
             <ToggleButton key={opt.value} value={opt.value} sx={toggleButtonSx}>
-              {opt.label}
+              {opt.value ? t('shop.petTypes')[opt.value] : t('shop.all')}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
@@ -215,7 +218,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
         >
           {CATEGORY_FILTERS.map((opt) => (
             <ToggleButton key={opt.value} value={opt.value} sx={{ ...toggleButtonSx, fontSize: '13px', px: 1.5 }}>
-              {opt.label}
+              {opt.value ? t('shop.categoryNames')[opt.value] : t('shop.allCategories')}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
@@ -223,7 +226,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
 
       {products.length === 0 && (
         <Typography sx={{ textAlign: 'center', color: '#999', mb: 4 }}>
-          🐾 Không tìm thấy sản phẩm phù hợp với bộ lọc
+          {`🐾 ${t('shop.noMatch')}`}
         </Typography>
       )}
 
@@ -275,10 +278,10 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
                 <Typography variant="body2" sx={{ color: '#666', fontSize: '14px', lineHeight: 1.5, flexGrow: 1 }}>
                   {product.description && product.description.length > 60 
                     ? `${product.description.substring(0, 60)}...` 
-                    : product.description || 'Mô tả sản phẩm'}
+                    : product.description || t('shop.descriptionFallback')}
                 </Typography>
                 <Typography variant="h5" sx={{ color: '#ff4757', fontWeight: 700, mt: 'auto' }}>
-                  💰 {product.price} VNĐ
+                  {`💰 ${product.price} ${t('shop.currency')}`}
                 </Typography>
               </CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'center', padding: '0 20px 20px' }}>
@@ -304,7 +307,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  🐾 Xem chi tiết
+                  {`🐾 ${t('shop.viewDetail')}`}
                 </Button>
               </Box>
             </Card>
@@ -347,10 +350,10 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
         />
 
         <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel id="page-size-label">Hiển thị</InputLabel>
+          <InputLabel id="page-size-label">{t('shop.show')}</InputLabel>
           <Select
             labelId="page-size-label"
-            label="Hiển thị"
+            label={t('shop.show')}
             value={pageSize}
             onChange={handlePageSizeChange}
             sx={{
@@ -369,7 +372,7 @@ const ProductList = ({ initialPetType = '', initialCategory = '' }) => {
           >
             {PAGE_SIZE_OPTIONS.map((opt) => (
               <MenuItem key={opt} value={opt}>
-                {opt === 'all' ? `Tất cả (${totalCount})` : `${opt} / trang`}
+                {opt === 'all' ? t('shop.allCount', { n: totalCount }) : t('shop.perPage', { n: opt })}
               </MenuItem>
             ))}
           </Select>

@@ -9,6 +9,7 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 import { useCart } from '../../store/CartContext';
 import { getProductImageSrc } from '../../utils/imageUtils';
 import { API_URL } from '../../config/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Tự động import tất cả ảnh từ thư mục
 const importImages = () => {
@@ -24,6 +25,7 @@ const importImages = () => {
 const images = importImages();
 
 const ProductDetail = () => {
+  const { t } = useLanguage();
   const { id } = useParams(); 
   const navigate = useNavigate(); 
   const { addToCart, cart } = useCart();
@@ -51,11 +53,11 @@ const ProductDetail = () => {
         if (result.status === 200 && result.data) {
           setProduct(result.data);
         } else {
-          setError(result.message || 'Không tìm thấy sản phẩm');
+          setError(result.message || t('shop.productNotFound'));
         }
       } catch (err) {
         console.error('Error fetching product:', err);
-        setError('Đã xảy ra lỗi khi tải sản phẩm');
+        setError(t('shop.loadError'));
       } finally {
         setLoading(false);
       }
@@ -86,7 +88,7 @@ const ProductDetail = () => {
             <FaPaw size={32} color="#ff6b81" />
           </Box>
           <Typography sx={{ color: '#ff6b81', fontWeight: 600 }}>
-            Đang tải thông tin sản phẩm...
+            {t('shop.loadingProduct')}
           </Typography>
         </Box>
       </Container>
@@ -114,7 +116,7 @@ const ProductDetail = () => {
               },
             }}
           >
-            Trở lại
+            {t('shop.back')}
           </Button>
           <Alert 
             severity="error"
@@ -126,7 +128,7 @@ const ProductDetail = () => {
               },
             }}
           >
-            {error || 'Không tìm thấy sản phẩm'}
+            {error || t('shop.productNotFound')}
           </Alert>
         </Box>
       </Container>
@@ -235,7 +237,7 @@ const ProductDetail = () => {
           transition: 'all 0.3s ease',
         }}
       >
-        Trở lại
+        {t('shop.back')}
       </Button>
 
       <Grid container spacing={4}>
@@ -307,7 +309,7 @@ const ProductDetail = () => {
             {/* Status Badge */}
             <Box>
               <Chip
-                label={product.status || 'Chưa có trạng thái'}
+                label={(t('shop.statusNames')[product.status] || product.status || t('shop.noStatus'))}
                 sx={{
                   backgroundColor: getStatusColor(product.status),
                   color: 'white',
@@ -334,7 +336,7 @@ const ProductDetail = () => {
                 }}
               >
                 <FaPaw size={16} color="#ff6b81" />
-                Mô tả sản phẩm
+                {t('shop.description')}
               </Typography>
               <Typography 
                 variant="body1" 
@@ -344,7 +346,7 @@ const ProductDetail = () => {
                   textAlign: 'justify',
                 }}
               >
-                {product.description || 'Mô tả không có sẵn'}
+                {product.description || t('shop.noDescription')}
               </Typography>
             </Box>
 
@@ -358,7 +360,7 @@ const ProductDetail = () => {
                     fontWeight: 600,
                   }}
                 >
-                  📦 Số lượng còn lại: <span style={{ color: '#ff6b81', fontSize: '18px' }}>{product.quantity}</span>
+                  📦 {t('shop.remaining')} <span style={{ color: '#ff6b81', fontSize: '18px' }}>{product.quantity}</span>
                 </Typography>
               </Box>
             )}
@@ -380,7 +382,7 @@ const ProductDetail = () => {
                   textAlign: 'center',
                 }}
               >
-                💰 {product.price} VNĐ
+                {`💰 ${product.price} ${t('shop.currency')}`}
               </Typography>
             </Box>
 
@@ -406,7 +408,7 @@ const ProductDetail = () => {
                   transition: 'all 0.3s ease',
                 }}
               >
-                🛒 Thêm vào giỏ
+                {`🛒 ${t('shop.addToCartShort')}`}
               </Button>
               <Button 
                 onClick={handleBuyNow} 
@@ -428,7 +430,7 @@ const ProductDetail = () => {
                   transition: 'all 0.3s ease',
                 }}
               >
-                ⚡ Mua ngay
+                {`⚡ ${t('shop.buyNow')}`}
               </Button>
             </Box>
           </Box>
@@ -469,7 +471,7 @@ const ProductDetail = () => {
             },
           }}
         >
-          🎉 Sản phẩm đã được thêm vào giỏ hàng!
+          {`🎉 ${t('shop.addedToCart')}`}
         </Alert>
       </Snackbar>
     </Container>

@@ -23,8 +23,10 @@ import {
 } from '@mui/material';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { database, ref, set, get, child, update, remove } from '../../firebaseConfig'; 
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const Promotions = () => {
+  const { t } = useLanguage();
   const [promotions, setPromotions] = useState([]);
   const [newPromotion, setNewPromotion] = useState({
     id: null,
@@ -154,7 +156,7 @@ const Promotions = () => {
   return (
     <Container style={{width:'100%'}}>
       <Typography variant="h4" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
-        Sales and Promotions Management
+        {t('admin.promotions.title')}
       </Typography>
 
       {/* Promo creation form */}
@@ -162,11 +164,11 @@ const Promotions = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ padding: 3, boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 500, color: '#1976d2' }}>
-              {newPromotion.id ? 'Edit Promotion' : 'Tạo Mã Khuyến Mãi'}
+              {newPromotion.id ? t('admin.promotions.editTitle') : t('admin.promotions.createTitle')}
             </Typography>
 
             <TextField
-              label="Promo Code"
+              label={t('admin.promotions.code')}
               fullWidth
               value={newPromotion.code}
               onChange={(e) => setNewPromotion({ ...newPromotion, code: e.target.value })}
@@ -176,20 +178,20 @@ const Promotions = () => {
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Discount Type</InputLabel>
+              <InputLabel>{t('admin.promotions.discountType')}</InputLabel>
               <Select
                 value={newPromotion.discountType}
                 onChange={(e) => setNewPromotion({ ...newPromotion, discountType: e.target.value })}
-                label="Discount Type"
+                label={t('admin.promotions.discountType')}
               >
-                <MenuItem value="percentage">Percentage (%)</MenuItem>
-                <MenuItem value="amount">Amount (VND)</MenuItem>
+                <MenuItem value="percentage">{t('admin.promotions.percentage')}</MenuItem>
+                <MenuItem value="amount">{t('admin.promotions.amount')}</MenuItem>
               </Select>
-              <FormHelperText>Choose the type of discount.</FormHelperText>
+              <FormHelperText>{t('admin.promotions.typeHelp')}</FormHelperText>
             </FormControl>
 
             <TextField
-              label={newPromotion.discountType === 'percentage' ? 'Discount (%)' : 'Discount Amount (VND)'}
+              label={newPromotion.discountType === 'percentage' ? t('admin.promotions.discountPercent') : t('admin.promotions.discountAmount')}
               type="number"
               fullWidth
               value={newPromotion.discountValue}
@@ -200,7 +202,7 @@ const Promotions = () => {
             />
 
             <TextField
-              label="Min Order Amount (VND)"
+              label={t('admin.promotions.minOrderVnd')}
               type="number"
               fullWidth
               value={newPromotion.minOrderAmount}
@@ -211,7 +213,7 @@ const Promotions = () => {
             />
 
             <TextField
-              label="Product Condition"
+              label={t('admin.promotions.condition')}
               fullWidth
               value={newPromotion.productCondition}
               onChange={(e) => setNewPromotion({ ...newPromotion, productCondition: e.target.value })}
@@ -221,7 +223,7 @@ const Promotions = () => {
             />
 
             <TextField
-              label="Expiration Date"
+              label={t('admin.promotions.expires')}
               type="date"
               fullWidth
               value={newPromotion.expirationDate}
@@ -236,7 +238,7 @@ const Promotions = () => {
 
             {/* Mục nhập số lượng */}
             <TextField
-              label="Quantity"
+              label={t('admin.promotions.quantity')}
               type="number"
               fullWidth
               value={newPromotion.quantity}
@@ -255,7 +257,7 @@ const Promotions = () => {
                 '&:hover': { backgroundColor: '#1565c0' },
               }}
             >
-              {newPromotion.id ? 'Update Promotion' : 'Add Promotion'}
+              {newPromotion.id ? t('admin.promotions.update') : t('admin.promotions.add')}
             </Button>
           </Paper>
         </Grid>
@@ -265,7 +267,7 @@ const Promotions = () => {
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12}>
           <TextField
-            label="Tìm mã khuyến mãi"
+            label={t('admin.promotions.search')}
             fullWidth
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -283,14 +285,14 @@ const Promotions = () => {
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Promo Code</TableCell>
-                    <TableCell>Discount</TableCell>
-                    <TableCell>Min Order Amount</TableCell>
-                    <TableCell>Product Condition</TableCell>
-                    <TableCell>Expiration Date</TableCell>
-                    <TableCell>Quantity</TableCell> 
-                    <TableCell>Used</TableCell>
-                    <TableCell>Actions</TableCell>
+                    <TableCell>{t('admin.promotions.code')}</TableCell>
+                    <TableCell>{t('admin.promotions.discount')}</TableCell>
+                    <TableCell>{t('admin.promotions.minOrder')}</TableCell>
+                    <TableCell>{t('admin.promotions.condition')}</TableCell>
+                    <TableCell>{t('admin.promotions.expires')}</TableCell>
+                    <TableCell>{t('admin.promotions.quantity')}</TableCell> 
+                    <TableCell>{t('admin.promotions.used')}</TableCell>
+                    <TableCell>{t('admin.common.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -325,6 +327,8 @@ const Promotions = () => {
               page={page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
+              labelRowsPerPage={t('admin.pagination.rowsPerPage')}
+              labelDisplayedRows={({ from, to, count }) => t('admin.pagination.displayed', { from, to, count })}
               sx={{ mt: 2 }}
             />
           </Paper>
@@ -334,10 +338,10 @@ const Promotions = () => {
       {/* Most used promotion */}
       <Box sx={{ mt: 4, textAlign: 'center' }}>
         <Typography variant="h6" sx={{ fontWeight: 500, color: '#1976d2' }}>
-          Mã khuyến mãi được sử dụng nhiều nhất: {mostUsedPromotion.code || 'N/A'}
+          {t('admin.promotions.mostUsed', { code: mostUsedPromotion.code || 'N/A' })}
         </Typography>
         <Typography sx={{ color: '#888' }}>
-          Số lượng sử dụng: {mostUsedPromotion.usedCount}
+          {t('admin.promotions.usedCount', { n: mostUsedPromotion.usedCount })}
         </Typography>
       </Box>
     </Container>

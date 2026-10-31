@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FaPaw } from 'react-icons/fa';
 import { getProductImageSrc } from '../../utils/imageUtils';
 import { API_URL } from '../../config/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Import ảnh từ thư mục
 const images = require
@@ -19,6 +20,8 @@ const images = require
 // mode="random" (mặc định): trộn ngẫu nhiên (phù hợp cho "Gợi ý hôm nay") - tránh hiển thị
 // trùng y hệt danh sách với các ProductsGrid khác trên cùng trang
 const ProductsGrid = ({ title, color, mode = 'random' }) => {
+  const { t } = useLanguage();
+  const statusLabels = t('products.status');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,11 +53,11 @@ const ProductsGrid = ({ title, color, mode = 'random' }) => {
             : available;
           setProducts(data);
         } else {
-          setError('Không thể tải danh sách sản phẩm');
+          setError('loadFailed');
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Đã xảy ra lỗi khi tải sản phẩm');
+        setError('loadError');
       } finally {
         setLoading(false);
       }
@@ -81,7 +84,7 @@ const ProductsGrid = ({ title, color, mode = 'random' }) => {
     return (
       <Box sx={{ mb: 6 }}>
         <Typography variant="h6" color="error" sx={{ textAlign: 'center' }}>
-          {error}
+          {t(`products.${error}`)}
         </Typography>
       </Box>
     );
@@ -166,7 +169,7 @@ const ProductsGrid = ({ title, color, mode = 'random' }) => {
                         '#9e9e9e',
                     }}
                   >
-                    {product.status}
+                    {statusLabels[product.status] || product.status}
                   </Typography>
                 </Box>
 
@@ -199,7 +202,7 @@ const ProductsGrid = ({ title, color, mode = 'random' }) => {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  🐾 Xem chi tiết
+                  🐾 {t('products.viewDetail')}
                 </Button>
               </Box>
             </Card>

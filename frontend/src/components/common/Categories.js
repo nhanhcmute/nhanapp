@@ -2,20 +2,22 @@ import React from "react";
 import { Box, Typography, CardContent, CardMedia, Card, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 
 
 const categories = [
-  { name: "Chó", emoji: "🐶", path: "/dogs" },
-  { name: "Mèo", emoji: "🐱",  path: "/cats" },
-  { name: "Thú cưng khác", emoji: "🐰", path: "/otherpets" },
-  { name: "Phụ kiện", emoji: "🎀",  path: "/petsupplies" },
-  { name: "Cát vệ sinh", emoji: "🧹",  path: "/catlitter" },
-  { name: "Khác", emoji: "✨", path: "/others" },
+  { key: "dogs", emoji: "🐶", path: "/dogs" },
+  { key: "cats", emoji: "🐱",  path: "/cats" },
+  { key: "otherPets", emoji: "🐰", path: "/otherpets" },
+  { key: "supplies", emoji: "🎀",  path: "/petsupplies" },
+  { key: "litter", emoji: "🧹",  path: "/catlitter" },
+  { key: "others", emoji: "✨", path: "/others" },
 ];
 
 const Categories = () => {
   const navigate = useNavigate(); 
+  const { t } = useLanguage();
 
   const handleClick = (path) => {
     navigate(path); 
@@ -45,7 +47,7 @@ const Categories = () => {
 >
   <Typography sx={{ fontSize: 48, mb: 1 }}>{category.emoji}</Typography>
   <Typography sx={{ fontWeight: 700, fontSize: 16, color: '#ff6b81' }}>
-    {category.name}
+    {t(`categories.${category.key}`)}
   </Typography>
 </Card>
         </Grid>

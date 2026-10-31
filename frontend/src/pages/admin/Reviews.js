@@ -3,9 +3,11 @@ import { Box, Button, Grid, Card, CardContent, Typography, Divider, Paper, Avata
 import { Star } from '@mui/icons-material';
 import { Rating } from '@mui/material';
 import { ref, get, remove, set } from 'firebase/database';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { database } from '../../firebaseConfig';  // Import cấu hình Firebase
 
 const Reviews = ({ productId }) => {
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [product, setProduct] = useState(null);
 
@@ -91,19 +93,19 @@ const Reviews = ({ productId }) => {
       )}
 
       <Typography variant="h4" gutterBottom>
-        Product Reviews for Product {productId}
+        {t('admin.reviews.title', { id: productId })}
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        Average Rating: {calculateAverageRating()} / 5
+        {t('admin.reviews.average', { v: calculateAverageRating() })}
       </Typography>
 
       <Grid container spacing={2} style={{ marginBottom: '20px' }}>
         {[1, 2, 3, 4, 5].map((rating) => (
           <Grid item xs={6} sm={4} md={2} key={rating}>
             <Paper elevation={3} style={{ padding: '10px', textAlign: 'center' }}>
-              <Typography variant="h6">{rating} Star</Typography>
-              <Typography variant="body1">{ratingCounts[rating]} Reviews</Typography>
+              <Typography variant="h6">{t('admin.reviews.stars', { n: rating })}</Typography>
+              <Typography variant="body1">{t('admin.reviews.count', { n: ratingCounts[rating] })}</Typography>
             </Paper>
           </Grid>
         ))}
@@ -132,7 +134,7 @@ const Reviews = ({ productId }) => {
                   onClick={() => handleDelete(review.id)}
                   style={{ marginTop: '10px' }}
                 >
-                  Delete
+                  {t('admin.common.delete')}
                 </Button>
               </Box>
             </CardContent>
@@ -140,7 +142,7 @@ const Reviews = ({ productId }) => {
           </Card>
         ))
       ) : (
-        <Typography variant="body1">No reviews yet.</Typography>
+        <Typography variant="body1">{t('admin.reviews.none')}</Typography>
       )}
     </div>
   );

@@ -5,6 +5,7 @@ import { adminOrderService } from '../../services/adminOrderService';
 import { FaPaw } from 'react-icons/fa';
 import SearchIcon from '@mui/icons-material/Search';
 import { mapOrderStatus, ORDER_STATUS_FILTERS } from '../../utils/orderStatus';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Import ảnh từ thư mục
 const importImages = () => {
@@ -20,6 +21,7 @@ const importImages = () => {
 const images = importImages();
 
 function Orders() {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -177,7 +179,7 @@ function Orders() {
       }, 250);
     } catch (error) {
       console.error('Lỗi khi xuất hóa đơn:', error);
-      alert('Đã có lỗi khi xuất hóa đơn. Vui lòng thử lại.');
+      alert(t('admin.orders.invoiceFailed'));
     }
   };
 
@@ -191,7 +193,7 @@ function Orders() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hóa đơn ${orderCode}</title>
+    <title>${t('admin.orders.inv.title', { code: orderCode })}</title>
     <style>
         * {
             margin: 0;
@@ -323,34 +325,34 @@ function Orders() {
 <body>
     <div class="invoice-container">
         <div class="header">
-            <h1>📦 HÓA ĐƠN BÁN HÀNG</h1>
-            <p>Mã đơn hàng: <strong>${orderCode}</strong></p>
-            <p>Ngày xuất: ${new Date().toLocaleString('vi-VN')}</p>
+            <h1>📦 ${t('admin.orders.inv.heading')}</h1>
+            <p>${t('admin.orders.inv.code')} <strong>${orderCode}</strong></p>
+            <p>${t('admin.orders.inv.issued')} ${new Date().toLocaleString('vi-VN')}</p>
         </div>
 
         <div class="invoice-info">
             <div class="info-section">
-                <h3>Thông tin khách hàng</h3>
-                <p><strong>Tên:</strong> ${order.customer?.name || 'N/A'}</p>
-                <p><strong>Số điện thoại:</strong> ${order.customer?.phone || 'N/A'}</p>
-                <p><strong>Địa chỉ:</strong> ${order.customer?.address || 'N/A'}</p>
+                <h3>${t('admin.orders.inv.customerInfo')}</h3>
+                <p><strong>${t('admin.orders.inv.name')}</strong> ${order.customer?.name || 'N/A'}</p>
+                <p><strong>${t('admin.orders.inv.phone')}</strong> ${order.customer?.phone || 'N/A'}</p>
+                <p><strong>${t('admin.orders.inv.address')}</strong> ${order.customer?.address || 'N/A'}</p>
             </div>
             <div class="info-section">
-                <h3>Thông tin đơn hàng</h3>
-                <p><strong>Ngày đặt:</strong> ${orderDate}</p>
-                <p><strong>Trạng thái:</strong> <span class="status-badge" style="background: ${getStatusColor(order.status)};">${order.status}</span></p>
-                <p><strong>Phương thức thanh toán:</strong> ${order.paymentMethod || 'N/A'}</p>
+                <h3>${t('admin.orders.inv.orderInfo')}</h3>
+                <p><strong>${t('admin.orders.inv.orderDate')}</strong> ${orderDate}</p>
+                <p><strong>${t('admin.orders.inv.status')}</strong> <span class="status-badge" style="background: ${getStatusColor(order.status)};">${(t('checkout.orderStatus')[order.status] || order.status)}</span></p>
+                <p><strong>${t('admin.orders.inv.payment')}</strong> ${order.paymentMethod || 'N/A'}</p>
             </div>
         </div>
 
         <table class="products-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;">STT</th>
-                    <th style="width: 40%;">Tên sản phẩm</th>
-                    <th style="width: 15%;" class="text-center">Số lượng</th>
-                    <th style="width: 20%;" class="text-right">Đơn giá</th>
-                    <th style="width: 20%;" class="text-right">Thành tiền</th>
+                    <th style="width: 5%;">${t('admin.orders.inv.no')}</th>
+                    <th style="width: 40%;">${t('admin.orders.inv.product')}</th>
+                    <th style="width: 15%;" class="text-center">${t('admin.orders.inv.qty')}</th>
+                    <th style="width: 20%;" class="text-right">${t('admin.orders.inv.unitPrice')}</th>
+                    <th style="width: 20%;" class="text-right">${t('admin.orders.inv.lineTotal')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -359,8 +361,8 @@ function Orders() {
                         <td>${index + 1}</td>
                         <td>${product.name || product.productName || 'N/A'}</td>
                         <td class="text-center">${product.quantity || 0}</td>
-                        <td class="text-right">${(product.unitPrice || product.price || 0).toLocaleString('vi-VN')} VNĐ</td>
-                        <td class="text-right">${(product.totalPrice || (product.quantity || 0) * (product.unitPrice || product.price || 0)).toLocaleString('vi-VN')} VNĐ</td>
+                        <td class="text-right">${(product.unitPrice || product.price || 0).toLocaleString('vi-VN')} ${t('shop.currency')}</td>
+                        <td class="text-right">${(product.totalPrice || (product.quantity || 0) * (product.unitPrice || product.price || 0)).toLocaleString('vi-VN')} ${t('shop.currency')}</td>
                     </tr>
                 `).join('')}
             </tbody>
@@ -368,30 +370,30 @@ function Orders() {
 
         <div class="total-section">
             <div class="total-row">
-                <span>Tạm tính:</span>
-                <span>${(order.subtotalAmount || order.totalAmount || 0).toLocaleString('vi-VN')} VNĐ</span>
+                <span>${t('admin.orders.inv.subtotal')}</span>
+                <span>${(order.subtotalAmount || order.totalAmount || 0).toLocaleString('vi-VN')} ${t('shop.currency')}</span>
             </div>
             ${order.shippingFee ? `
             <div class="total-row">
-                <span>Phí vận chuyển:</span>
-                <span>${order.shippingFee.toLocaleString('vi-VN')} VNĐ</span>
+                <span>${t('admin.orders.inv.shipping')}</span>
+                <span>${order.shippingFee.toLocaleString('vi-VN')} ${t('shop.currency')}</span>
             </div>
             ` : ''}
             ${order.discountAmount ? `
             <div class="total-row">
-                <span>Giảm giá:</span>
-                <span>-${order.discountAmount.toLocaleString('vi-VN')} VNĐ</span>
+                <span>${t('admin.orders.inv.discount')}</span>
+                <span>-${order.discountAmount.toLocaleString('vi-VN')} ${t('shop.currency')}</span>
             </div>
             ` : ''}
             <div class="total-row final">
-                <span>TỔNG CỘNG:</span>
-                <span>${(order.totalAmount || 0).toLocaleString('vi-VN')} VNĐ</span>
+                <span>${t('admin.orders.inv.total')}</span>
+                <span>${(order.totalAmount || 0).toLocaleString('vi-VN')} ${t('shop.currency')}</span>
             </div>
         </div>
 
         <div class="footer">
-            <p>Cảm ơn quý khách đã mua hàng!</p>
-            <p>Mọi thắc mắc vui lòng liên hệ hotline: 0396922376</p>
+            <p>${t('admin.orders.inv.thanks')}</p>
+            <p>${t('admin.orders.inv.hotline')}</p>
         </div>
     </div>
 </body>
@@ -415,23 +417,23 @@ function Orders() {
           setOrders(updatedOrders);
           setFilteredOrders(updatedOrders);
 
-          alert('Cập nhật trạng thái đơn hàng thành công');
+          alert(t('admin.orders.statusUpdated'));
           handleCloseDialog();
         } else {
-          alert(result.message || 'Đã có lỗi khi cập nhật trạng thái đơn hàng.');
+          alert(result.message || t('admin.orders.statusFailed'));
         }
       } catch (error) {
         console.error('Lỗi khi cập nhật trạng thái:', error);
-        alert('Đã có lỗi khi cập nhật trạng thái đơn hàng.');
+        alert(t('admin.orders.statusFailed'));
       }
     }
   };
 
   const csvHeaders = [
-    { label: 'Mã Đơn Hàng', key: 'id' },
-    { label: 'Tên Khách Hàng', key: 'customer.name' },
-    { label: 'Tổng Số Tiền', key: 'total' },
-    { label: 'Trạng Thái', key: 'status' },
+    { label: t('admin.orders.csv.id'), key: 'id' },
+    { label: t('admin.orders.csv.customer'), key: 'customer.name' },
+    { label: t('admin.orders.csv.total'), key: 'total' },
+    { label: t('admin.orders.csv.status'), key: 'status' },
   ];
 
   const csvData = filteredOrders.map((order) => ({
@@ -487,7 +489,7 @@ function Orders() {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
           <FaPaw size={32} color="#ff6b81" />
           <Typography variant="h4" sx={{ color: '#ff6b81', fontWeight: 700, textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-            📦 Quản lý Đơn Hàng
+            {`📦 ${t('admin.orders.title')}`}
           </Typography>
           <FaPaw size={32} color="#ff6b81" />
         </Box>
@@ -509,8 +511,8 @@ function Orders() {
             <Grid item xs={12} sm={8}>
               <TextField
                 fullWidth
-                label="Tìm kiếm theo mã đơn hàng, tên khách hàng"
-                placeholder="Nhập mã đơn hàng hoặc tên khách hàng..."
+                label={t('admin.orders.searchLabel')}
+                placeholder={t('admin.orders.searchPlaceholder')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => {
@@ -565,7 +567,7 @@ function Orders() {
                   transition: 'all 0.3s ease',
                 }}
               >
-                🔍 Tìm kiếm
+                {`🔍 ${t('admin.orders.search')}`}
               </Button>
             </Grid>
           </Grid>
@@ -604,11 +606,11 @@ function Orders() {
                     </Box>
 
                     <Typography variant="body1" sx={{ mb: 1, color: '#666', fontWeight: 600 }}>
-                      👤 {order.customer?.name || 'Chưa có tên'}
+                      👤 {order.customer?.name || t('admin.common.noName')}
                     </Typography>
 
                     <Typography variant="body2" sx={{ mb: 1, color: '#666' }}>
-                      📞 {order.customer?.phone || 'Chưa có số điện thoại'}
+                      📞 {order.customer?.phone || t('admin.common.noPhone')}
                     </Typography>
 
                     <Typography variant="body2" sx={{ mb: 2, color: '#666', 
@@ -617,12 +619,12 @@ function Orders() {
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
                     }}>
-                      📍 {order.customer?.address || 'Chưa có địa chỉ'}
+                      📍 {order.customer?.address || t('admin.common.noAddress')}
                     </Typography>
 
                     <Box sx={{ mb: 2 }}>
                       <Chip
-                        label={order.status}
+                        label={(t('checkout.orderStatus')[order.status] || order.status)}
                         sx={{
                           backgroundColor: getStatusColor(order.status),
                           color: 'white',
@@ -634,7 +636,7 @@ function Orders() {
                     </Box>
 
                     <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff4757' }}>
-                      💰 {order.totalAmount ? order.totalAmount.toLocaleString() : '0'} VNĐ
+                      {`💰 ${order.totalAmount ? order.totalAmount.toLocaleString() : '0'} ${t('shop.currency')}`}
                     </Typography>
                   </CardContent>
 
@@ -665,7 +667,7 @@ function Orders() {
                           }}
                         >
                           <Box component="span" sx={{ fontSize: '16px', lineHeight: 1 }}>✏️</Box>
-                          <Box component="span" sx={{ fontSize: '11px', lineHeight: 1 }}>Trạng thái</Box>
+                          <Box component="span" sx={{ fontSize: '11px', lineHeight: 1 }}>{t('admin.orders.status')}</Box>
                         </Button>
                       </Grid>
                       <Grid item xs={4}>
@@ -693,7 +695,7 @@ function Orders() {
                           }}
                         >
                           <Box component="span" sx={{ fontSize: '16px', lineHeight: 1 }}>👁️</Box>
-                          <Box component="span" sx={{ fontSize: '11px', lineHeight: 1 }}>Chi tiết</Box>
+                          <Box component="span" sx={{ fontSize: '11px', lineHeight: 1 }}>{t('admin.orders.details')}</Box>
                         </Button>
                       </Grid>
                       <Grid item xs={4}>
@@ -721,7 +723,7 @@ function Orders() {
                           }}
                         >
                           <Box component="span" sx={{ fontSize: '16px', lineHeight: 1 }}>🧾</Box>
-                          <Box component="span" sx={{ fontSize: '11px', lineHeight: 1 }}>Hóa đơn</Box>
+                          <Box component="span" sx={{ fontSize: '11px', lineHeight: 1 }}>{t('admin.orders.invoice')}</Box>
                         </Button>
                       </Grid>
                     </Grid>
@@ -744,10 +746,10 @@ function Orders() {
               >
                 <FaPaw size={48} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
                 <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600 }}>
-                  Không có đơn hàng nào
+                  {t('admin.orders.none')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#666', mt: 1 }}>
-                  Không có đơn hàng nào phù hợp với tìm kiếm của bạn.
+                  {t('admin.orders.noneHint')}
                 </Typography>
               </Paper>
             </Grid>
@@ -793,7 +795,7 @@ function Orders() {
                 transition: 'all 0.3s ease',
               }}
             >
-              📥 Xuất dữ liệu CSV
+              {`📥 ${t('admin.orders.exportCsv')}`}
             </Button>
           </CSVLink>
         </Paper>
@@ -810,15 +812,15 @@ function Orders() {
           }}
         >
           <DialogTitle sx={{ color: '#ff6b81', fontWeight: 700 }}>
-            ✏️ Thay đổi trạng thái đơn hàng
+            {`✏️ ${t('admin.orders.changeStatus')}`}
           </DialogTitle>
           <DialogContent>
             <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel sx={{ color: '#ff6b81' }}>Chọn trạng thái mới</InputLabel>
+              <InputLabel sx={{ color: '#ff6b81' }}>{t('admin.orders.newStatus')}</InputLabel>
               <Select
                 value={newStatus}
                 onChange={e => setNewStatus(e.target.value)}
-                label="Chọn trạng thái mới"
+                label={t('admin.orders.newStatus')}
                 sx={{
                   borderRadius: '12px',
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -834,7 +836,7 @@ function Orders() {
               >
                 {orderStatuses.map(status => (
                   <MenuItem key={status.id} value={status.status}>
-                    {status.status}
+                    {(t('checkout.orderStatus')[status.status] || status.status)}
                   </MenuItem>
                 ))}
               </Select>
@@ -852,7 +854,7 @@ function Orders() {
                 },
               }}
             >
-              Hủy
+              {t('admin.common.cancel')}
             </Button>
             <Button 
               onClick={handleChangeStatus}
@@ -867,7 +869,7 @@ function Orders() {
                 },
               }}
             >
-              💾 Lưu
+              {`💾 ${t('admin.common.save')}`}
             </Button>
           </DialogActions>
         </Dialog>
@@ -886,7 +888,7 @@ function Orders() {
           }}
         >
           <DialogTitle sx={{ color: '#ff6b81', fontWeight: 700 }}>
-            👁️ Chi tiết đơn hàng
+            {`👁️ ${t('admin.orders.detailTitle')}`}
           </DialogTitle>
           <DialogContent>
             {loadingOrderDetails ? (
@@ -906,22 +908,22 @@ function Orders() {
                   }}
                 >
                   <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 700, mb: 1 }}>
-                    📦 Mã đơn hàng: {selectedOrder.orderCode || selectedOrder.id}
+                    {`📦 ${t('admin.orders.code', { code: selectedOrder.orderCode || selectedOrder.id })}`}
                   </Typography>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    👤 <strong>Tên khách hàng:</strong> {selectedOrder.customer?.name || 'Chưa có tên'}
+                    👤 <strong>{t('admin.orders.customerName')}</strong> {selectedOrder.customer?.name || t('admin.common.noName')}
                   </Typography>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    📞 <strong>Số điện thoại:</strong> {selectedOrder.customer?.phone || 'Chưa có số điện thoại'}
+                    📞 <strong>{t('admin.orders.phone')}</strong> {selectedOrder.customer?.phone || t('admin.common.noPhone')}
                   </Typography>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    📍 <strong>Địa chỉ:</strong> {selectedOrder.customer?.address || 'Chưa có địa chỉ'}
+                    📍 <strong>{t('admin.orders.address')}</strong> {selectedOrder.customer?.address || t('admin.common.noAddress')}
                   </Typography>
                 </Paper>
 
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body1" sx={{ fontWeight: 600, mb: 1, color: '#ff6b81' }}>
-                    🛍️ Sản phẩm:
+                    {`🛍️ ${t('admin.orders.products')}`}
                   </Typography>
                   {selectedOrder.products && selectedOrder.products.length > 0 ? (
                     <Box sx={{ pl: 2 }}>
@@ -1002,10 +1004,10 @@ function Orders() {
                                 {product.name || product.productName || 'N/A'}
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#666' }}>
-                                Số lượng: {product.quantity || 0} x {(product.unitPrice || product.price || 0).toLocaleString('vi-VN')} VNĐ
+                                {t('admin.orders.qty', { qty: product.quantity || 0, price: (product.unitPrice || product.price || 0).toLocaleString('vi-VN') })}
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#ff4757', fontWeight: 600, mt: 0.5 }}>
-                                Thành tiền: {(product.totalPrice || (product.quantity || 0) * (product.unitPrice || product.price || 0)).toLocaleString('vi-VN')} VNĐ
+                                {t('admin.orders.lineTotal', { amount: (product.totalPrice || (product.quantity || 0) * (product.unitPrice || product.price || 0)).toLocaleString('vi-VN') })}
                               </Typography>
                             </Box>
                           </Box>
@@ -1014,21 +1016,21 @@ function Orders() {
                     </Box>
                   ) : (
                     <Typography variant="body2" sx={{ color: '#666', pl: 2 }}>
-                      Không có sản phẩm
+                      {t('admin.orders.noProducts')}
                     </Typography>
                   )}
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff4757' }}>
-                    💰 Tổng giá trị: {selectedOrder.totalAmount ? selectedOrder.totalAmount.toLocaleString() : '0'} VNĐ
+                    {`💰 ${t('admin.orders.total', { amount: selectedOrder.totalAmount ? selectedOrder.totalAmount.toLocaleString() : '0' })}`}
                   </Typography>
 
                 </Box>
               </Box>
             ) : (
               <Typography variant="body1" sx={{ color: '#666' }}>
-                Không có thông tin chi tiết đơn hàng.
+                {t('admin.orders.noDetail')}
               </Typography>
             )}
           </DialogContent>
@@ -1046,7 +1048,7 @@ function Orders() {
                 },
               }}
             >
-              Đóng
+              {t('admin.common.close')}
             </Button>
           </DialogActions>
         </Dialog>

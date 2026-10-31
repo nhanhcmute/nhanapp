@@ -3,8 +3,10 @@ import { Box, Container, Typography, Button, Grid, Paper, Avatar } from '@mui/ma
 import Footer from '../components/layout/Footer';
 import { useNavigate } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const AboutUs = () => {
+  const { t } = useLanguage();
     const navigate = useNavigate();
 
     const handleClick = () => {
@@ -57,12 +59,12 @@ const AboutUs = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
                         <FaPaw size={40} color="white" />
                         <Typography variant="h3" sx={{ fontWeight: 700, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
-                            🐾 Chào Mừng Đến Với Nhân's Pet Haven
+                            {`🐾 ${t('content.about.welcome')}`}
                         </Typography>
                         <FaPaw size={40} color="white" />
                     </Box>
                     <Typography variant="h5" sx={{ marginBottom: 4, textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                        Khám phá các dịch vụ và sản phẩm thú cưng chất lượng nhất!
+                        {t('content.about.tagline')}
                     </Typography>
                     <Button
                         variant="contained"
@@ -83,7 +85,7 @@ const AboutUs = () => {
                             transition: 'all 0.3s ease',
                         }}
                     >
-                        🐾 Khám Phá Ngay
+                        {`🐾 ${t('content.about.explore')}`}
                     </Button>
                 </Container>
             </Box>
@@ -117,7 +119,7 @@ const AboutUs = () => {
                                     fontSize: '2.5rem',
                                 }}
                             >
-                                Về Chúng Tôi
+                                {t('content.about.aboutUs')}
                             </Typography>
                             <FaPaw size={32} color="#ff6b81" />
                         </Box>
@@ -131,7 +133,7 @@ const AboutUs = () => {
                                 maxWidth: '90%',
                             }}
                         >
-                            Chào mừng bạn đến với <strong style={{ color: '#ff6b81' }}>Nhân's Pet Haven</strong> – nơi cung cấp các sản phẩm và dịch vụ chất lượng nhất cho thú cưng của bạn. Chúng tôi cam kết mang đến cho bạn những sản phẩm uy tín, an toàn và thân thiện với môi trường, giúp chăm sóc thú cưng của bạn một cách tốt nhất.
+                            {t('content.about.introBefore')} <strong style={{ color: '#ff6b81' }}>Nhân's Pet Haven</strong> {t('content.about.introAfter')}
                         </Typography>
                         <Button
                             variant="contained"
@@ -152,7 +154,7 @@ const AboutUs = () => {
                                 transition: 'all 0.3s ease',
                             }}
                         >
-                            🐾 Khám Phá Ngay
+                            {`🐾 ${t('content.about.explore')}`}
                         </Button>
                     </Paper>
                 </Container>
@@ -164,7 +166,7 @@ const AboutUs = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 5 }}>
                         <FaPaw size={28} color="#ff6b81" />
                         <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff6b81', textAlign: 'center' }}>
-                            🎯 Giá Trị Cốt Lõi
+                            {`🎯 ${t('content.about.coreValues')}`}
                         </Typography>
                         <FaPaw size={28} color="#ff6b81" />
                     </Box>
@@ -188,10 +190,10 @@ const AboutUs = () => {
                             >
                                 <Typography variant="h5" sx={{ fontWeight: 700, color: '#1976d2', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <FaPaw size={20} color="#1976d2" />
-                                    💙 Sứ Mệnh
+                                    {`💙 ${t('content.about.mission')}`}
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.8 }}>
-                                    Chúng tôi luôn cố gắng cung cấp những sản phẩm tốt nhất, mang lại sức khỏe và niềm vui cho các thú cưng của bạn. Chăm sóc và yêu thương chúng là ưu tiên hàng đầu của chúng tôi.
+                                    {t('content.about.missionText')}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -215,10 +217,10 @@ const AboutUs = () => {
                             >
                                 <Typography variant="h5" sx={{ fontWeight: 700, color: '#f57c00', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <FaPaw size={20} color="#f57c00" />
-                                    💛 Tầm Nhìn
+                                    {`💛 ${t('content.about.vision')}`}
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.8 }}>
-                                    Trở thành một trong những cửa hàng thú cưng hàng đầu, được khách hàng yêu mến và tin tưởng nhất tại Việt Nam.
+                                    {t('content.about.visionText')}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -242,10 +244,10 @@ const AboutUs = () => {
                             >
                                 <Typography variant="h5" sx={{ fontWeight: 700, color: '#388e3c', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <FaPaw size={20} color="#388e3c" />
-                                    💚 Giá Trị
+                                    {`💚 ${t('content.about.values')}`}
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.8 }}>
-                                    Chất lượng, sự chăm sóc tận tâm và sự đáng tin cậy là những giá trị mà chúng tôi luôn hướng tới. Mỗi khách hàng đều là một phần quan trọng trong gia đình chúng tôi.
+                                    {t('content.about.valuesText')}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -259,7 +261,7 @@ const AboutUs = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 5 }}>
                         <FaPaw size={32} color="#ff6b81" />
                         <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff6b81', textAlign: 'center' }}>
-                            🛠️ Dịch Vụ Của Chúng Tôi
+                            {`🛠️ ${t('content.about.services')}`}
                         </Typography>
                         <FaPaw size={32} color="#ff6b81" />
                     </Box>
@@ -296,10 +298,10 @@ const AboutUs = () => {
                                     🐕
                                 </Avatar>
                                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81', textAlign: 'center', mb: 1 }}>
-                                    Chăm Sóc Thú Cưng
+                                    {t('content.about.care')}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', lineHeight: 1.8 }}>
-                                    Dịch vụ chăm sóc chuyên nghiệp, từ cắt tỉa lông, tắm rửa đến thăm khám sức khỏe.
+                                    {t('content.about.careText')}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -336,10 +338,10 @@ const AboutUs = () => {
                                     🛍️
                                 </Avatar>
                                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81', textAlign: 'center', mb: 1 }}>
-                                    Sản Phẩm Thú Cưng
+                                    {t('content.about.products')}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', lineHeight: 1.8 }}>
-                                    Các sản phẩm đảm bảo chất lượng và an toàn tuyệt đối, từ thức ăn đến đồ chơi và phụ kiện.
+                                    {t('content.about.productsText')}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -376,10 +378,10 @@ const AboutUs = () => {
                                     💊
                                 </Avatar>
                                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81', textAlign: 'center', mb: 1 }}>
-                                    Tư Vấn Sức Khỏe
+                                    {t('content.about.health')}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', lineHeight: 1.8 }}>
-                                    Dịch vụ tư vấn sức khỏe thú cưng, bao gồm dinh dưỡng, chăm sóc sức khỏe và các vấn đề bệnh lý.
+                                    {t('content.about.healthText')}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -392,7 +394,7 @@ const AboutUs = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, mb: 4 }}>
                     <FaPaw size={24} color="#ff6b81" />
                     <Typography variant="h5" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-                        📱 Kết nối với chúng tôi
+                        {`📱 ${t('content.about.connect')}`}
                     </Typography>
                     <FaPaw size={24} color="#ff6b81" />
                 </Box>

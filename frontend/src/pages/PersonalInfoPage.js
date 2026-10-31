@@ -5,8 +5,10 @@ import { ref, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
 import axios from 'axios';
 import MapComponent from '../components/common/MapComponent';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PersonalInfoPage = () => {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [dob, setDob] = useState('');
@@ -31,11 +33,11 @@ const PersonalInfoPage = () => {
         if (response.status === 200 && Array.isArray(response.data)) {
           setProvinces(response.data);
         } else {
-          setError('Không có dữ liệu tỉnh/thành phố');
+          setError(t('checkout.address.errors.noProvinces'));
         }
       } catch (error) {
         console.error('Lỗi khi lấy danh sách tỉnh/thành phố:', error);
-        setError('Lỗi khi tải dữ liệu tỉnh/thành phố');
+        setError(t('checkout.address.errors.provincesFailed'));
       } finally {
         setLoading(false);
       }
@@ -54,12 +56,12 @@ const PersonalInfoPage = () => {
             setDistricts(response.data.districts);
           } else {
             setDistricts([]);
-            setError('Không có dữ liệu quận/huyện cho tỉnh này.');
+            setError(t('checkout.address.errors.noDistricts'));
           }
         } catch (error) {
           console.error('Lỗi khi lấy danh sách quận/huyện:', error);
           setDistricts([]);
-          setError('Lỗi khi tải dữ liệu quận/huyện');
+          setError(t('checkout.address.errors.districtsFailed'));
         } finally {
           setLoading(false);
         }
@@ -81,12 +83,12 @@ const PersonalInfoPage = () => {
             setWards(response.data.wards);
           } else {
             setWards([]);
-            setError('Không có dữ liệu phường/xã.');
+            setError(t('checkout.address.errors.noWards'));
           }
         } catch (error) {
           console.error('Lỗi khi lấy danh sách phường/xã:', error);
           setWards([]);
-          setError('Lỗi khi tải dữ liệu phường/xã');
+          setError(t('checkout.address.errors.wardsFailed'));
         } finally {
           setLoading(false);
         }
@@ -101,13 +103,13 @@ const PersonalInfoPage = () => {
     event.preventDefault();
   
     if (!name || !phone || !dob || !province || !district || !ward) {
-      setError('Tất cả các trường đều phải điền!');
+      setError(t('account.personal.allRequired'));
       return;
     }
   
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(phone)) {
-      setError('Số điện thoại không hợp lệ!');
+      setError(t('account.personal.invalidPhone'));
       return;
     }
   
@@ -124,19 +126,19 @@ const PersonalInfoPage = () => {
     const userRef = ref(database, 'personalInfo/' + phone); // Lưu theo số điện thoại (hoặc một ID duy nhất khác)
     set(userRef, personalInfo)
       .then(() => {
-        alert('Thông tin đã được lưu thành công!');
+        alert(t('account.personal.saved'));
         navigate('/profile'); // Điều hướng sang trang Profile
       })
       .catch((error) => {
         console.error('Có lỗi khi lưu thông tin:', error);
-        setError('Lỗi khi lưu thông tin. Vui lòng thử lại!');
+        setError(t('account.personal.saveFailed'));
       });
   };
 
   return (
     <Container maxWidth="sm" style={{ marginTop: '50px' }}>
       <Typography variant="h4" align="center" gutterBottom>
-        Thông Tin Cá Nhân
+        {t('account.personal.title')}
       </Typography>
 
       {error && <Typography color="error" align="center">{error}</Typography>}
@@ -149,7 +151,7 @@ const PersonalInfoPage = () => {
 
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Họ tên"
+          label={t('account.personal.fullName')}
           variant="standard"
           fullWidth
           margin="normal"
@@ -157,7 +159,7 @@ const PersonalInfoPage = () => {
           onChange={(e) => setName(e.target.value)}
         />
         <TextField
-          label="Số điện thoại"
+          label={t('account.personal.phone')}
           variant="standard"
           fullWidth
           margin="normal"
@@ -165,7 +167,7 @@ const PersonalInfoPage = () => {
           onChange={(e) => setPhone(e.target.value)}
         />
         <TextField
-          label="Ngày sinh"
+          label={t('account.personal.birthday')}
           variant="standard"
           fullWidth
           margin="normal"
@@ -177,12 +179,12 @@ const PersonalInfoPage = () => {
           }}
         />
         <FormControl fullWidth variant='standard' margin="normal">
-          <InputLabel id="province-label">Tỉnh/Thành phố</InputLabel>
+          <InputLabel id="province-label">{t('checkout.address.province')}</InputLabel>
           <Select
             labelId="province-label"
             value={province}
             onChange={(e) => setProvince(e.target.value)}
-            label="Tỉnh/Thành phố"
+            label={t('checkout.address.province')}
           >
             {provinces.map((provinceOption) => (
               <MenuItem key={provinceOption.code} value={provinceOption.code}>
@@ -193,12 +195,12 @@ const PersonalInfoPage = () => {
         </FormControl>
 
         <FormControl fullWidth variant='standard' margin="normal">
-          <InputLabel id="district-label">Quận/Huyện</InputLabel>
+          <InputLabel id="district-label">{t('checkout.address.district')}</InputLabel>
           <Select
             labelId="district-label"
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
-            label="Quận/Huyện"
+            label={t('checkout.address.district')}
             disabled={!province}
           >
             {districts.map((districtOption) => (
@@ -210,12 +212,12 @@ const PersonalInfoPage = () => {
         </FormControl>
 
         <FormControl fullWidth variant='standard' margin="normal">
-          <InputLabel id="ward-label">Phường/Xã</InputLabel>
+          <InputLabel id="ward-label">{t('checkout.address.ward')}</InputLabel>
           <Select
             labelId="ward-label"
             value={ward}
             onChange={(e) => setWard(e.target.value)}
-            label="Phường/Xã"
+            label={t('checkout.address.ward')}
             disabled={!district}
           >
             {wards.map((wardOption) => (
@@ -231,7 +233,7 @@ const PersonalInfoPage = () => {
 
         <Box sx={{ textAlign: 'center', marginTop: '20px' }}>
           <Button variant="outlined" color="primary" type="submit" disabled={loading}>
-            Lưu Thông Tin
+            {t('account.personal.save')}
           </Button>
         </Box>
       </form>

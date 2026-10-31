@@ -27,8 +27,10 @@ import notificationService from "../../services/notificationService";
 import useAuthStore from "../../store/useAuthStore"; // Assuming you have this
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale/vi";
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const NotificationBell = () => {
+  const { t } = useLanguage();
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -163,11 +165,11 @@ const NotificationBell = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 600 }}>
-            Thông báo
+            {t('account.alerts.bellTitle')}
           </Typography>
           {unreadCount > 0 && (
             <Button size="small" onClick={handleMarkAllRead}>
-              Đánh dấu đã đọc
+              {t('account.alerts.markRead')}
             </Button>
           )}
         </Box>
@@ -176,7 +178,7 @@ const NotificationBell = () => {
           {notifications.length === 0 ? (
             <Box sx={{ p: 3, textAlign: "center" }}>
               <Typography variant="body2" color="text.secondary">
-                Không có thông báo nào
+                {t('account.alerts.none')}
               </Typography>
             </Box>
           ) : (
@@ -259,7 +261,7 @@ const NotificationBell = () => {
           }}
         >
           <Button size="small" fullWidth onClick={() => navigate("/notifications")}>
-            Xem tất cả
+            {t('account.alerts.viewAll')}
           </Button>
         </Box>
       </Menu>

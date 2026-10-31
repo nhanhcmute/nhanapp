@@ -33,6 +33,7 @@ const fetchSettings = async () => {
 export const useStoreSettings = () => {
   const [storeName, setStoreName] = useState(DEFAULT_STORE_NAME);
   const [storeLogo, setStoreLogo] = useState(null);
+  const [contactInfo, setContactInfo] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -40,9 +41,10 @@ export const useStoreSettings = () => {
       if (!mounted) return;
       if (settings?.storeName) setStoreName(settings.storeName);
       if (settings?.storeLogo) setStoreLogo(settings.storeLogo);
+      if (settings?.contactInfo) setContactInfo(settings.contactInfo);
     });
     return () => { mounted = false; };
   }, []);
 
-  return { storeName, storeLogo };
+  return { storeName, storeLogo, contactInfo };
 };

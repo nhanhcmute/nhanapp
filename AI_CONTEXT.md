@@ -9,7 +9,7 @@
 
 - **Sản phẩm:** website thương mại điện tử cho cửa hàng thú cưng *Nhân's Pet Haven*: bán thức ăn, đồ chơi, phụ kiện, cát vệ sinh, đồ y tế cho chó/mèo; có thư viện giống chó/mèo; giao hàng qua shipper.
 - **Ngôn ngữ giao diện & thông báo API:** tiếng Việt.
-- **Tác nhân:** Khách vãng lai, Khách hàng (`role = 2`), Admin (`role = 1`), Shipper (app mobile).
+- **Tác nhân:** Khách vãng lai, Khách hàng (`role = 2`), Admin (`role = 1`), Shipper (`role = 3`, chỉ dùng app mobile – `signup` luôn tạo role 2 nên tài khoản shipper phải chỉnh role trong DB).
 - **Monorepo:**
 
 ```
@@ -86,7 +86,7 @@ Lỗi trả `BadRequest` / `NotFound` / `Unauthorized` / `StatusCode(500)` cùng
 
 | Collection | Model | Trường chính |
 |---|---|---|
-| users | user_model | name, email, username (unique), password (**plain text**), phone, birthday, role (1 Admin, 2 User), createdAt, updatedAt, lastLogin |
+| users | user_model | name, email, username (unique), password (**plain text**), phone, birthday, role (1 Admin, 2 User, 3 Shipper), createdAt, updatedAt, lastLogin |
 | addresses | address_model | user_id, full_name, phone, province/province_name, district/district_name, ward/ward_name, street, details, address_type (home/office), is_default, location (GeoJSON lon,lat), is_active |
 | customer_profiles | customer_profile_model | user_id, full_name, phone, default_shipping/billing_address_id |
 | products | product_model | name, sku, description, base_price (decimal), price (**string**, ví dụ "550k"), quantity, image (base64 gốc), thumbnail_image (base64 đã nén), status ("Còn hàng"/"Hết hàng"/"Ngừng kinh doanh"), pet_type ("Mèo"/"Chó"/"Cả hai"), category ("Thức ăn"/"Đồ chơi"/"Phụ kiện"/"Vệ sinh"/"Y tế"/"Khác") |

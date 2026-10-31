@@ -33,8 +33,10 @@ import { toast } from 'react-toastify';
 import { FaPaw } from 'react-icons/fa';
 import MapComponent from '../components/common/MapComponent';
 import { getCoordinatesFromAddress } from '../utils/shippingUtils';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const AddressPage = () => {
+  const { t } = useLanguage();
   const [userInfo, setUserInfo] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [addressCoordinates, setAddressCoordinates] = useState({});
@@ -70,11 +72,11 @@ const AddressPage = () => {
         if (response.status === 200 && Array.isArray(response.data)) {
           setProvinces(response.data);
         } else {
-          setError('Không có dữ liệu tỉnh/thành phố');
+          setError(t('checkout.address.errors.noProvinces'));
         }
       } catch (error) {
         console.error('Lỗi khi lấy danh sách tỉnh/thành phố:', error);
-        setError('Lỗi khi tải dữ liệu tỉnh/thành phố');
+        setError(t('checkout.address.errors.provincesFailed'));
       } finally {
         setLoading(false);
       }
@@ -93,12 +95,12 @@ const AddressPage = () => {
             setDistricts(response.data.districts);
           } else {
             setDistricts([]);
-            setError('Không có dữ liệu quận/huyện cho tỉnh này.');
+            setError(t('checkout.address.errors.noDistricts'));
           }
         } catch (error) {
           console.error('Lỗi khi lấy danh sách quận/huyện:', error);
           setDistricts([]);
-          setError('Lỗi khi tải dữ liệu quận/huyện');
+          setError(t('checkout.address.errors.districtsFailed'));
         } finally {
           setLoading(false);
         }
@@ -120,12 +122,12 @@ const AddressPage = () => {
             setWards(response.data.wards);
           } else {
             setWards([]);
-            setError('Không có dữ liệu phường/xã.');
+            setError(t('checkout.address.errors.noWards'));
           }
         } catch (error) {
           console.error('Lỗi khi lấy danh sách phường/xã:', error);
           setWards([]);
-          setError('Lỗi khi tải dữ liệu phường/xã');
+          setError(t('checkout.address.errors.wardsFailed'));
         } finally {
           setLoading(false);
         }
@@ -266,7 +268,7 @@ const AddressPage = () => {
         }
       } catch (error) {
         console.error('Lỗi khi lấy danh sách địa chỉ:', error);
-        setError('Lỗi khi tải dữ liệu địa chỉ');
+        setError(t('checkout.address.errors.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -286,7 +288,7 @@ const AddressPage = () => {
   // Thêm địa chỉ mới vào Firebase
   const handleAddAddress = async () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.province || !newAddress.district || !newAddress.ward || !newAddress.addressType) {
-      alert('Vui lòng điền đầy đủ thông tin địa chỉ');
+      alert(t('checkout.address.errors.fillAll'));
       return;
     }
 
@@ -296,19 +298,19 @@ const AddressPage = () => {
       const addressRef = ref(database, 'addresses/' + addressData.id);
       await set(addressRef, addressData); // Thêm địa chỉ vào Firebase
 
-      toast.success('Địa chỉ đã được thêm thành công!');
+      toast.success(t('checkout.address.added'));
       setAddresses([...addresses, addressData]);
       setOpenDialog(false); // Đóng dialog sau khi thêm địa chỉ
     } catch (error) {
       console.error('Lỗi khi thêm địa chỉ:', error);
-      alert('Có lỗi xảy ra khi lưu địa chỉ');
+      alert(t('checkout.address.errors.saveFailed'));
     }
   };
 
   // Cập nhật địa chỉ trong Firebase
   const handleEditAddress = async () => {
     if (!newAddress.fullName || !newAddress.phone || !newAddress.province || !newAddress.district || !newAddress.ward || !newAddress.addressType || !newAddress.street) {
-      alert('Vui lòng điền đầy đủ thông tin địa chỉ');
+      alert(t('checkout.address.errors.fillAll'));
       return;
     }
 
@@ -318,14 +320,14 @@ const AddressPage = () => {
       const addressRef = ref(database, `addresses/${newAddress.id}`);
       await set(addressRef, updatedAddress); // Cập nhật địa chỉ trong Firebase
 
-      toast.success('Địa chỉ đã được cập nhật thành công!');
+      toast.success(t('checkout.address.updated'));
       setAddresses((prevAddresses) =>
         prevAddresses.map((address) => (address.id === newAddress.id ? updatedAddress : address))
       );
       setOpenDialog(false); // Đóng dialog
     } catch (error) {
       console.error('Lỗi khi cập nhật địa chỉ:', error);
-      alert('Có lỗi xảy ra khi cập nhật địa chỉ');
+      alert(t('checkout.address.errors.updateFailed'));
     }
   };
 
@@ -340,11 +342,11 @@ const AddressPage = () => {
       const addressRef = ref(database, `addresses/${addressId}`);
       await remove(addressRef); // Xóa địa chỉ khỏi Firebase
 
-      toast.success('Địa chỉ đã được xóa thành công!');
+      toast.success(t('checkout.address.deleted'));
       setAddresses((prevAddresses) => prevAddresses.filter((address) => address.id !== addressId));
     } catch (error) {
       console.error("Lỗi khi xóa địa chỉ:", error);
-      alert('Có lỗi xảy ra khi xóa địa chỉ');
+      alert(t('checkout.address.errors.deleteFailed'));
     }
   };
 
@@ -362,7 +364,7 @@ const AddressPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <FaPaw size={32} color="#ff6b81" />
             <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-              📍 Địa chỉ của tôi
+              {`📍 ${t('checkout.address.myAddresses')}`}
             </Typography>
             <FaPaw size={32} color="#ff6b81" />
           </Box>
@@ -386,7 +388,7 @@ const AddressPage = () => {
               transition: 'all 0.3s ease',
             }}
           >
-            🐾 Thêm Địa chỉ
+            {`🐾 ${t('checkout.address.add')}`}
           </Button>
         </Box>
         <Divider sx={{ marginBottom: 4, borderColor: 'rgba(255, 107, 129, 0.2)' }} />
@@ -405,10 +407,10 @@ const AddressPage = () => {
           >
             <FaPaw size={64} color="#ff6b81" style={{ opacity: 0.3, marginBottom: 16 }} />
             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 2 }}>
-              Chưa có địa chỉ nào
+              {t('checkout.address.none')}
             </Typography>
             <Typography variant="body1" sx={{ color: '#666', mb: 3 }}>
-              Hãy thêm địa chỉ mới để tiếp tục mua sắm! 🐾
+              {t('checkout.address.noneHint')}
             </Typography>
             <Button
               variant="contained"
@@ -430,7 +432,7 @@ const AddressPage = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 Thêm Địa chỉ
+              {`🐾 ${t('checkout.address.add')}`}
             </Button>
           </Paper>
         ) : (
@@ -467,7 +469,7 @@ const AddressPage = () => {
                     </Typography>
                     {address.isDefault && (
                       <Chip
-                        label="Địa chỉ mặc định"
+                        label={t('checkout.address.default')}
                         sx={{
                           backgroundColor: '#4caf50',
                           color: 'white',
@@ -481,7 +483,7 @@ const AddressPage = () => {
                     📍 {address.street}, {address.wardName}, {address.districtName}, {address.provinceName}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
-                    📞 Số điện thoại: {address.phone}
+                    {`📞 ${t('checkout.address.phoneLine', { phone: address.phone })}`}
                   </Typography>
 
                   {/* Hiển thị bản đồ chỉ khi địa chỉ là mặc định */}
@@ -489,7 +491,7 @@ const AddressPage = () => {
                     <Box sx={{ marginTop: 3, marginBottom: 3 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                         <FaPaw size={16} color="#ff6b81" />
-                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>📍 Vị trí:</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff6b81' }}>📍 {t('checkout.address.location')}</Typography>
                       </Box>
                       <Box sx={{ borderRadius: '16px', overflow: 'hidden', border: '2px solid rgba(255, 107, 129, 0.2)' }}>
                         {addressCoordinates[address.id] ? (
@@ -505,8 +507,8 @@ const AddressPage = () => {
                                 <Typography variant="caption" sx={{ color: '#856404', fontSize: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
                                   <span>⚠️</span>
                                   <span>
-                                    Vị trí hiển thị là gần đúng (trung tâm {address.wardName || 'khu vực'}). 
-                                    {address.street?.match(/\d+/) ? ' Có thể do địa chỉ sau sáp nhập chưa được cập nhật trong hệ thống bản đồ.' : ' Vui lòng thêm số nhà cụ thể để tăng độ chính xác.'}
+                                    {t('checkout.address.approx', { area: address.wardName || t('checkout.address.area') })}
+                                    {address.street?.match(/\d+/) ? t('checkout.address.mergedHint') : t('checkout.address.houseNumberHint')}
                                   </span>
                                 </Typography>
                               </Box>
@@ -515,10 +517,10 @@ const AddressPage = () => {
                         ) : geocodingStatus[address.id] === 'failed' ? (
                           <Box sx={{ p: 3, textAlign: 'center', backgroundColor: '#fff3cd' }}>
                             <Typography variant="body2" sx={{ color: '#856404', mb: 1 }}>
-                              ⚠️ Không thể tải vị trí
+                              {`⚠️ ${t('checkout.address.locationFailed')}`}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#856404', display: 'block', mb: 2 }}>
-                              Có thể do địa chỉ sau sáp nhập chưa được cập nhật trong hệ thống bản đồ.
+                              {t('checkout.address.mergedHintFull')}
                             </Typography>
                             <Button
                               size="small"
@@ -534,16 +536,16 @@ const AddressPage = () => {
                               }}
                               variant="outlined"
                             >
-                              Thử lại
+                              {t('checkout.address.retry')}
                             </Button>
                           </Box>
                         ) : (
                           <Box sx={{ p: 3, textAlign: 'center', backgroundColor: '#f5f5f5' }}>
                             <Typography variant="body2" sx={{ color: '#666' }}>
-                              Đang tải vị trí...
+                              {t('checkout.address.loadingLocation')}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#999', display: 'block', mt: 1 }}>
-                              Vui lòng đợi trong giây lát
+                              {t('checkout.address.pleaseWait')}
                             </Typography>
                           </Box>
                         )}
@@ -570,7 +572,7 @@ const AddressPage = () => {
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      Chỉnh sửa
+                      {t('checkout.address.edit')}
                     </Button>
                     <Button
                       variant="outlined"
@@ -590,7 +592,7 @@ const AddressPage = () => {
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      Xóa
+                      {t('checkout.address.delete')}
                     </Button>
                     {!address.isDefault && (
                       <Button
@@ -611,7 +613,7 @@ const AddressPage = () => {
                           transition: 'all 0.3s ease',
                         }}
                       >
-                        🐾 Đặt mặc định
+                        {`🐾 ${t('checkout.address.setDefault')}`}
                       </Button>
                     )}
                   </Box>
@@ -641,11 +643,11 @@ const AddressPage = () => {
             fontWeight: 700,
           }}>
             <FaPaw size={20} color="#ff6b81" />
-            {newAddress.id ? '📝 Chỉnh sửa địa chỉ' : '➕ Thêm địa chỉ mới'}
+            {newAddress.id ? `📝 ${t('checkout.address.editTitle')}` : `➕ ${t('checkout.address.addTitle')}`}
           </DialogTitle>
           <DialogContent>
             <TextField
-              label="Họ và tên"
+              label={t('checkout.address.fullName')}
               variant="outlined"
               fullWidth
               margin="normal"
@@ -672,7 +674,7 @@ const AddressPage = () => {
               }}
             />
             <TextField
-              label="Số điện thoại"
+              label={t('checkout.address.phone')}
               variant="outlined"
               fullWidth
               margin="normal"
@@ -699,7 +701,7 @@ const AddressPage = () => {
               }}
             />
             <FormControl fullWidth variant='outlined' margin="normal">
-              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Tỉnh/Thành phố</InputLabel>
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>{t('checkout.address.province')}</InputLabel>
               <Select
                 value={newAddress.province}
                 onChange={(e) => {
@@ -738,7 +740,7 @@ const AddressPage = () => {
               </Select>
             </FormControl>
             <FormControl fullWidth variant='outlined' margin="normal" disabled={!newAddress.province}>
-              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Quận/Huyện</InputLabel>
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>{t('checkout.address.district')}</InputLabel>
               <Select
                 value={newAddress.district}
                 onChange={(e) => {
@@ -775,7 +777,7 @@ const AddressPage = () => {
               </Select>
             </FormControl>
             <FormControl fullWidth variant='outlined' margin="normal" disabled={!newAddress.district}>
-              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Phường/Xã</InputLabel>
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>{t('checkout.address.ward')}</InputLabel>
               <Select
                 value={newAddress.ward}
                 onChange={(e) => {
@@ -807,7 +809,7 @@ const AddressPage = () => {
               </Select>
             </FormControl>
             <TextField
-              label="Tên đường/Số nhà"
+              label={t('checkout.address.street')}
               variant="outlined"
               fullWidth
               margin="normal"
@@ -834,7 +836,7 @@ const AddressPage = () => {
               }}
             />
             <TextField
-              label="Ghi chú thêm (nếu có)"
+              label={t('checkout.address.note')}
               variant="outlined"
               fullWidth
               margin="normal"
@@ -864,7 +866,7 @@ const AddressPage = () => {
             />
             <FormControl component="fieldset" margin="normal">
               <Typography variant="body1" sx={{ marginBottom: 1 }}>
-                Loại địa chỉ
+                {t('checkout.address.type')}
               </Typography>
               <RadioGroup
                 value={newAddress.addressType}
@@ -875,12 +877,12 @@ const AddressPage = () => {
                 <FormControlLabel
                   value="home"
                   control={<Radio />}
-                  label="Nhà riêng"
+                  label={t('checkout.address.home')}
                 />
                 <FormControlLabel
                   value="office"
                   control={<Radio />}
-                  label="Văn phòng"
+                  label={t('checkout.address.office')}
                 />
               </RadioGroup>
             </FormControl>
@@ -900,7 +902,7 @@ const AddressPage = () => {
                 },
               }}
             >
-              Hủy
+              {t('checkout.address.cancel')}
             </Button>
             <Button
               onClick={newAddress.id ? handleEditAddress : handleAddAddress}
@@ -920,7 +922,7 @@ const AddressPage = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 {newAddress.id ? 'Lưu thay đổi' : 'Thêm mới'}
+              🐾 {newAddress.id ? t('checkout.address.saveChanges') : t('checkout.address.addNew')}
             </Button>
           </DialogActions>
         </Dialog>

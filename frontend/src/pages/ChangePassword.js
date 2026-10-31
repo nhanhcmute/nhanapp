@@ -3,8 +3,10 @@ import { Button, TextField, Container, Typography, Box, Alert } from '@mui/mater
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import { database, ref, update, get } from '../firebaseConfig';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ChangePassword = () => {
+  const { t } = useLanguage();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,22 +25,22 @@ const ChangePassword = () => {
 
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
-      setError('Bạn chưa đăng nhập!');
+      setError(t('auth.errors.notLoggedIn'));
       return;
     }
 
     if (!oldPassword || oldPassword !== user.password) {
-      setError('Mật khẩu cũ không đúng!');
+      setError(t('auth.errors.wrongOldPassword'));
       return;
     }
 
     if (!newPassword || !validatePassword(newPassword)) {
-      setError('Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm 1 chữ hoa, 1 số và 1 ký tự đặc biệt!');
+      setError(t('auth.errors.weakPassword'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp!');
+      setError(t('auth.errors.confirmMismatch'));
       return;
     }
 
@@ -47,7 +49,7 @@ const ChangePassword = () => {
       const snapshot = await get(signupRef);
 
       if (!snapshot.exists()) {
-        setError('Dữ liệu người dùng không tồn tại!');
+        setError(t('auth.errors.userDataMissing'));
         return;
       }
 
@@ -62,7 +64,7 @@ const ChangePassword = () => {
       });
 
       if (!userKey) {
-        setError('Người dùng không tồn tại trong cơ sở dữ liệu!');
+        setError(t('auth.errors.userNotInDb'));
         return;
       }
 
@@ -76,12 +78,12 @@ const ChangePassword = () => {
       setSuccess(true);
 
       setTimeout(() => {
-        alert('Mật khẩu đã được thay đổi thành công!');
+        alert(t('auth.passwordChanged'));
         navigate('/'); // Điều hướng về trang chính sau khi đổi mật khẩu
       }, 2000);
     } catch (err) {
       console.error(err);
-      setError('Đã xảy ra lỗi khi cập nhật mật khẩu!');
+      setError(t('auth.errors.updatePasswordFailed'));
     }
   };
 
@@ -100,7 +102,7 @@ const ChangePassword = () => {
           }}
         >
           <Typography variant="h5" mb={2}>
-            Thay đổi mật khẩu
+            {t('auth.changeTitle')}
           </Typography>
 
           {error && (
@@ -110,12 +112,12 @@ const ChangePassword = () => {
           )}
           {success && (
             <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
-              Mật khẩu đã được thay đổi thành công!
+              {t('auth.passwordChanged')}
             </Alert>
           )}
 
           <TextField
-            label="Mật khẩu cũ"
+            label={t('auth.oldPassword')}
             variant="standard"
             fullWidth
             margin="normal"
@@ -124,7 +126,7 @@ const ChangePassword = () => {
             onChange={(e) => setOldPassword(e.target.value)}
           />
           <TextField
-            label="Mật khẩu mới"
+            label={t('auth.newPassword')}
             variant="standard"
             fullWidth
             margin="normal"
@@ -133,7 +135,7 @@ const ChangePassword = () => {
             onChange={(e) => setNewPassword(e.target.value)}
           />
           <TextField
-            label="Xác nhận mật khẩu"
+            label={t('auth.confirmPassword')}
             variant="standard"
             fullWidth
             margin="normal"
@@ -148,7 +150,7 @@ const ChangePassword = () => {
             sx={{ mt: 3 , color: 'black' , borderColor: 'black' }}
             onClick={handleChangePassword}
           >
-            Cập nhật mật khẩu
+            {t('auth.updatePassword')}
           </Button>
         </Box>
       </Container>

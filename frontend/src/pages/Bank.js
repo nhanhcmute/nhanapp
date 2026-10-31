@@ -26,6 +26,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddIcon from '@mui/icons-material/Add';
 import Sidebar from '../components/layout/Sidebar';
 import { FaPaw } from 'react-icons/fa';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Danh sách các ngân hàng có logo
 const availableBanks = [
@@ -37,6 +38,7 @@ const availableBanks = [
 ];
 
 const Bank = () => {
+  const { t } = useLanguage();
   const savedBanks = JSON.parse(localStorage.getItem('banks')) || [];
   const [banks, setBanks] = useState(Array.isArray(savedBanks) ? savedBanks : []);
   const [openDialog, setOpenDialog] = useState(false);
@@ -63,12 +65,12 @@ const Bank = () => {
   // Thêm ngân hàng mới
   const handleAddBank = () => {
     if (!newBank.bankName || !newBank.accountNumber || !newBank.accountHolder || newBank.balance <= 0) {
-      setError('Vui lòng điền đầy đủ thông tin ngân hàng và số dư phải lớn hơn 0.');
+      setError(t('checkout.bank.fillAll'));
       return;
     }
 
     if (!/^\d+$/.test(newBank.accountNumber)) {
-      setError('Số tài khoản chỉ được chứa các chữ số.');
+      setError(t('checkout.bank.digitsOnly'));
       return;
     }
 
@@ -116,7 +118,7 @@ const Bank = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <FaPaw size={32} color="#ff6b81" />
             <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff6b81' }}>
-              🏦 Quản Lý Ngân Hàng
+              {`🏦 ${t('checkout.bank.title')}`}
             </Typography>
             <FaPaw size={32} color="#ff6b81" />
           </Box>
@@ -140,7 +142,7 @@ const Bank = () => {
               transition: 'all 0.3s ease',
             }}
           >
-            🐾 Thêm Ngân Hàng
+            {`🐾 ${t('checkout.bank.add')}`}
           </Button>
         </Box>
 
@@ -162,10 +164,10 @@ const Bank = () => {
           >
             <AccountBalanceIcon sx={{ fontSize: 64, color: '#ff6b81', opacity: 0.3, mb: 2 }} />
             <Typography variant="h6" sx={{ color: '#ff6b81', fontWeight: 600, mb: 2 }}>
-              Chưa có ngân hàng nào
+              {t('checkout.bank.none')}
             </Typography>
             <Typography variant="body1" sx={{ color: '#666', mb: 3 }}>
-              Hãy thêm ngân hàng để quản lý tài khoản! 🐾
+              {t('checkout.bank.noneHint')}
             </Typography>
             <Button
               variant="contained"
@@ -187,7 +189,7 @@ const Bank = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 Thêm Ngân Hàng
+              {`🐾 ${t('checkout.bank.add')}`}
             </Button>
           </Paper>
         ) : (
@@ -218,7 +220,7 @@ const Bank = () => {
                         <Box
                           component="img"
                           src={bank.logo}
-                          alt="Bank Logo"
+                          alt={t('checkout.bank.logoAlt')}
                           onError={(e) => (e.target.src = '/default-logo.png')}
                           sx={{
                             width: 50,
@@ -239,11 +241,11 @@ const Bank = () => {
                       </Box>
                       <Typography variant="body1" sx={{ color: '#666', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <FaPaw size={14} color="#ff6b81" />
-                        Số tài khoản: <span style={{ fontWeight: 600, color: '#333' }}>{maskAccountNumber(bank.accountNumber)}</span>
+                        {t('checkout.bank.accountNumber')} <span style={{ fontWeight: 600, color: '#333' }}>{maskAccountNumber(bank.accountNumber)}</span>
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="body1" sx={{ color: '#666', fontWeight: 600 }}>
-                          💰 Số dư: <span style={{ color: '#ff4757', fontSize: '18px' }}>
+                          💰 {t('checkout.bank.balance')} <span style={{ color: '#ff4757', fontSize: '18px' }}>
                             {showBalanceId === bank.id ? bank.balance.toLocaleString() + ' VND' : '*****'}
                           </span>
                         </Typography>
@@ -319,18 +321,18 @@ const Bank = () => {
             fontWeight: 700,
           }}>
             <FaPaw size={20} color="#ff6b81" />
-            🏦 Thêm Ngân Hàng
+            {`🏦 ${t('checkout.bank.add')}`}
           </DialogTitle>
           <DialogContent>
             <FormControl fullWidth variant='outlined' sx={{ marginBottom: 3 }}>
-              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>Tên Ngân Hàng</InputLabel>
+              <InputLabel sx={{ '&.Mui-focused': { color: '#ff6b81' } }}>{t('checkout.bank.bankName')}</InputLabel>
               <Select
                 value={newBank.bankName}
                 onChange={(e) => {
                   const selectedBank = availableBanks.find((bank) => bank.name === e.target.value);
                   setNewBank({ ...newBank, bankName: e.target.value, logo: selectedBank.logo });
                 }}
-                label="Tên Ngân Hàng"
+                label={t('checkout.bank.bankName')}
                 sx={{
                   borderRadius: '12px',
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -361,7 +363,7 @@ const Bank = () => {
             </FormControl>
 
             <TextField
-              label="Số Tài Khoản"
+              label={t('checkout.bank.accountNumberLabel')}
               variant="outlined"
               fullWidth
               value={newBank.accountNumber}
@@ -386,7 +388,7 @@ const Bank = () => {
               }}
             />
             <TextField
-              label="Chủ Tài Khoản"
+              label={t('checkout.bank.holder')}
               variant="outlined"
               fullWidth
               value={newBank.accountHolder}
@@ -411,7 +413,7 @@ const Bank = () => {
               }}
             />
             <TextField
-              label="Số Dư"
+              label={t('checkout.bank.balanceLabel')}
               variant="outlined"
               fullWidth
               type="number"
@@ -457,7 +459,7 @@ const Bank = () => {
                 },
               }}
             >
-              Hủy
+              {t('checkout.bank.cancel')}
             </Button>
             <Button
               onClick={handleAddBank}
@@ -481,7 +483,7 @@ const Bank = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              🐾 Thêm
+              {`🐾 ${t('checkout.bank.submit')}`}
             </Button>
           </DialogActions>
         </Dialog>

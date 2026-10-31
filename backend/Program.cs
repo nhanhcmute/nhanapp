@@ -11,6 +11,13 @@ using ECommerceAI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// csproj tắt GenerateAssemblyInfo nên ASP.NET không tự nạp user-secrets -> nạp thủ công khi chạy local
+// (chứa Groq:ApiKey; đặt bằng: dotnet user-secrets set "Groq:ApiKey" "<key>").
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets("d29f37a4-962e-49d5-980f-edc649ce47cf");
+}
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -49,6 +56,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IOTPCacheService, OTPCacheService>();
 builder.Services.AddScoped<ImportPetsDataService>();
+// Trợ lý thú y AI (Groq). Key: user-secrets "Groq:ApiKey" khi chạy local, biến môi trường Groq__ApiKey khi deploy.
+builder.Services.AddHttpClient<IVetAiService, GroqVetAiService>(c => c.Timeout = TimeSpan.FromSeconds(60));
 
 // Configure CORS
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();

@@ -3,8 +3,10 @@ import { Button, TextField, Container, Typography, Box, Alert } from '@mui/mater
 import { FaPaw } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ResetPasswordPage = () => {
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -22,25 +24,25 @@ const ResetPasswordPage = () => {
     setIsResetting(true);
 
     if (!newPassword || !confirmPassword) {
-      setError('Vui lòng điền đầy đủ thông tin!');
+      setError(t('auth.errors.fillAll'));
       setIsResetting(false);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Mật khẩu và xác nhận mật khẩu không khớp!');
+      setError(t('auth.errors.passwordMismatch'));
       setIsResetting(false);
       return;
     }
 
     if (!otpVerified) {
-      setError('Vui lòng xác thực OTP trước!');
+      setError(t('auth.errors.verifyOtpFirst'));
       setIsResetting(false);
       return;
     }
 
     if (!username) {
-      setError('Thông tin không hợp lệ!');
+      setError(t('auth.errors.invalidInfo'));
       setIsResetting(false);
       return;
     }
@@ -62,14 +64,14 @@ const ResetPasswordPage = () => {
       if (result.status === 200) {
         setSuccess(true);
         setTimeout(() => {
-          alert('Mật khẩu của bạn đã được thay đổi thành công!');
+          alert(t('auth.yourPasswordChanged'));
           navigate('/login');
         }, 2000);
       } else {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi cập nhật mật khẩu!');
+      setError(t('auth.errors.updatePasswordFailed'));
       console.error('Reset password error:', err);
     } finally {
       setIsResetting(false);
@@ -103,7 +105,7 @@ const ResetPasswordPage = () => {
             }}
           >
             <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-              Vui lòng xác thực OTP trước!
+              {t('auth.errors.verifyOtpFirst')}
             </Alert>
             <Button
               variant="outlined"
@@ -111,7 +113,7 @@ const ResetPasswordPage = () => {
               fullWidth
               onClick={() => navigate('/login')}
             >
-              Quay lại đăng nhập
+              {t('auth.backToLogin')}
             </Button>
           </Box>
         </Container>
@@ -155,7 +157,7 @@ const ResetPasswordPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
             <FaPaw size={28} color="#ff6b81" />
             <Typography variant="h5" color='white' sx={{ fontWeight: 600 }}>
-              Đặt lại mật khẩu
+              {t('auth.resetTitle')}
             </Typography>
             <FaPaw size={28} color="#ff6b81" />
           </Box>
@@ -168,12 +170,12 @@ const ResetPasswordPage = () => {
 
           {success && (
             <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
-              Mật khẩu của bạn đã được thay đổi thành công!
+              {t('auth.yourPasswordChanged')}
             </Alert>
           )}
 
           <TextField
-            label="Mật khẩu mới"
+            label={t('auth.newPassword')}
             variant="standard"
             color='white'
             fullWidth
@@ -210,7 +212,7 @@ const ResetPasswordPage = () => {
           />
 
           <TextField
-            label="Xác nhận mật khẩu"
+            label={t('auth.confirmPassword')}
             variant="standard"
             color='white'
             fullWidth
@@ -271,7 +273,7 @@ const ResetPasswordPage = () => {
             onClick={handleResetPassword}
             disabled={isResetting}
           >
-            {isResetting ? '⏳ Đang cập nhật...' : '🔒 Đặt lại mật khẩu'}
+            {isResetting ? `⏳ ${t('auth.updating')}` : `🔒 ${t('auth.resetTitle')}`}
           </Button>
 
           <Button
@@ -287,7 +289,7 @@ const ResetPasswordPage = () => {
             }}
             onClick={() => navigate('/login')}
           >
-            ← Quay lại đăng nhập
+            {`← ${t('auth.backToLogin')}`}
           </Button>
         </Box>
       </Container>

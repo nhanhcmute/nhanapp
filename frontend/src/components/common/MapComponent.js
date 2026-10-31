@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import { useLanguage } from '../../i18n/LanguageContext';
 import 'leaflet/dist/leaflet.css'; // Import CSS của leaflet
 
 const MapComponent = ({ latitude, longitude, addressLabel }) => {
+  const { t } = useLanguage();
   const mapRef = useRef(null); // Sử dụng useRef để giữ tham chiếu tới bản đồ
   const markerRef = useRef(null); // Sử dụng useRef để giữ tham chiếu tới marker
   const mapIdRef = useRef(`map-${Math.random().toString(36).substr(2, 9)}`); // Tạo ID duy nhất cho mỗi map instance
@@ -32,7 +34,7 @@ const MapComponent = ({ latitude, longitude, addressLabel }) => {
     }
 
     // Tạo marker mới với tọa độ mới
-    const popupText = addressLabel || 'Vị trí của bạn';
+    const popupText = addressLabel || t('checkout.address.yourLocation');
     markerRef.current = L.marker([latitude, longitude])
       .addTo(mapRef.current)
       .bindPopup(popupText)

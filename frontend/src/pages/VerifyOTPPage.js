@@ -3,8 +3,10 @@ import { Button, TextField, Container, Typography, Box, Alert } from '@mui/mater
 import { FaPaw } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../config/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const VerifyOTPPage = () => {
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -20,13 +22,13 @@ const VerifyOTPPage = () => {
     setIsVerifying(true);
 
     if (!otpCode || otpCode.length !== 6) {
-      setError('Vui lòng nhập mã OTP 6 chữ số!');
+      setError(t('auth.errors.otp6'));
       setIsVerifying(false);
       return;
     }
 
     if (!email) {
-      setError('Thông tin không hợp lệ!');
+      setError(t('auth.errors.invalidInfo'));
       setIsVerifying(false);
       return;
     }
@@ -59,7 +61,7 @@ const VerifyOTPPage = () => {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi xác thực OTP!');
+      setError(t('auth.errors.verifyOtpFailed'));
       console.error('Verify OTP error:', err);
     } finally {
       setIsVerifying(false);
@@ -70,7 +72,7 @@ const VerifyOTPPage = () => {
     setError('');
     
     if (!email || !username) {
-      setError('Thông tin không hợp lệ!');
+      setError(t('auth.errors.invalidInfo'));
       return;
     }
 
@@ -91,12 +93,12 @@ const VerifyOTPPage = () => {
 
       if (result.status === 200) {
         setError('');
-        alert('Mã OTP đã được gửi lại đến email của bạn!');
+        alert(t('auth.otpResent'));
       } else {
         setError(result.message);
       }
     } catch (err) {
-      setError('Đã xảy ra lỗi khi gửi lại mã OTP!');
+      setError(t('auth.errors.resendOtpFailed'));
       console.error('Resend OTP error:', err);
     }
   };
@@ -128,7 +130,7 @@ const VerifyOTPPage = () => {
             }}
           >
             <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-              Thông tin không hợp lệ! Vui lòng thử lại.
+              {t('auth.invalidInfoRetry')}
             </Alert>
             <Button
               variant="outlined"
@@ -136,7 +138,7 @@ const VerifyOTPPage = () => {
               fullWidth
               onClick={() => navigate('/login')}
             >
-              Quay lại đăng nhập
+              {t('auth.backToLogin')}
             </Button>
           </Box>
         </Container>
@@ -180,7 +182,7 @@ const VerifyOTPPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
             <FaPaw size={28} color="#ff6b81" />
             <Typography variant="h5" color='white' sx={{ fontWeight: 600 }}>
-              Xác thực OTP
+              {t('auth.otpTitle')}
             </Typography>
             <FaPaw size={28} color="#ff6b81" />
           </Box>
@@ -192,14 +194,14 @@ const VerifyOTPPage = () => {
           )}
 
           <Typography variant="body1" sx={{ mb: 2, color: 'white', textAlign: 'center' }}>
-            📧 Chúng tôi đã gửi mã OTP 6 chữ số đến
+            {`📧 ${t('auth.otpSentToShort')}`}
           </Typography>
           <Typography variant="body2" sx={{ mb: 3, color: '#ffd93d', fontWeight: 600, textAlign: 'center' }}>
             {email}
           </Typography>
 
           <TextField
-            label="Mã OTP"
+            label={t('auth.otpCode')}
             variant="standard"
             color='white'
             fullWidth
@@ -269,7 +271,7 @@ const VerifyOTPPage = () => {
             onClick={handleVerifyOTP}
             disabled={otpCode.length !== 6 || isVerifying}
           >
-            {isVerifying ? '⏳ Đang xác thực...' : '✅ Xác thực OTP'}
+            {isVerifying ? `⏳ ${t('auth.verifying')}` : `✅ ${t('auth.verifyOtp')}`}
           </Button>
 
           <Button
@@ -288,7 +290,7 @@ const VerifyOTPPage = () => {
             }}
             onClick={handleResendOTP}
           >
-            🔄 Gửi lại mã OTP
+            {`🔄 ${t('auth.resendOtp')}`}
           </Button>
 
           <Button
@@ -304,7 +306,7 @@ const VerifyOTPPage = () => {
             }}
             onClick={() => navigate('/login')}
           >
-            ← Quay lại đăng nhập
+            {`← ${t('auth.backToLogin')}`}
           </Button>
         </Box>
       </Container>
